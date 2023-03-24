@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ForthTest$Addition" tests="3" skipped="0" failures="0" errors="0" timestamp="2023-03-20T20:35:10" hostname="pop-os" time="0.061">
+  <properties/>
+  <testcase name="errors if there is nothing on the stack" classname="ForthTest$Addition" time="0.045"/>
+  <testcase name="can add two numbers" classname="ForthTest$Addition" time="0.015"/>
+  <testcase name="errors if there is only one value on the stack" classname="ForthTest$Addition" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

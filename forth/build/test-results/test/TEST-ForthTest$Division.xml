@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ForthTest$Division" tests="5" skipped="0" failures="0" errors="0" timestamp="2023-03-20T20:35:10" hostname="pop-os" time="0.003">
+  <properties/>
+  <testcase name="errors if there is nothing on the stack" classname="ForthTest$Division" time="0.0"/>
+  <testcase name="can divide two numbers" classname="ForthTest$Division" time="0.001"/>
+  <testcase name="errors if dividing by zero" classname="ForthTest$Division" time="0.0"/>
+  <testcase name="performs integer division" classname="ForthTest$Division" time="0.001"/>
+  <testcase name="errors if there is only one value on the stack" classname="ForthTest$Division" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ListExtensionsTest" tests="21" skipped="0" failures="0" errors="0" timestamp="2023-03-20T20:35:23" hostname="pop-os" time="0.128">
+  <properties/>
+  <testcase name="append - empty lists" classname="ListExtensionsTest" time="0.039"/>
+  <testcase name="concatenate - list of nested lists" classname="ListExtensionsTest" time="0.024"/>
+  <testcase name="size - non-empty list" classname="ListExtensionsTest" time="0.002"/>
+  <testcase name="append - non-empty lists" classname="ListExtensionsTest" time="0.001"/>
+  <testcase name="fold left - direction independent function" classname="ListExtensionsTest" time="0.008"/>
+  <testcase name="concatenate - list of lists" classname="ListExtensionsTest" time="0.001"/>
+  <testcase name="fold right - empty list" classname="ListExtensionsTest" time="0.003"/>
+  <testcase name="reverse - empty list" classname="ListExtensionsTest" time="0.001"/>
+  <testcase name="map - non-empty list" classname="ListExtensionsTest" time="0.005"/>
+  <testcase name="size - empty list" classname="ListExtensionsTest" time="0.001"/>
+  <testcase name="reverse - non-empty list" classname="ListExtensionsTest" time="0.004"/>
+  <testcase name="append - list to empty list" classname="ListExtensionsTest" time="0.003"/>
+  <testcase name="concatenate - empty list" classname="ListExtensionsTest" time="0.001"/>
+  <testcase name="filter - non-empty list" classname="ListExtensionsTest" time="0.002"/>
+  <testcase name="filter - empty list" classname="ListExtensionsTest" time="0.002"/>
+  <testcase name="fold left - empty list" classname="ListExtensionsTest" time="0.006"/>
+  <testcase name="fold right - direction dependent function" classname="ListExtensionsTest" time="0.003"/>
+  <testcase name="fold left - direction dependent function" classname="ListExtensionsTest" time="0.002"/>
+  <testcase name="map - empty list" classname="ListExtensionsTest" time="0.003"/>
+  <testcase name="fold right - direction independent function" classname="ListExtensionsTest" time="0.002"/>
+  <testcase name="reverse - list of lists" classname="ListExtensionsTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
