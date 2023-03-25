@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ForthTest$CaseInsensitivity" tests="6" skipped="0" failures="0" errors="0" timestamp="2023-03-25T09:45:34" hostname="MSI" time="0.006">
+  <properties/>
+  <testcase name="OVER is case-insensitive" classname="ForthTest$CaseInsensitivity" time="0.0"/>
+  <testcase name="SWAP is case-insensitive" classname="ForthTest$CaseInsensitivity" time="0.001"/>
+  <testcase name="user-defined words are case-insensitive" classname="ForthTest$CaseInsensitivity" time="0.004"/>
+  <testcase name="definitions are case-insensitive" classname="ForthTest$CaseInsensitivity" time="0.0"/>
+  <testcase name="DROP is case-insensitive" classname="ForthTest$CaseInsensitivity" time="0.0"/>
+  <testcase name="DUP is case-insensitive" classname="ForthTest$CaseInsensitivity" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

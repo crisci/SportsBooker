@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ForthTest$ParsingAndNumbersTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-03-25T09:45:34" hostname="MSI" time="0.001">
+  <properties/>
+  <testcase name="numbers just get pushed onto the stack" classname="ForthTest$ParsingAndNumbersTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
