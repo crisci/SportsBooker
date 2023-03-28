@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Lab2</string>
+    <string name="app_name">myReservation</string>
     <string name="nameSurname">Achille Mago</string>
     <string name="your_statistics">Your statistics</string>
     <string name="your_interests">Your interests</string>

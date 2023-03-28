@@ -26,8 +26,7 @@
             android:id="@+id/nameSurname"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:fontFamily="@font/inter_bold"
+            android:fontFamily="sans-serif-black"
             android:text="@string/nameSurname"
             android:textColor="#000000"
             android:textSize="24sp"
@@ -42,7 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
-            android:fontFamily="@font/inter_medium"
+            android:fontFamily="sans-serif-medium"
             android:text="@string/nickname"
             android:textColor="#000000"
             android:textSize="18sp"
@@ -64,7 +63,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/nickname"
             app:layout_constraintHorizontal_bias="0.2"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/nameSurname"
+            app:layout_constraintVertical_bias="0.8" />
 
         <TextView
             android:id="@+id/mastery"
@@ -78,7 +79,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/textView4" />
+            app:layout_constraintStart_toEndOf="@+id/textView4"
+            app:layout_constraintTop_toTopOf="@+id/nameSurname"
+            app:layout_constraintVertical_bias="0.8" />
 
         <TextView
             android:id="@+id/textView4"
@@ -93,7 +96,9 @@
             app:layout_constraintEnd_toStartOf="@+id/nickname"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/location"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/nameSurname"
+            app:layout_constraintVertical_bias="0.8" />
 
         <TextView
             android:id="@+id/description"
@@ -110,25 +115,28 @@
             android:id="@+id/interests"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="294dp"
             android:layout_marginBottom="37dp"
-            android:fontFamily="@font/inter_bold"
+            android:fontFamily="sans-serif-medium"
             android:text="@string/your_interests"
             android:textColor="@color/black"
+            android:textSize="20sp"
             app:layout_constraintBottom_toTopOf="@+id/stats"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/description" />
 
         <TextView
             android:id="@+id/stats"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="291dp"
             android:layout_marginBottom="198dp"
-            android:fontFamily="@font/inter_bold"
+            android:fontFamily="sans-serif-medium"
             android:text="@string/your_statistics"
             android:textColor="@color/black"
+            android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
