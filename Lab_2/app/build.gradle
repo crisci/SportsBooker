@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.lab2'
+    namespace 'com.example.myreservations'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.lab2"
+        applicationId "com.example.myreservations"
         minSdk 24
         targetSdk 33
         versionCode 1

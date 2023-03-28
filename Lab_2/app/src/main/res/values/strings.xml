@@ -4,9 +4,13 @@
     <string name="statistics">Statistics</string>
     <string name="your_interests">Your interests</string>
     <string name="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam ullamcorper lorem nec orci condimentum...</string>
-    <string name="_34">34</string>
+    <string name="age">34</string>
     <string name="mastery">skills</string>
     <string name="location">Location</string>
     <string name="nickname">\@nickname</string>
     <string name="userimage">userImage</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="tennis">Tennis</string>
+    <string name="padel">Padel</string>
+    <string name="soccer">Soccer</string>
 </resources>
