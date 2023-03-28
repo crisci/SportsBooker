@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">Lab2</string>
     <string name="nameSurname">Achille Mago</string>
+    <string name="your_statistics">Your statistics</string>
+    <string name="your_interests">Your interests</string>
+    <string name="description">Description...</string>
+    <string name="_34">34</string>
+    <string name="mastery">Mastery</string>
+    <string name="location">Location</string>
+    <string name="nickname">\@nickname</string>
+    <string name="userimage">userImage</string>
 </resources>

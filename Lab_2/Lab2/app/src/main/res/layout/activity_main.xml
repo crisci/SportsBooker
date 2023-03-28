@@ -1,5 +1,3 @@
-
-
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -14,18 +12,21 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:src="@drawable/ic_action_name"
-        />
+        android:contentDescription="@string/userimage"
+        android:src="@drawable/ic_action_name" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2">
+        android:layout_weight="2"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
 
         <TextView
             android:id="@+id/nameSurname"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
             android:fontFamily="@font/inter_bold"
             android:text="@string/nameSurname"
             android:textColor="#000000"
@@ -42,9 +43,9 @@
             android:layout_height="wrap_content"
 
             android:fontFamily="@font/inter_medium"
-            android:text="\@nickname"
+            android:text="@string/nickname"
             android:textColor="#000000"
-            android:textSize="18dp"
+            android:textSize="18sp"
             android:textStyle="italic"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.51"
@@ -55,43 +56,50 @@
             android:id="@+id/location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Location"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="360dp"
+            android:text="@string/location"
             android:textColor="#000000"
-            android:textSize="16dp"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/nickname"
-            app:layout_constraintHorizontal_bias="0.585"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:layout_editor_absoluteY="106dp" />
+            app:layout_constraintHorizontal_bias="0.2"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/mastery"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mastery"
+            android:layout_marginEnd="40dp"
+            android:layout_marginBottom="360dp"
+            android:text="@string/mastery"
             android:textColor="#000000"
-            android:textSize="16dp"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.595"
-            app:layout_constraintStart_toEndOf="@+id/textView4"
-            tools:layout_editor_absoluteY="106dp" />
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/textView4" />
 
         <TextView
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="34"
+            android:layout_marginStart="98dp"
+            android:layout_marginBottom="360dp"
+            android:text="@string/_34"
             android:textColor="#000000"
-            android:textSize="16dp"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/nickname"
-            app:layout_constraintHorizontal_bias="0.652"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/location"
-            tools:layout_editor_absoluteY="106dp" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Description..."
+            android:text="@string/description"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/nickname"
             app:layout_constraintStart_toStartOf="@+id/nickname"
@@ -102,17 +110,25 @@
             android:id="@+id/interests"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Your interests"
-            tools:layout_editor_absoluteX="10dp"
-            tools:layout_editor_absoluteY="213dp" />
+            android:layout_marginEnd="294dp"
+            android:layout_marginBottom="37dp"
+            android:fontFamily="@font/inter_bold"
+            android:text="@string/your_interests"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toTopOf="@+id/stats"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/stats"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
-            tools:layout_editor_absoluteX="11dp"
-            tools:layout_editor_absoluteY="270dp" />
+            android:layout_marginEnd="291dp"
+            android:layout_marginBottom="198dp"
+            android:fontFamily="@font/inter_bold"
+            android:text="@string/your_statistics"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
