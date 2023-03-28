@@ -1,4 +1,4 @@
-package com.example.myreservations
+package com.example.lab_2
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
