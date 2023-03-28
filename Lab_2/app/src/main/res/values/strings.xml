@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">myReservation</string>
     <string name="nameSurname">Achille Mago</string>
-    <string name="your_statistics">Your statistics</string>
+    <string name="statistics">Statistics</string>
     <string name="your_interests">Your interests</string>
-    <string name="description">Description...</string>
+    <string name="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam ullamcorper lorem nec orci condimentum...</string>
     <string name="_34">34</string>
-    <string name="mastery">Mastery</string>
+    <string name="mastery">skills</string>
     <string name="location">Location</string>
     <string name="nickname">\@nickname</string>
     <string name="userimage">userImage</string>

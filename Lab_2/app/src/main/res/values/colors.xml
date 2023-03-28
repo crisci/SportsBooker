@@ -9,4 +9,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="primary_blue">#0C298B</color>
     <color name="secondary_blue">#11117D</color>
+    <color name="tennis">#FF018786</color>
+    <color name="soccer">#AD0404</color>
 </resources>
