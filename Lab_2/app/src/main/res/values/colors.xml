@@ -7,8 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="primary_blue">#0C298B</color>
-    <color name="secondary_blue">#11117D</color>
-    <color name="tennis">#FF018786</color>
-    <color name="soccer">#AD0404</color>
+    <color name="blue_primary">#1A2A99</color>
+    <color name="blue_secondary">#0D1779</color>
+
 </resources>
