@@ -4,9 +4,13 @@
     <string name="statistics">Statistics</string>
     <string name="your_interests">Your interests</string>
     <string name="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam ullamcorper lorem nec orci condimentum...</string>
+<<<<<<< HEAD
     <string name="age">34</string>
+=======
+    <string name="age">24yo</string>
+>>>>>>> mattia
     <string name="mastery">skills</string>
-    <string name="location">Location</string>
+    <string name="location">Turin</string>
     <string name="nickname">\@nickname</string>
     <string name="userimage">userImage</string>
     <string name="profile_picture">Profile Picture</string>
@@ -17,4 +21,8 @@
     <string name="played">Played</string>
     <string name="draws">Draws</string>
     <string name="test">test</string>
+<<<<<<< HEAD
+=======
+    <string name="more_skills">+3</string>
+>>>>>>> mattia
 </resources>

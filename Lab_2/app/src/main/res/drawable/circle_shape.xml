@@ -2,6 +2,10 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
 
+<<<<<<< HEAD
     <solid android:color="@color/black"/>
+=======
+    <solid android:color="#d4d4d4"/>
+>>>>>>> mattia
 
 </shape>
