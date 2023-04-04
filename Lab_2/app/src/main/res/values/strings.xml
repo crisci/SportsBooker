@@ -3,10 +3,11 @@
     <string name="nameSurname">Achille Mago</string>
     <string name="statistics">Statistics</string>
     <string name="your_interests">Your interests</string>
-    <string name="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam ullamcorper lorem nec orci condimentum...</string>
+    <string name="descriptionValue">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam ullamcorper lorem nec orci condimentum...</string>
     <string name="age">24yo</string>
     <string name="mastery">skills</string>
-    <string name="location">Turin</string>
+    <string name="location">Location</string>
+    <string name="locationValue">Turin</string>
     <string name="nickname">\@nickname</string>
     <string name="userimage">userImage</string>
     <string name="profile_picture">Profile Picture</string>
@@ -19,4 +20,13 @@
     <string name="test">test</string>
     <string name="more_skills">+3</string>
     <string name="edit">Edit</string>
+    <string name="fullName">Full Name</string>
+    <string name="at">At</string>
+    <string name="dob">Date of birth</string>
+    <string name="bodValue">09/04/1988</string>
+    <string name="email">Email</string>
+    <string name="emailValue">achille.mago@polito.it</string>
+    <string name="description">Description</string>
+    <string name="edit_picture">Change profile photo</string>
+    <string name="back">Back</string>
 </resources>

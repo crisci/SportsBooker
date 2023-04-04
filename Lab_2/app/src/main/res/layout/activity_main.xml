@@ -143,8 +143,7 @@
                     android:layout_marginTop="12dp"
                     android:gravity="center"
                     android:maxLines="3"
-                    android:text="@string/description"
-                    android:textSize="14sp"
+                    android:text="@string/descriptionValue"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/age" />
