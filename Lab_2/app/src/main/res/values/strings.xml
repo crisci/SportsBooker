@@ -29,4 +29,6 @@
     <string name="description">Description</string>
     <string name="edit_picture">Change profile photo</string>
     <string name="back">Back</string>
+    <string name="confirmEdit">Confirm</string>
+    <string name="preference_file_key">com.example.lab_2.USER</string>
 </resources>
