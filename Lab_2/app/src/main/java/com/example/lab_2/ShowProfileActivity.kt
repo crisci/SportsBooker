@@ -5,12 +5,14 @@ import android.content.ClipDescription
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.ContactsContract.CommonDataKinds.Nickname
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.lab_2.entities.User
@@ -25,8 +27,8 @@ class ShowProfileActivity : AppCompatActivity() {
     private lateinit var nickname: TextView
     private lateinit var location: TextView
     private lateinit var description: TextView
+    private lateinit var profileImage: ImageView
     private lateinit var sharedPref: SharedPreferences
-
 
 
     private val launcher = registerForActivityResult(
@@ -56,6 +58,7 @@ class ShowProfileActivity : AppCompatActivity() {
         nickname = findViewById(R.id.nickname)
         location = findViewById(R.id.location)
         description = findViewById(R.id.description)
+        profileImage = findViewById(R.id.profile_image)
 
         //load the shared preferences and update the views
         sharedPref = this.getSharedPreferences(

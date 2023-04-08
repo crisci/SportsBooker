@@ -1,7 +1,10 @@
 package com.example.lab_2.entities
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import java.time.LocalDate
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -16,10 +19,8 @@ data class User(
     val description: String = "Lorem",
     val email: String = "achille.mago@polito.it",
     //TODO: dob
-    val picture: String = "",
     val interests : List<String> = mutableListOf()
 ) {
-
 
     fun toJson(): String =
         Json.encodeToString(this)
