@@ -25,6 +25,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.example.lab_2.entities.User
 import java.io.*
 import java.util.*
+import kotlin.concurrent.thread
 
 class EditProfileActivity : AppCompatActivity() {
 
@@ -39,6 +40,7 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var email_m: EditText
 
     var image_uri: Uri? = null
+    var file_name: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -124,7 +126,12 @@ class EditProfileActivity : AppCompatActivity() {
         description_m.setText(savedInstanceState.getString("description"))
         address_m.setText(savedInstanceState.getString("address"))
         email_m.setText(savedInstanceState.getString("email"))
-        image_uri = Uri.parse(savedInstanceState.getString("image_uri"))
+
+        file_name = savedInstanceState.getString("image")
+        val inputStream = applicationContext.openFileInput(file_name)
+        val rotated = BitmapFactory.decodeStream(inputStream)
+        //val rotated = rotateBitmap(inputImageBitmap!!)
+        profileImage.setImageBitmap(rotated)
 
 /*
         user = User(
@@ -144,7 +151,7 @@ class EditProfileActivity : AppCompatActivity() {
         outState.putString("description", description_m.text.toString())
         outState.putString("address", address_m.text.toString())
         outState.putString("email", email_m.text.toString())
-        outState.putString("image_uri", image_uri.toString())
+        outState.putString("image", file_name)
     }
 
 
@@ -162,7 +169,6 @@ class EditProfileActivity : AppCompatActivity() {
                 if (full_name_m.text.toString() == "" ||
                     nickname_m.text.toString() == "" ||
                     description_m.text.toString() == "" ||
-                    image_uri == null ||
                     address_m.text.toString() == "" ||
                     email_m.text.toString() == "") {
                     Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
@@ -186,9 +192,10 @@ class EditProfileActivity : AppCompatActivity() {
             profileImage.setBackgroundResource(R.drawable.profile_picture)
         }
         else {
-            image_uri = Uri.parse(user.image)
-            val inputImage = uriToBitmap(image_uri!!)
-            val rotated = rotateBitmap(inputImage!!)
+            file_name = user.image
+            val inputStream = applicationContext.openFileInput(file_name)
+            val rotated = BitmapFactory.decodeStream(inputStream)
+            //val rotated = rotateBitmap(inputImageBitmap!!)
             rotated?.let {
                 // Set the new image to the ImageView
                 profileImage.setImageBitmap(it)
@@ -206,6 +213,22 @@ class EditProfileActivity : AppCompatActivity() {
                 rotated?.let {
                     // Set the new image to the ImageView
                     profileImage.setImageBitmap(it)
+                    val fileName = "image.jpg"
+                    // Create an outputStream to write the image data to a file in internal storage.
+                    // The first parameter is the name of the file, and the second parameter is the
+                    // file mode which determines the access level of the file. We use MODE_PRIVATE
+                    // to make the file accessible only to our app.
+                    // This operation is time-consuming, so we define a thread.
+                    thread {
+                        val outputStream = applicationContext.openFileOutput(fileName, Context.MODE_PRIVATE)
+                        // We compress the bitmap data to PNG format and write it to the outputStream
+                        it.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                        outputStream.flush()
+                        outputStream.close()
+                    }
+
+                    file_name = fileName
+                    println(file_name)
                 }
             }
         }
@@ -220,6 +243,21 @@ class EditProfileActivity : AppCompatActivity() {
                 rotated?.let {
                     // Set the new image to the ImageView
                     profileImage.setImageBitmap(it)
+                    val fileName = "image.jpg"
+                    // Create an outputStream to write the image data to a file in internal storage.
+                    // The first parameter is the name of the file, and the second parameter is the
+                    // file mode which determines the access level of the file. We use MODE_PRIVATE
+                    // to make the file accessible only to our app.
+                    // This operation is time-consuming, so we define a thread.
+                    thread {
+                        val outputStream =
+                            applicationContext.openFileOutput(fileName, Context.MODE_PRIVATE)
+                        // We compress the bitmap data to PNG format and write it to the outputStream
+                        it.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                        outputStream.flush()
+                        outputStream.close()
+                    }
+                    file_name = fileName
                 }
             }
         }
@@ -305,7 +343,7 @@ class EditProfileActivity : AppCompatActivity() {
         editor.putString("description", description_m.text.toString())
         editor.putString("address", address_m.text.toString())
         editor.putString("email", email_m.text.toString())
-        editor.putString("image_uri", image_uri.toString())
+        editor.putString("image", file_name)
         editor.apply()
 
         val editedUser = User(
@@ -314,7 +352,7 @@ class EditProfileActivity : AppCompatActivity() {
             address = address_m.text.toString(),
             description = description_m.text.toString(),
             email = email_m.text.toString(),
-            image = image_uri.toString()
+            image = file_name
         )
         result.putExtra("user", editedUser.toJson())
         setResult(Activity.RESULT_OK, result)

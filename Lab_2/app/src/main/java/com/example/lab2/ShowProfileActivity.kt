@@ -127,9 +127,10 @@ class ShowProfileActivity : AppCompatActivity() {
             profileImage.setBackgroundResource(R.drawable.profile_picture)
         }
         else {
-            image_uri = Uri.parse(user.image)
-            val inputImage = uriToBitmap(image_uri!!)
-            val rotated = rotateBitmap(inputImage!!)
+            val inputStream = applicationContext.openFileInput(user.image)
+            val rotated = BitmapFactory.decodeStream(inputStream)
+            inputStream.close()
+            //val rotated = rotateBitmap(inputImageBitmap!!)
             rotated?.let {
                 // Set the new image to the ImageView
                 profileImage.setImageBitmap(it)
