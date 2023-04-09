@@ -18,6 +18,7 @@ data class User(
     val address: String = "Turin",
     val description: String = "Lorem",
     val email: String = "achille.mago@polito.it",
+    var image: String? = null,
     //TODO: dob
     val interests : List<String> = mutableListOf()
 ) {

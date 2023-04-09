@@ -37,7 +37,6 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var description_m: EditText
     private lateinit var address_m: EditText
     private lateinit var email_m: EditText
-    private lateinit var confirmButton: Button
 
     var image_uri: Uri? = null
 
@@ -56,7 +55,7 @@ class EditProfileActivity : AppCompatActivity() {
 
         updateContent()
 
-        confirmButton.setOnClickListener {
+/*        confirmButton.setOnClickListener {
             val result: Intent = Intent()
             val editedUser = User(
                 full_name = full_name_m.text.toString(),
@@ -69,7 +68,7 @@ class EditProfileActivity : AppCompatActivity() {
             result.putExtra("user", editedUser.toJson())
             setResult(Activity.RESULT_OK, result)
             finish()
-        }
+        }*/
     }
 
     fun findViews() {
@@ -80,7 +79,6 @@ class EditProfileActivity : AppCompatActivity() {
         email_m = findViewById(R.id.editEmail)
         profileImage = findViewById(R.id.profile_image)
         cameraImageButton = findViewById(R.id.edit_picture)
-        confirmButton = findViewById(R.id.confirm_button)
 
         cameraImageButton.setOnClickListener { popupMenuSetup() }
     }
@@ -95,7 +93,7 @@ class EditProfileActivity : AppCompatActivity() {
                     true
                 }
                 R.id.choose_photo_from_gallery -> {
-                    pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    openPhotoLibrary()
                     true
                 }
                 else -> true
@@ -126,12 +124,15 @@ class EditProfileActivity : AppCompatActivity() {
         description_m.setText(savedInstanceState.getString("description"))
         address_m.setText(savedInstanceState.getString("address"))
         email_m.setText(savedInstanceState.getString("email"))
+        image_uri = Uri.parse(savedInstanceState.getString("image_uri"))
 
+/*
         user = User(
             full_name_m.text.toString(),
             nickname_m.text.toString(),
             address_m.text.toString(),
             description_m.text.toString())
+*/
 
     }
 
@@ -143,6 +144,7 @@ class EditProfileActivity : AppCompatActivity() {
         outState.putString("description", description_m.text.toString())
         outState.putString("address", address_m.text.toString())
         outState.putString("email", email_m.text.toString())
+        outState.putString("image_uri", image_uri.toString())
     }
 
 
@@ -157,7 +159,16 @@ class EditProfileActivity : AppCompatActivity() {
 
         return when (item.itemId) {
             R.id.backmenu -> {
-                finish()
+                if (full_name_m.text.toString() == "" ||
+                    nickname_m.text.toString() == "" ||
+                    description_m.text.toString() == "" ||
+                    image_uri == null ||
+                    address_m.text.toString() == "" ||
+                    email_m.text.toString() == "") {
+                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                } else {
+                    saveData()
+                }
                 true
             }
             else -> super.onContextItemSelected(item)
@@ -170,6 +181,20 @@ class EditProfileActivity : AppCompatActivity() {
         description_m.setText(user.description)
         address_m.setText(user.address)
         email_m.setText(user.email)
+
+        if (user.image == null) {
+            profileImage.setBackgroundResource(R.drawable.profile_picture)
+        }
+        else {
+            image_uri = Uri.parse(user.image)
+            val inputImage = uriToBitmap(image_uri!!)
+            val rotated = rotateBitmap(inputImage!!)
+            rotated?.let {
+                // Set the new image to the ImageView
+                profileImage.setImageBitmap(it)
+            }
+        }
+
     }
 
     //TODO capture the image using camera and display it
@@ -186,17 +211,19 @@ class EditProfileActivity : AppCompatActivity() {
         }
     )
 
-    //TODO Registers a photo picker activity launcher in single-select mode.
-    private var pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        // Callback is invoked after the user selects a media item or closes the photo picker.
-        if (uri != null) {
-            Log.d("PhotoPicker", "Selected URI: $uri")
-            image_uri = uri
-            profileImage.setImageURI(image_uri)
-        } else {
-            Log.d("PhotoPicker", "No media selected")
+    private var galleryActivityResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult(), ActivityResultCallback {
+            if (it.getResultCode() === RESULT_OK) {
+                image_uri = it.data?.data
+                val inputImage = uriToBitmap(image_uri!!)
+                val rotated = rotateBitmap(inputImage!!)
+                rotated?.let {
+                    // Set the new image to the ImageView
+                    profileImage.setImageBitmap(it)
+                }
+            }
         }
-    }
+    )
 
     //TODO takes URI of the image and returns bitmap
     private fun uriToBitmap(selectedFileUri: Uri): Bitmap? {
@@ -230,13 +257,10 @@ class EditProfileActivity : AppCompatActivity() {
     private fun checkPermissionsAndOpenCamera() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(android.Manifest.permission.CAMERA) ==
-                PackageManager.PERMISSION_DENIED ||
-                checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_DENIED
+                PackageManager.PERMISSION_DENIED
             ) {
                 val permission = arrayOf<String>(
-                    android.Manifest.permission.CAMERA,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    android.Manifest.permission.CAMERA
                 )
                 requestPermissions(permission, 112)
             } else {
@@ -264,5 +288,37 @@ class EditProfileActivity : AppCompatActivity() {
         val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, image_uri)
         cameraActivityResultLauncher.launch(cameraIntent)
+    }
+
+    private fun openPhotoLibrary() {
+        val galleryIntent =
+            Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        galleryActivityResultLauncher.launch(galleryIntent)
+    }
+
+    private fun saveData() {
+        val sharedPreference =  getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        var editor = sharedPreference.edit()
+        val result: Intent = Intent()
+        editor.putString("full_name", full_name_m.text.toString())
+        editor.putString("nickname", nickname_m.text.toString())
+        editor.putString("description", description_m.text.toString())
+        editor.putString("address", address_m.text.toString())
+        editor.putString("email", email_m.text.toString())
+        editor.putString("image_uri", image_uri.toString())
+        editor.apply()
+
+        val editedUser = User(
+            full_name = full_name_m.text.toString(),
+            nickname = nickname_m.text.toString(),
+            address = address_m.text.toString(),
+            description = description_m.text.toString(),
+            email = email_m.text.toString(),
+            image = image_uri.toString()
+        )
+        result.putExtra("user", editedUser.toJson())
+        setResult(Activity.RESULT_OK, result)
+
+        finish()
     }
 }
