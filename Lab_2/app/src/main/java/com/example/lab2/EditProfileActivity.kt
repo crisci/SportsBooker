@@ -2,6 +2,7 @@ package com.example.lab_2
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.DatePickerDialog
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -22,8 +23,11 @@ import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import com.example.lab_2.entities.User
 import java.io.*
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -38,9 +42,11 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var description_m: EditText
     private lateinit var address_m: EditText
     private lateinit var email_m: EditText
+    private lateinit var birthday_m: EditText
 
     var image_uri: Uri? = null
     var file_name: String? = null
+    var birthday: LocalDate? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +61,7 @@ class EditProfileActivity : AppCompatActivity() {
             user = User.fromJson(extras.getString("user")!!)
         }
 
+        initDatePicker()
         updateContent()
 
 /*        confirmButton.setOnClickListener {
@@ -79,6 +86,7 @@ class EditProfileActivity : AppCompatActivity() {
         nickname_m = findViewById(R.id.editNickname)
         address_m = findViewById(R.id.editLocation)
         email_m = findViewById(R.id.editEmail)
+        birthday_m = findViewById(R.id.editBod)
         profileImage = findViewById(R.id.profile_image)
         cameraImageButton = findViewById(R.id.edit_picture)
 
@@ -126,6 +134,7 @@ class EditProfileActivity : AppCompatActivity() {
         description_m.setText(savedInstanceState.getString("description"))
         address_m.setText(savedInstanceState.getString("address"))
         email_m.setText(savedInstanceState.getString("email"))
+        birthday_m.setText(savedInstanceState.getString("birthday"))
 
         file_name = savedInstanceState.getString("image")
         val inputStream = applicationContext.openFileInput(file_name)
@@ -152,6 +161,7 @@ class EditProfileActivity : AppCompatActivity() {
         outState.putString("address", address_m.text.toString())
         outState.putString("email", email_m.text.toString())
         outState.putString("image", file_name)
+        outState.putString("birthday", birthday_m.text.toString())
     }
 
 
@@ -170,7 +180,8 @@ class EditProfileActivity : AppCompatActivity() {
                     nickname_m.text.toString() == "" ||
                     description_m.text.toString() == "" ||
                     address_m.text.toString() == "" ||
-                    email_m.text.toString() == "") {
+                    email_m.text.toString() == "" ||
+                    birthday_m.text.toString() == "") {
                     Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 } else {
                     saveData()
@@ -344,6 +355,7 @@ class EditProfileActivity : AppCompatActivity() {
         editor.putString("address", address_m.text.toString())
         editor.putString("email", email_m.text.toString())
         editor.putString("image", file_name)
+        editor.putString("birthday", birthday_m.text.toString())
         editor.apply()
 
         val editedUser = User(
@@ -352,11 +364,36 @@ class EditProfileActivity : AppCompatActivity() {
             address = address_m.text.toString(),
             description = description_m.text.toString(),
             email = email_m.text.toString(),
-            image = file_name
+            image = file_name,
+            birthday = user.birthday
         )
         result.putExtra("user", editedUser.toJson())
         setResult(Activity.RESULT_OK, result)
 
         finish()
+    }
+
+    private fun initDatePicker() {
+        birthday_m.setText("${user.birthday.dayOfMonth}/${user.birthday.monthValue}/${user.birthday.year}")
+
+        birthday_m.setOnClickListener {
+            val c = user.birthday
+            val uYear = c.year
+            val uMonth =  c.monthValue
+            val uDay =  c.dayOfMonth
+
+            val datePickerDialog = DatePickerDialog(
+                this,
+                { _, year, monthOfYear, dayOfMonth ->
+                    val dat = (dayOfMonth.toString() + "/" + (monthOfYear + 1) + "/" + year)
+                    birthday_m.setText(dat)
+                    user.birthday = LocalDate.of(year, monthOfYear+1, dayOfMonth)
+                },
+                uYear,
+                uMonth,
+                uDay
+            )
+            datePickerDialog.show()
+        }
     }
 }

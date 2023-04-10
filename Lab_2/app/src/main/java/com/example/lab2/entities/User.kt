@@ -3,6 +3,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.lab2.DateAsLongSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import java.time.LocalDate
@@ -19,9 +20,16 @@ data class User(
     val description: String = "Lorem",
     val email: String = "achille.mago@polito.it",
     var image: String? = null,
-    //TODO: dob
+    @Serializable(with = DateAsLongSerializer::class)
+    var birthday: LocalDate = LocalDate.of(1995, 1, 1),
     val interests : List<String> = mutableListOf()
 ) {
+
+    fun getAge(): Int {
+        val today = LocalDate.now()
+        val period = Period.between(birthday, today)
+        return period.years
+    }
 
     fun toJson(): String =
         Json.encodeToString(this)

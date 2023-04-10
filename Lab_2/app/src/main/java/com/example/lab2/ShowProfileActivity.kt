@@ -30,15 +30,13 @@ import java.io.FileDescriptor
 import java.io.IOException
 
 class ShowProfileActivity : AppCompatActivity() {
-
-
     private var user: User = User()
 
     private lateinit var full_name: TextView
     private lateinit var nickname: TextView
     private lateinit var location: TextView
     private lateinit var description: TextView
-
+    private lateinit var age: TextView
     private lateinit var profileImage: ImageView
     var image_uri: Uri? = null
 
@@ -53,7 +51,6 @@ class ShowProfileActivity : AppCompatActivity() {
             val data: Intent? = response.data
             val userModified = data?.getStringExtra("user")
             user = User.fromJson(userModified!!)
-            println(user.toString())
             updateContent()
             //commit the data in the shared preferences
             with(sharedPref.edit()) {
@@ -73,6 +70,7 @@ class ShowProfileActivity : AppCompatActivity() {
         location = findViewById(R.id.location)
         description = findViewById(R.id.description)
         profileImage = findViewById(R.id.profile_image)
+        age = findViewById(R.id.age)
 
         //load the shared preferences and update the views
         sharedPref = this.getSharedPreferences(
@@ -122,6 +120,7 @@ class ShowProfileActivity : AppCompatActivity() {
         nickname.text = user.nickname
         description.text = user.description
         location.text = user.address
+        age.text = "${user.getAge()}yo"
 
         if (user.image == null) {
             profileImage.setBackgroundResource(R.drawable.profile_picture)
