@@ -1,33 +1,23 @@
 package com.example.lab_2
 
-import android.annotation.SuppressLint
-import android.app.Instrumentation.ActivityResult
-import android.content.ClipDescription
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
-import android.database.Cursor
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Matrix
 import android.net.Uri
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.ContactsContract.CommonDataKinds.Nickname
-import android.provider.MediaStore
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import com.example.lab2.BadgeView
+import com.example.lab2.InterestView
+import com.example.lab2.StatisticView
 import com.example.lab_2.entities.User
-import org.w3c.dom.Text
-import java.io.FileDescriptor
-import java.io.IOException
 
 class ShowProfileActivity : AppCompatActivity() {
     private var user: User = User()
@@ -38,6 +28,9 @@ class ShowProfileActivity : AppCompatActivity() {
     private lateinit var description: TextView
     private lateinit var age: TextView
     private lateinit var profileImage: ImageView
+    private lateinit var interestsLayout: LinearLayout
+    private lateinit var badgesLayout: LinearLayout
+    private lateinit var statisticsLayout: LinearLayout
     var image_uri: Uri? = null
 
     private lateinit var sharedPref: SharedPreferences
@@ -71,6 +64,11 @@ class ShowProfileActivity : AppCompatActivity() {
         description = findViewById(R.id.description)
         profileImage = findViewById(R.id.profile_image)
         age = findViewById(R.id.age)
+        interestsLayout = findViewById(R.id.profile_interests)
+        badgesLayout = findViewById(R.id.profile_badges)
+        statisticsLayout = findViewById(R.id.profile_statistics)
+
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         //load the shared preferences and update the views
         sharedPref = this.getSharedPreferences(
@@ -135,33 +133,18 @@ class ShowProfileActivity : AppCompatActivity() {
                 profileImage.setImageBitmap(it)
             }
         }
-    }
 
-    private fun uriToBitmap(selectedFileUri: Uri): Bitmap? {
-        try {
-            val parcelFileDescriptor = contentResolver.openFileDescriptor(selectedFileUri, "r")
-            val fileDescriptor: FileDescriptor = parcelFileDescriptor!!.fileDescriptor
-            val image = BitmapFactory.decodeFileDescriptor(fileDescriptor)
-            parcelFileDescriptor.close()
-            return image
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return null
-    }
+        badgesLayout.removeAllViews()
+        interestsLayout.removeAllViews()
+        statisticsLayout.removeAllViews()
 
-    @SuppressLint("Range")
-    fun rotateBitmap(input: Bitmap): Bitmap? {
-        val orientationColumn =
-            arrayOf(MediaStore.Images.Media.ORIENTATION)
-        val cur: Cursor? = contentResolver.query(image_uri!!, orientationColumn, null, null, null)
-        var orientation = -1
-        if (cur != null && cur.moveToFirst()) {
-            orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]))
-        }
-        Log.d("tryOrientation", orientation.toString() + "")
-        val rotationMatrix = Matrix()
-        rotationMatrix.setRotate(orientation.toFloat())
-        return Bitmap.createBitmap(input, 0, 0, input.width, input.height, rotationMatrix, true)
+        val badges = user.badges.map {  BadgeView(this, badge = it) }
+        badges.forEach { badgesLayout.addView(it) }
+
+        val interests = user.interests.map {  InterestView(this, sport = it) }
+        interests.forEach { interestsLayout.addView(it) }
+
+        val statistics = user.statistics.map {  StatisticView(this, statistic = it.value) }
+        statistics.forEach { statisticsLayout.addView(it) }
     }
 }

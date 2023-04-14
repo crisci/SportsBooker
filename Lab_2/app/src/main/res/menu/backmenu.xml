@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/backmenu"
-        android:icon="@drawable/ic_back_name"
-        android:title="@string/back"
-        app:showAsAction="ifRoom" />
+        android:icon="@drawable/baseline_check_24"
+        android:title="@string/edit"
+        app:showAsAction="ifRoom"
+       />
 </menu>

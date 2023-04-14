@@ -4,6 +4,9 @@ import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.lab2.DateAsLongSerializer
+import com.example.lab2.entities.BadgeType
+import com.example.lab2.entities.Sport
+import com.example.lab2.entities.Statistic
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import java.time.LocalDate
@@ -22,7 +25,34 @@ data class User(
     var image: String? = null,
     @Serializable(with = DateAsLongSerializer::class)
     var birthday: LocalDate = LocalDate.of(1995, 1, 1),
-    val interests : List<String> = mutableListOf()
+    var badges: Map<BadgeType, Int> = mapOf(
+        BadgeType.SPEED to 2,
+        BadgeType.PRECISION to 3,
+        BadgeType.TEAM_WORK to 1
+    ),
+    var interests : MutableList<Sport> = mutableListOf(Sport.TENNIS, Sport.SOCCER, Sport.GOLF),
+    var statistics : MutableMap<Sport, Statistic> = mutableMapOf(
+        Sport.TENNIS to Statistic(
+            sport = Sport.TENNIS,
+            gamesPlayed = 50,
+            gamesWon = 30,
+            gamesLost = 18,
+            gamesDrawn = 2
+        ),
+        Sport.SOCCER to Statistic(
+            sport = Sport.SOCCER,
+            gamesPlayed = 40,
+            gamesWon = 20,
+            gamesLost = 15,
+            gamesDrawn = 5
+        ),
+        Sport.GOLF to Statistic(
+            sport = Sport.GOLF,
+            gamesPlayed = 10,
+            gamesWon = 5,
+            gamesLost = 5
+        )
+    )
 ) {
 
     fun getAge(): Int {

@@ -10,7 +10,9 @@ import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.Matrix
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -19,12 +21,20 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.widget.*
+import androidx.appcompat.widget.Toolbar
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.ActionBar
+import androidx.core.content.ContextCompat
+import com.cunoraz.tagview.Tag
+import com.cunoraz.tagview.TagView
+import com.example.lab2.entities.Sport
+import com.example.lab2.entities.Statistic
 import com.example.lab_2.entities.User
+import com.google.gson.Gson
 import java.io.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -35,6 +45,9 @@ class EditProfileActivity : AppCompatActivity() {
 
     private lateinit var user: User
 
+
+    private val listAllInterests: List<Sport> = Sport.values().toList()
+
     private lateinit var profileImage : ImageView
     private lateinit var cameraImageButton: ImageButton
     private lateinit var full_name_m: EditText
@@ -43,6 +56,7 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var address_m: EditText
     private lateinit var email_m: EditText
     private lateinit var birthday_m: EditText
+    private lateinit var toolbar: Toolbar
 
     var image_uri: Uri? = null
     var file_name: String? = null
@@ -53,6 +67,8 @@ class EditProfileActivity : AppCompatActivity() {
         setContentView(R.layout.activity_edit_profile)
 
         findViews()
+
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         // get the user information sended by the showProfile Activity
         // than update the content of the views
@@ -78,6 +94,51 @@ class EditProfileActivity : AppCompatActivity() {
             setResult(Activity.RESULT_OK, result)
             finish()
         }*/
+
+        val tagGroup = findViewById<TagView>(R.id.tag_group)
+        setupTags(tagGroup)
+        tagGroup.setOnTagClickListener { tag, position ->
+            if (user.interests.any { it.name == tag.text }) {
+                user.interests = user.interests.filterNot{it.name == tag.text}.toMutableList()
+                user.statistics.remove(Sport.valueOf(tag.text))
+                println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+                setupTags(tagGroup)
+            }
+            else {
+                if(user.interests.size < 3) {
+                    user.interests.add(Sport.valueOf(tag.text))
+                    user.statistics.put(Sport.valueOf(tag.text), Statistic(
+                        sport = Sport.valueOf(tag.text),
+                        gamesPlayed = 0,
+                        gamesWon = 0,
+                        gamesLost = 0,
+                        gamesDrawn = 0
+                    ))
+                    setupTags(tagGroup)
+                }
+                else {
+                    Toast.makeText(this, "You can add at most 3 interests", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun setupTags(tagGroup: TagView) {
+        tagGroup.addTags(listAllInterests.union(user.interests).map {
+            var tag = Tag(it.name)
+            tag.tagTextSize = 18F
+            if (user.interests.contains(it)) {
+                tag.layoutColor = Color.BLACK
+                tag.tagTextColor = Color.WHITE
+            }
+            else {
+                tag.layoutColor = Color.WHITE
+                tag.tagTextColor = Color.BLACK
+                tag.layoutBorderColor = Color.BLACK
+                tag.layoutBorderSize = 1F
+            }
+            tag
+        })
     }
 
     fun findViews() {
@@ -162,6 +223,14 @@ class EditProfileActivity : AppCompatActivity() {
         outState.putString("email", email_m.text.toString())
         outState.putString("image", file_name)
         outState.putString("birthday", birthday_m.text.toString())
+
+        val gsonInterests = Gson()
+        val jsonInterests = gsonInterests.toJson(user.interests)
+        outState.putString("interests", jsonInterests)
+
+        val gsonStatistics = Gson()
+        val jsonStatistics = gsonStatistics.toJson(user.statistics)
+        outState.putString("statistics", jsonStatistics)
     }
 
 
@@ -224,22 +293,19 @@ class EditProfileActivity : AppCompatActivity() {
                 rotated?.let {
                     // Set the new image to the ImageView
                     profileImage.setImageBitmap(it)
-                    val fileName = "image.jpg"
+                    file_name = "image.jpg"
                     // Create an outputStream to write the image data to a file in internal storage.
                     // The first parameter is the name of the file, and the second parameter is the
                     // file mode which determines the access level of the file. We use MODE_PRIVATE
                     // to make the file accessible only to our app.
                     // This operation is time-consuming, so we define a thread.
                     thread {
-                        val outputStream = applicationContext.openFileOutput(fileName, Context.MODE_PRIVATE)
+                        val outputStream = applicationContext.openFileOutput(file_name, Context.MODE_PRIVATE)
                         // We compress the bitmap data to PNG format and write it to the outputStream
                         it.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
                         outputStream.flush()
                         outputStream.close()
                     }
-
-                    file_name = fileName
-                    println(file_name)
                 }
             }
         }
@@ -254,7 +320,7 @@ class EditProfileActivity : AppCompatActivity() {
                 rotated?.let {
                     // Set the new image to the ImageView
                     profileImage.setImageBitmap(it)
-                    val fileName = "image.jpg"
+                    file_name = "image.jpg"
                     // Create an outputStream to write the image data to a file in internal storage.
                     // The first parameter is the name of the file, and the second parameter is the
                     // file mode which determines the access level of the file. We use MODE_PRIVATE
@@ -262,13 +328,12 @@ class EditProfileActivity : AppCompatActivity() {
                     // This operation is time-consuming, so we define a thread.
                     thread {
                         val outputStream =
-                            applicationContext.openFileOutput(fileName, Context.MODE_PRIVATE)
+                            applicationContext.openFileOutput(file_name, Context.MODE_PRIVATE)
                         // We compress the bitmap data to PNG format and write it to the outputStream
                         it.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
                         outputStream.flush()
                         outputStream.close()
                     }
-                    file_name = fileName
                 }
             }
         }
@@ -356,6 +421,15 @@ class EditProfileActivity : AppCompatActivity() {
         editor.putString("email", email_m.text.toString())
         editor.putString("image", file_name)
         editor.putString("birthday", birthday_m.text.toString())
+
+        val gsonInterests = Gson()
+        val jsonInterests = gsonInterests.toJson(user.interests)
+        editor.putString("interests", jsonInterests)
+
+        val gsonStatistics = Gson()
+        val jsonStatistics = gsonStatistics.toJson(user.statistics)
+        editor.putString("statistics", jsonStatistics)
+
         editor.apply()
 
         val editedUser = User(
@@ -365,7 +439,9 @@ class EditProfileActivity : AppCompatActivity() {
             description = description_m.text.toString(),
             email = email_m.text.toString(),
             image = file_name,
-            birthday = user.birthday
+            birthday = user.birthday,
+            interests = user.interests,
+            statistics = user.statistics
         )
         result.putExtra("user", editedUser.toJson())
         setResult(Activity.RESULT_OK, result)

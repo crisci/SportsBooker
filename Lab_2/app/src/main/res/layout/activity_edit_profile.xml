@@ -203,5 +203,29 @@
         </LinearLayout>
 
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/your_interests" />
+
+            <com.cunoraz.tagview.TagView
+                android:id="@+id/tag_group"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                app:lineMargin="5dp"
+                app:tagMargin="5dp"
+                app:textPaddingBottom="5dp"
+                app:textPaddingLeft="8dp"
+                app:textPaddingRight="8dp"
+                app:textPaddingTop="5dp" />
+        </LinearLayout>
+
     </LinearLayout>
 </ScrollView>
