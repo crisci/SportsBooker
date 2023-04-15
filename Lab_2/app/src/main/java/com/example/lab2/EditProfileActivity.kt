@@ -25,8 +25,10 @@ import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.cunoraz.tagview.Tag
 import com.cunoraz.tagview.TagView
+import com.example.lab2.InterestView
 import com.example.lab2.entities.Sport
 import com.example.lab2.entities.Statistic
 import com.example.lab_2.entities.User
@@ -108,16 +110,17 @@ class EditProfileActivity : AppCompatActivity() {
         tagGroup = findViewById<TagView>(R.id.tag_group)
         setupTags()
         tagGroup.setOnTagClickListener { tag, position ->
-            if (user.interests.any { it.name == tag.text }) {
-                user.interests = user.interests.filterNot{it.name == tag.text}.toMutableList()
-                user.statistics.remove(Sport.valueOf(tag.text))
+            var uppercaseTagName = tag.text.uppercase(Locale.getDefault()) // i.e. from "Soccer" to "SOCCER", which is the constant in the enum
+            if (user.interests.any { it.name == uppercaseTagName }) {
+                user.interests = user.interests.filterNot{it.name == uppercaseTagName}.toMutableList()
+                user.statistics.remove(Sport.valueOf(uppercaseTagName))
                 setupTags()
             }
             else {
                 if(user.interests.size < 3) {
-                    user.interests.add(Sport.valueOf(tag.text))
-                    user.statistics.put(Sport.valueOf(tag.text), Statistic(
-                        sport = Sport.valueOf(tag.text),
+                    user.interests.add(Sport.valueOf(uppercaseTagName))
+                    user.statistics.put(Sport.valueOf(uppercaseTagName), Statistic(
+                        sport = Sport.valueOf(uppercaseTagName),
                         gamesPlayed = 0,
                         gamesWon = 0,
                         gamesLost = 0,
@@ -138,10 +141,16 @@ class EditProfileActivity : AppCompatActivity() {
 
     private fun setupTags() {
         tagGroup.addTags(listAllInterests.union(user.interests).map {
-            var tag = Tag(it.name)
+            /*
+            * The enum constants are in uppercase, like "SOCCER". We want a tag like "Soccer".
+            * The following code is equivalent to inputString.toLowerCase().capitalize(),
+            * however these functions are deprecated. The IDE suggested the code below instead.
+            * */
+            var tag = Tag(it.name.lowercase(Locale.getDefault())
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() })
             tag.tagTextSize = 18F
             if (user.interests.contains(it)) {
-                tag.layoutColor = Color.BLACK
+                tag.layoutColor = ContextCompat.getColor(this, R.color.bright_green)
                 tag.tagTextColor = Color.WHITE
             }
             else {
