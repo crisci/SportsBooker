@@ -69,7 +69,7 @@ class EditProfileActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        // get the user information sended by the showProfile Activity,
+        // Get the user information sended by the showProfile Activity,
         // than update the content of the views
         val extras = intent.extras
         if(extras != null) {
@@ -81,6 +81,7 @@ class EditProfileActivity : AppCompatActivity() {
 
         var valid = true
 
+        //TODO Validation
         confirmButton.setOnClickListener {
             if (full_name_m.text.toString().trim() == "" ||
                 nickname_m.text.toString().trim() == "" ||
@@ -107,7 +108,6 @@ class EditProfileActivity : AppCompatActivity() {
             if (valid) saveData()
         }
 
-        tagGroup = findViewById<TagView>(R.id.tag_group)
         setupTags()
         tagGroup.setOnTagClickListener { tag, position ->
             var uppercaseTagName = tag.text.uppercase(Locale.getDefault()) // i.e. from "Soccer" to "SOCCER", which is the constant in the enum
@@ -139,21 +139,29 @@ class EditProfileActivity : AppCompatActivity() {
         return !TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches()
     }
 
+    //TODO This function fills the TagView with all the interests:
+    // - The interests of the user are green
+    // - The other interests are white
+    // This method must be called everytime we make a change in our interests to update the colors.
     private fun setupTags() {
-        tagGroup.addTags(listAllInterests.union(user.interests).map {
+        // We want to make a union between the interests of the user and all the other interests
+        tagGroup.addTags(listAllInterests.union(user.interests).map {currentInterest ->
             /*
             * The enum constants are in uppercase, like "SOCCER". We want a tag like "Soccer".
             * The following code is equivalent to inputString.toLowerCase().capitalize(),
             * however these functions are deprecated. The IDE suggested the code below instead.
             * */
-            var tag = Tag(it.name.lowercase(Locale.getDefault())
+            var tag = Tag(currentInterest.name.lowercase(Locale.getDefault())
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() })
             tag.tagTextSize = 18F
-            if (user.interests.contains(it)) {
+
+            // If the list of the user's interests contains the current interest, it should be green
+            if (user.interests.contains(currentInterest)) {
                 tag.layoutColor = ContextCompat.getColor(this, R.color.bright_green)
                 tag.tagTextColor = Color.WHITE
             }
             else {
+                // otherwise it is white
                 tag.layoutColor = Color.WHITE
                 tag.tagTextColor = Color.BLACK
                 tag.layoutBorderColor = Color.BLACK
@@ -163,6 +171,7 @@ class EditProfileActivity : AppCompatActivity() {
         })
     }
 
+    //TODO A function that calls all the findViewById() methods for each UI element
     fun findViews() {
         full_name_m = findViewById(R.id.editNameSurname)
         description_m = findViewById(R.id.editDescription)
@@ -173,10 +182,16 @@ class EditProfileActivity : AppCompatActivity() {
         profileImage = findViewById(R.id.profile_image)
         cameraImageButton = findViewById(R.id.edit_picture)
         confirmButton = findViewById(R.id.confirm_button)
+        tagGroup = findViewById(R.id.tag_group)
 
         cameraImageButton.setOnClickListener { popupMenuSetup() }
     }
 
+    //TODO This is the popup menu that is displayed as we click on the ImageButton overlapped to the profile image.
+    // It contains two options: "Camera" or "Library".
+    // - If we press on the first option, the app checks and asks the permission to open the camera
+    // and then the user is ready to take a photo.
+    // - If we press on the second option, the app opens the photo library and the user can pick one photo.
     private fun popupMenuSetup() {
         val popupMenu = PopupMenu(this,cameraImageButton)
         popupMenu.inflate(R.menu.popup_menu)
@@ -216,6 +231,7 @@ class EditProfileActivity : AppCompatActivity() {
         email_m.setText(savedInstanceState.getString("email"))
         birthday_m.setText(savedInstanceState.getString("birthday"))
 
+        // Open and load the photo
         file_name = savedInstanceState.getString("image")
         val inputStream = applicationContext.openFileInput(file_name)
         val rotated = BitmapFactory.decodeStream(inputStream)
@@ -225,7 +241,6 @@ class EditProfileActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        //TODO: do the same for the other fields
         outState.putString("full_name", full_name_m.text.toString())
         outState.putString("nickname", nickname_m.text.toString())
         outState.putString("description", description_m.text.toString())
@@ -267,6 +282,7 @@ class EditProfileActivity : AppCompatActivity() {
         }
     }
 
+    //TODO This function fills the fields
     private fun updateContent() {
         full_name_m.setText(user.full_name)
         nickname_m.setText(user.nickname)
@@ -279,6 +295,7 @@ class EditProfileActivity : AppCompatActivity() {
         }
         else {
             file_name = user.image
+            // Open and load the photo
             val inputStream = applicationContext.openFileInput(file_name)
             val bitmap = BitmapFactory.decodeStream(inputStream)
             bitmap?.let {
@@ -362,7 +379,9 @@ class EditProfileActivity : AppCompatActivity() {
         return null
     }
 
-    //TODO Most phone cameras are landscape, meaning if you take the photo in portrait, the resulting photos will be rotated 90 degrees.
+    //TODO Most phone cameras are landscape, meaning if you take the photo in portrait,
+    // the resulting photos will be rotated 90 degrees. So we need a function to get the orientation
+    // of the photo and to rotate it accordingly.
     @SuppressLint("Range")
     fun rotateBitmap(input: Bitmap): Bitmap? {
         val orientationColumn =
@@ -464,9 +483,9 @@ class EditProfileActivity : AppCompatActivity() {
         finish()
     }
 
+    //TODO This function initializes the DatePickerDialog
     private fun initDatePicker() {
         birthday_m.setText("${user.birthday.dayOfMonth}/${user.birthday.monthValue}/${user.birthday.year}")
-
         birthday_m.setOnClickListener {
             val c = user.birthday
             val uYear = c.year
