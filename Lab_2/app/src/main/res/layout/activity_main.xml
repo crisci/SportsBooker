@@ -11,7 +11,7 @@
 
     <LinearLayout
         android:id="@+id/myLinearLayoutVertical"
-        android:layout_height="wrap_content"
+        android:layout_height="10000dp"
         android:layout_width="match_parent"
         android:gravity="center_horizontal"
         android:orientation="vertical">
@@ -130,7 +130,6 @@
                     android:id="@+id/interests"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
                     android:fontFamily="sans-serif-black"
                     android:text="@string/your_interests"
@@ -140,47 +139,43 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/description" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                <HorizontalScrollView
+                    android:id="@+id/interests_scrollview"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:contentDescription="interests"
+                    app:layout_constraintTop_toBottomOf="@+id/interests">
 
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:contentDescription="interests">
+                    <LinearLayout
+                        android:id="@+id/profile_interests"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
 
-                <LinearLayout
-                    android:id="@+id/profile_interests"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal" />
-            </HorizontalScrollView>
-
-            <TextView
-                android:id="@+id/statistics"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:fontFamily="sans-serif-black"
-                android:text="@string/statistics"
-                android:textAlignment="textStart"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:layout_editor_absoluteY="227dp" />
-
-            <androidx.core.widget.NestedScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="4dp">
+                <TextView
+                    android:id="@+id/statistics"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
+                    android:text="@string/statistics"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:layout_editor_absoluteY="227dp"
+                    app:layout_constraintTop_toBottomOf="@+id/interests_scrollview"
+                    />
 
                 <LinearLayout
                     android:id="@+id/profile_statistics"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"/>
-            </androidx.core.widget.NestedScrollView>
+                    android:orientation="vertical"
+                    app:layout_constraintTop_toBottomOf="@+id/statistics"/>
 
-        </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-
+            </LinearLayout>
     </LinearLayout>
 </ScrollView>

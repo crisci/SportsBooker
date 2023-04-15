@@ -44,6 +44,7 @@ import kotlin.concurrent.thread
 class EditProfileActivity : AppCompatActivity() {
 
     private lateinit var user: User
+    private var cameraHasFinished: Boolean = true
 
 
     private val listAllInterests: List<Sport> = Sport.values().toList()
@@ -56,11 +57,11 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var address_m: EditText
     private lateinit var email_m: EditText
     private lateinit var birthday_m: EditText
-    private lateinit var toolbar: Toolbar
+    private lateinit var tagGroup: TagView
+    private lateinit var confirmButton: Button
 
     var image_uri: Uri? = null
     var file_name: String? = null
-    var birthday: LocalDate? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +71,7 @@ class EditProfileActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        // get the user information sended by the showProfile Activity
+        // get the user information sended by the showProfile Activity,
         // than update the content of the views
         val extras = intent.extras
         if(extras != null) {
@@ -80,29 +81,26 @@ class EditProfileActivity : AppCompatActivity() {
         initDatePicker()
         updateContent()
 
-/*        confirmButton.setOnClickListener {
-            val result: Intent = Intent()
-            val editedUser = User(
-                full_name = full_name_m.text.toString(),
-                nickname = nickname_m.text.toString(),
-                address = address_m.text.toString(),
-                description = description_m.text.toString(),
-                email = email_m.text.toString()
-                )
+        confirmButton.setOnClickListener {
+            if (full_name_m.text.toString() == "" ||
+                nickname_m.text.toString() == "" ||
+                description_m.text.toString() == "" ||
+                address_m.text.toString() == "" ||
+                email_m.text.toString() == "" ||
+                birthday_m.text.toString() == "") {
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            } else {
+                saveData()
+            }
+        }
 
-            result.putExtra("user", editedUser.toJson())
-            setResult(Activity.RESULT_OK, result)
-            finish()
-        }*/
-
-        val tagGroup = findViewById<TagView>(R.id.tag_group)
-        setupTags(tagGroup)
+        tagGroup = findViewById<TagView>(R.id.tag_group)
+        setupTags()
         tagGroup.setOnTagClickListener { tag, position ->
             if (user.interests.any { it.name == tag.text }) {
                 user.interests = user.interests.filterNot{it.name == tag.text}.toMutableList()
                 user.statistics.remove(Sport.valueOf(tag.text))
-                println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-                setupTags(tagGroup)
+                setupTags()
             }
             else {
                 if(user.interests.size < 3) {
@@ -114,7 +112,7 @@ class EditProfileActivity : AppCompatActivity() {
                         gamesLost = 0,
                         gamesDrawn = 0
                     ))
-                    setupTags(tagGroup)
+                    setupTags()
                 }
                 else {
                     Toast.makeText(this, "You can add at most 3 interests", Toast.LENGTH_SHORT).show()
@@ -123,7 +121,7 @@ class EditProfileActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupTags(tagGroup: TagView) {
+    private fun setupTags() {
         tagGroup.addTags(listAllInterests.union(user.interests).map {
             var tag = Tag(it.name)
             tag.tagTextSize = 18F
@@ -150,6 +148,7 @@ class EditProfileActivity : AppCompatActivity() {
         birthday_m = findViewById(R.id.editBod)
         profileImage = findViewById(R.id.profile_image)
         cameraImageButton = findViewById(R.id.edit_picture)
+        confirmButton = findViewById(R.id.confirm_button)
 
         cameraImageButton.setOnClickListener { popupMenuSetup() }
     }
@@ -186,10 +185,6 @@ class EditProfileActivity : AppCompatActivity() {
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        //TODO: do the same for the other fields to be modified
-        //in alternative you can create a fake user that every time you save this user as the ShowProfileActivity
-        //when confirm is pressed than the user is commited and sended back
-        //you can use editedUser
         full_name_m.setText(savedInstanceState.getString("full_name"))
         nickname_m.setText(savedInstanceState.getString("nickname"))
         description_m.setText(savedInstanceState.getString("description"))
@@ -200,16 +195,7 @@ class EditProfileActivity : AppCompatActivity() {
         file_name = savedInstanceState.getString("image")
         val inputStream = applicationContext.openFileInput(file_name)
         val rotated = BitmapFactory.decodeStream(inputStream)
-        //val rotated = rotateBitmap(inputImageBitmap!!)
         profileImage.setImageBitmap(rotated)
-
-/*
-        user = User(
-            full_name_m.text.toString(),
-            nickname_m.text.toString(),
-            address_m.text.toString(),
-            description_m.text.toString())
-*/
 
     }
 
@@ -223,6 +209,11 @@ class EditProfileActivity : AppCompatActivity() {
         outState.putString("email", email_m.text.toString())
         outState.putString("image", file_name)
         outState.putString("birthday", birthday_m.text.toString())
+
+        /*
+        * We are using the Gson library to serialize a user's interests object into a JSON string,
+        * and then storing it in a Bundle as a string with the key "interests".
+        * */
 
         val gsonInterests = Gson()
         val jsonInterests = gsonInterests.toJson(user.interests)
@@ -245,16 +236,7 @@ class EditProfileActivity : AppCompatActivity() {
 
         return when (item.itemId) {
             R.id.backmenu -> {
-                if (full_name_m.text.toString() == "" ||
-                    nickname_m.text.toString() == "" ||
-                    description_m.text.toString() == "" ||
-                    address_m.text.toString() == "" ||
-                    email_m.text.toString() == "" ||
-                    birthday_m.text.toString() == "") {
-                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                } else {
-                    saveData()
-                }
+                finish()
                 true
             }
             else -> super.onContextItemSelected(item)
@@ -274,9 +256,8 @@ class EditProfileActivity : AppCompatActivity() {
         else {
             file_name = user.image
             val inputStream = applicationContext.openFileInput(file_name)
-            val rotated = BitmapFactory.decodeStream(inputStream)
-            //val rotated = rotateBitmap(inputImageBitmap!!)
-            rotated?.let {
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            bitmap?.let {
                 // Set the new image to the ImageView
                 profileImage.setImageBitmap(it)
             }
@@ -300,11 +281,13 @@ class EditProfileActivity : AppCompatActivity() {
                     // to make the file accessible only to our app.
                     // This operation is time-consuming, so we define a thread.
                     thread {
+                        cameraHasFinished = false
                         val outputStream = applicationContext.openFileOutput(file_name, Context.MODE_PRIVATE)
                         // We compress the bitmap data to PNG format and write it to the outputStream
                         it.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
                         outputStream.flush()
                         outputStream.close()
+                        cameraHasFinished = true
                     }
                 }
             }
@@ -327,12 +310,14 @@ class EditProfileActivity : AppCompatActivity() {
                     // to make the file accessible only to our app.
                     // This operation is time-consuming, so we define a thread.
                     thread {
+                        cameraHasFinished = false
                         val outputStream =
                             applicationContext.openFileOutput(file_name, Context.MODE_PRIVATE)
                         // We compress the bitmap data to PNG format and write it to the outputStream
                         it.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
                         outputStream.flush()
                         outputStream.close()
+                        cameraHasFinished = true
                     }
                 }
             }
@@ -411,6 +396,12 @@ class EditProfileActivity : AppCompatActivity() {
     }
 
     private fun saveData() {
+
+        /// TODO if camera thread is still running, it should appear a loading icon
+
+        while (!cameraHasFinished) {
+        }
+        confirmButton.text = "Confirm"
         val sharedPreference =  getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         var editor = sharedPreference.edit()
         val result: Intent = Intent()

@@ -6,7 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="false"
-    android:paddingHorizontal="16dp">
+    android:paddingHorizontal="16dp"
+    android:scrollbarThumbVertical="@null"
+    android:scrollbarTrackVertical="@null">
 
     <LinearLayout
         android:id="@+id/myLinearLayoutVertical"
@@ -226,6 +228,15 @@
                 app:textPaddingRight="8dp"
                 app:textPaddingTop="5dp" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/confirm_button"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginBottom="60dp"
+            android:background="@drawable/rectangle_radius"
+            android:text="@string/confirmEdit"
+            android:textSize="16sp" />
 
     </LinearLayout>
 </ScrollView>
