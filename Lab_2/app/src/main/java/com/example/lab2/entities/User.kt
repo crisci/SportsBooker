@@ -18,7 +18,7 @@ import java.time.Period
 @Serializable
 data class User(
     val full_name: String = "Achille Mago",
-    val nickname: String = "@achillemago",
+    val nickname: String = "achillemago",
     val address: String = "Turin",
     val description: String = "Lorem",
     val email: String = "achille.mago@polito.it",

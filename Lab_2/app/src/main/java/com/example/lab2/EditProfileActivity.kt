@@ -12,23 +12,19 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Matrix
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.TextUtils
 import android.util.Log
+import android.util.Patterns
 import android.view.*
 import android.widget.*
-import androidx.appcompat.widget.Toolbar
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
-import androidx.appcompat.app.ActionBar
-import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AppCompatActivity
 import com.cunoraz.tagview.Tag
 import com.cunoraz.tagview.TagView
 import com.example.lab2.entities.Sport
@@ -37,9 +33,9 @@ import com.example.lab_2.entities.User
 import com.google.gson.Gson
 import java.io.*
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.concurrent.thread
+
 
 class EditProfileActivity : AppCompatActivity() {
 
@@ -81,17 +77,32 @@ class EditProfileActivity : AppCompatActivity() {
         initDatePicker()
         updateContent()
 
+        var valid = true
+
         confirmButton.setOnClickListener {
-            if (full_name_m.text.toString() == "" ||
-                nickname_m.text.toString() == "" ||
-                description_m.text.toString() == "" ||
-                address_m.text.toString() == "" ||
-                email_m.text.toString() == "" ||
-                birthday_m.text.toString() == "") {
+            if (full_name_m.text.toString().trim() == "" ||
+                nickname_m.text.toString().trim() == "" ||
+                description_m.text.toString().trim() == "" ||
+                address_m.text.toString().trim() == "" ||
+                email_m.text.toString().trim() == "" ||
+                birthday_m.text.toString().trim() == "") {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-            } else {
-                saveData()
+                valid = false
             }
+            else if(!isValidEmail(email_m.text.trim())) {
+                Toast.makeText(this, "Please enter a valid email", Toast.LENGTH_SHORT).show()
+                valid = false
+            }
+            else if(nickname_m.text.contains(" ")) {
+                Toast.makeText(this, "Please enter a valid nickname", Toast.LENGTH_SHORT).show()
+                valid = false
+            }
+            else if(description_m.text.length > 150) {
+                Toast.makeText(this, "The description must have at most 150 characters", Toast.LENGTH_SHORT).show()
+                valid = false
+            }
+
+            if (valid) saveData()
         }
 
         tagGroup = findViewById<TagView>(R.id.tag_group)
@@ -119,6 +130,10 @@ class EditProfileActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun isValidEmail(target: CharSequence?): Boolean {
+        return !TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches()
     }
 
     private fun setupTags() {
@@ -405,13 +420,13 @@ class EditProfileActivity : AppCompatActivity() {
         val sharedPreference =  getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         var editor = sharedPreference.edit()
         val result: Intent = Intent()
-        editor.putString("full_name", full_name_m.text.toString())
-        editor.putString("nickname", nickname_m.text.toString())
-        editor.putString("description", description_m.text.toString())
-        editor.putString("address", address_m.text.toString())
-        editor.putString("email", email_m.text.toString())
+        editor.putString("full_name", full_name_m.text.toString().trim())
+        editor.putString("nickname", nickname_m.text.toString().trim())
+        editor.putString("description", description_m.text.toString().trim())
+        editor.putString("address", address_m.text.toString().trim())
+        editor.putString("email", email_m.text.toString().trim())
         editor.putString("image", file_name)
-        editor.putString("birthday", birthday_m.text.toString())
+        editor.putString("birthday", birthday_m.text.toString().trim())
 
         val gsonInterests = Gson()
         val jsonInterests = gsonInterests.toJson(user.interests)
@@ -424,11 +439,11 @@ class EditProfileActivity : AppCompatActivity() {
         editor.apply()
 
         val editedUser = User(
-            full_name = full_name_m.text.toString(),
-            nickname = nickname_m.text.toString(),
-            address = address_m.text.toString(),
-            description = description_m.text.toString(),
-            email = email_m.text.toString(),
+            full_name = full_name_m.text.toString().trim(),
+            nickname = nickname_m.text.toString().trim(),
+            address = address_m.text.toString().trim(),
+            description = description_m.text.toString().trim(),
+            email = email_m.text.toString().trim(),
             image = file_name,
             birthday = user.birthday,
             interests = user.interests,
@@ -460,6 +475,7 @@ class EditProfileActivity : AppCompatActivity() {
                 uMonth,
                 uDay
             )
+            datePickerDialog.datePicker.maxDate = System.currentTimeMillis();
             datePickerDialog.show()
         }
     }
