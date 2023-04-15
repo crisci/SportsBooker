@@ -1,21 +1,28 @@
 package com.example.lab_2
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.Window
+import android.widget.Button
+import android.widget.GridView
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.lab2.BadgeView
 import com.example.lab2.InterestView
+import com.example.lab2.SkillAdapter
 import com.example.lab2.StatisticView
 import com.example.lab_2.entities.User
 
@@ -31,6 +38,7 @@ class ShowProfileActivity : AppCompatActivity() {
     private lateinit var interestsLayout: LinearLayout
     private lateinit var badgesLayout: LinearLayout
     private lateinit var statisticsLayout: LinearLayout
+    private lateinit var skills: LinearLayout
     var image_uri: Uri? = null
 
     private lateinit var sharedPref: SharedPreferences
@@ -67,6 +75,9 @@ class ShowProfileActivity : AppCompatActivity() {
         interestsLayout = findViewById(R.id.profile_interests)
         badgesLayout = findViewById(R.id.profile_badges)
         statisticsLayout = findViewById(R.id.profile_statistics)
+        skills = findViewById(R.id.profile_badges)
+
+        skills.setOnClickListener { showCustomDialog() }
 
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
@@ -115,7 +126,7 @@ class ShowProfileActivity : AppCompatActivity() {
 
     private fun updateContent() {
         full_name.text = user.full_name
-        nickname.text = user.nickname
+        nickname.text = "@${user.nickname}"
         description.text = user.description
         location.text = user.address
         age.text = "${user.getAge()}yo"
@@ -147,4 +158,25 @@ class ShowProfileActivity : AppCompatActivity() {
         val statistics = user.statistics.map {  StatisticView(this, statistic = it.value) }
         statistics.forEach { statisticsLayout.addView(it) }
     }
+
+    private fun showCustomDialog() {
+        val skillsDialog: Dialog = Dialog(this)
+        skillsDialog.requestWindowFeature(Window.FEATURE_NO_TITLE) // Remove default title
+        skillsDialog.setCancelable(true) // Allow user to exit dialog by clicking outside
+        skillsDialog.setContentView(R.layout.skills_dialog)
+        skillsDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        val exitButton = skillsDialog.findViewById<Button>(R.id.close_skills_dialog)
+        val skillsContainer = skillsDialog.findViewById<GridView>(R.id.skills_container)
+        skillsContainer.adapter = SkillAdapter(this, user.badges)
+
+
+        exitButton.setOnClickListener {
+            skillsDialog.dismiss()
+        }
+
+        skillsDialog.show()
+    }
+
 }
+

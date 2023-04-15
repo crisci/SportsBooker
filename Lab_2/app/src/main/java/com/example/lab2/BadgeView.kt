@@ -21,7 +21,7 @@ class BadgeView(
         val view = inflater.inflate(
             R.layout.badge_layout, this, true)
 
-        badgeImage = view.findViewById(R.id.badge_image)
+        badgeImage = view.findViewById(R.id.skill_image)
         when (badge.key) {
             BadgeType.SPEED ->  badgeImage.setImageResource(R.drawable.badge_speed)
             BadgeType.PRECISION ->  badgeImage.setImageResource( R.drawable.badge_precision)
