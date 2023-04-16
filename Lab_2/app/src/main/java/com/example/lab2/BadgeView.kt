@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.LinearLayout
 import com.example.lab2.entities.BadgeType
-import com.example.lab_2.R
 
 class BadgeView(
     context: Context,

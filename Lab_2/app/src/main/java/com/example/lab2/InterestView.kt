@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.example.lab2.entities.Sport
-import com.example.lab_2.R
 
 class InterestView(
     context: Context,

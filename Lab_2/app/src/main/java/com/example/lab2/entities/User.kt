@@ -1,14 +1,7 @@
-package com.example.lab_2.entities
-import android.graphics.Bitmap
-import android.net.Uri
-import android.os.Build
-import androidx.annotation.RequiresApi
+package com.example.lab2.entities
+
 import com.example.lab2.DateAsLongSerializer
-import com.example.lab2.entities.BadgeType
-import com.example.lab2.entities.Sport
-import com.example.lab2.entities.Statistic
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import java.time.LocalDate
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString

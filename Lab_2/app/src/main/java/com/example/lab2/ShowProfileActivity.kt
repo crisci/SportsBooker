@@ -1,4 +1,4 @@
-package com.example.lab_2
+package com.example.lab2
 
 import android.app.Dialog
 import android.content.Context
@@ -20,11 +20,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
-import com.example.lab2.BadgeView
-import com.example.lab2.InterestView
-import com.example.lab2.SkillAdapter
-import com.example.lab2.StatisticView
-import com.example.lab_2.entities.User
+import com.example.lab2.entities.User
 
 class ShowProfileActivity : AppCompatActivity() {
     private var user: User = User()

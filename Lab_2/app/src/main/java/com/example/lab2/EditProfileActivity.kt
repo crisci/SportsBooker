@@ -1,4 +1,4 @@
-package com.example.lab_2
+package com.example.lab2
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -13,6 +13,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Matrix
 import android.net.Uri
+import android.nfc.Tag
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -26,12 +27,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.cunoraz.tagview.Tag
-import com.cunoraz.tagview.TagView
-import com.example.lab2.InterestView
-import com.example.lab2.entities.Sport
-import com.example.lab2.entities.Statistic
-import com.example.lab_2.entities.User
+import com.cunoraz.tagview.*
+import com.example.lab2.entities.*
 import com.google.gson.Gson
 import java.io.*
 import java.time.LocalDate

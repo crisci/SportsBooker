@@ -9,9 +9,9 @@ import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
 import com.example.lab2.entities.BadgeType
-import com.example.lab_2.R
 
-public class SkillAdapter(private val context: Context, private val badges: Map<BadgeType, Int>) : BaseAdapter() {
+public class SkillAdapter(private val context: Context, private val badges: Map<BadgeType, Int>) :
+        BaseAdapter() {
     override fun getCount(): Int {
         return badges.size
     }
@@ -21,12 +21,15 @@ public class SkillAdapter(private val context: Context, private val badges: Map<
     }
 
     override fun getItemId(i: Int): Long {
-       return i.toLong()
+        return i.toLong()
     }
 
     override fun getView(i: Int, convertView: View?, parent: ViewGroup?): View {
 
-        val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.skill_layout, parent, false)
+        val view =
+                convertView
+                        ?: LayoutInflater.from(context)
+                                .inflate(R.layout.skill_layout, parent, false)
 
         val skillImage = view.findViewById<ImageView>(R.id.skill_image)
         val skillText = view.findViewById<TextView>(R.id.skill_label)

@@ -1,8 +1,7 @@
-package com.example.lab_2
-
-import org.junit.Test
+package com.example.lab2
 
 import org.junit.Assert.*
+import org.junit.Test
 
 /**
  * Example local unit test, which will execute on the development machine (host).
