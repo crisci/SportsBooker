@@ -30,12 +30,14 @@ import androidx.core.content.ContextCompat
 import com.cunoraz.tagview.*
 import com.example.lab2.entities.*
 import com.google.gson.Gson
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.*
 import java.time.LocalDate
 import java.util.*
 import kotlin.concurrent.thread
 
 
+@AndroidEntryPoint
 class EditProfileActivity : AppCompatActivity() {
 
     private lateinit var user: User
@@ -64,7 +66,9 @@ class EditProfileActivity : AppCompatActivity() {
 
         findViews()
 
-        supportActionBar?.setDisplayShowTitleEnabled(false)
+
+        supportActionBar?.title = "Edit Profile"
+        supportActionBar?.elevation = 0f
 
         // Get the user information sended by the showProfile Activity,
         // than update the content of the views

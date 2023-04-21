@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="green">#31A05E</color>
+    <color name="green">#123713</color>
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -11,5 +11,13 @@
     <color name="blue_primary">#1A2A99</color>
     <color name="blue_secondary">#0D1779</color>
     <color name="bright_green">#1E6A21</color>
-    <color name="primary_green">#31A05E</color>
+    <color name="example_1_bg">#31A05E</color>
+    <color name="example_1_bg_light">#23804A</color>
+    <color name="example_1_bg_secondary">#40FFFFFF</color>
+    <color name="example_1_white_light">#4DFFFFFF</color>
+    <color name="example_1_white">#D9FFFFFF</color>
+    <color name="example_7_white">#D9FFFFFF</color>
+    <color name="example_7_yellow">#FFEB3B</color>
+    <color name="darker_blue">#000C37</color>
+    <color name="darker_blue_disabled">#45000C37</color>
 </resources>

@@ -20,8 +20,11 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.entities.User
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ShowProfileActivity : AppCompatActivity() {
     private var user: User = User()
 
@@ -38,6 +41,8 @@ class ShowProfileActivity : AppCompatActivity() {
     var image_uri: Uri? = null
 
     private lateinit var sharedPref: SharedPreferences
+
+    private lateinit var db : ReservationAppDatabase
 
 
     private val launcher = registerForActivityResult(
@@ -76,6 +81,7 @@ class ShowProfileActivity : AppCompatActivity() {
         skills.setOnClickListener { showCustomDialog() }
 
         supportActionBar?.setDisplayShowTitleEnabled(false)
+        supportActionBar?.elevation = 0f
 
         //load the shared preferences and update the views
         sharedPref = this.getSharedPreferences(
@@ -84,6 +90,13 @@ class ShowProfileActivity : AppCompatActivity() {
         val userPref = sharedPref.getString("user", null) ?: User().toJson()
         user = User.fromJson(userPref)
         updateContent()
+        
+        db = ReservationAppDatabase.getDatabase(this)
+
+        // IGNORE: DB gets created the very first time only if some Dao operations are executed
+        /* thread{
+            db.courtDao().save(Court(0, "CampoTest", "Tennis"))
+        } */
 
     }
 
@@ -106,13 +119,19 @@ class ShowProfileActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val intent = Intent(this, EditProfileActivity::class.java).apply {
+        val intentEditProfile = Intent(this, EditProfileActivity::class.java).apply {
             addCategory(Intent.CATEGORY_SELECTED_ALTERNATIVE)
             putExtra("user", user.toJson())
         }
+        val intentMyReservations = Intent(this, MyReservationsActivity::class.java)
+
         return when (item.itemId) {
             R.id.edit -> {
-                launcher.launch(intent)
+                launcher.launch(intentEditProfile)
+                true
+            }
+            R.id.my_reservations -> {
+                launcher.launch(intentMyReservations)
                 true
             }
             else -> super.onContextItemSelected(item)
@@ -156,6 +175,7 @@ class ShowProfileActivity : AppCompatActivity() {
     }
 
     private fun showCustomDialog() {
+
         val skillsDialog: Dialog = Dialog(this)
         skillsDialog.requestWindowFeature(Window.FEATURE_NO_TITLE) // Remove default title
         skillsDialog.setCancelable(true) // Allow user to exit dialog by clicking outside

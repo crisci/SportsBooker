@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical"
+    tools:context=".calendar.WeekCalendar">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/exSevenToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            <ImageButton
+                android:id="@+id/roundCalendarButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginRight="16dp"
+                android:background="@drawable/calendar_button"
+                android:padding="3dp"
+                android:src="@drawable/baseline_calendar_month_24"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_scrollFlags="scroll|enterAlways" />
+
+        </androidx.appcompat.widget.Toolbar>
+
+        <com.kizitonwose.calendar.view.WeekCalendarView
+            android:id="@+id/exSevenCalendar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:cv_dayViewResource="@layout/week_calendar_calendar_day"
+            app:cv_daySize="seventhWidth"
+            app:cv_orientation="horizontal" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="@android:color/darker_gray"
+        android:alpha="0.1"/>
+
+
+</LinearLayout>
