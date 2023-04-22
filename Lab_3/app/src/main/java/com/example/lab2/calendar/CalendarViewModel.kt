@@ -4,11 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.scopes.ActivityRetainedScoped
 import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
+@ActivityRetainedScoped
 class CalendarViewModel @Inject constructor() {
     private val _selectedDate = MutableLiveData<LocalDate>(LocalDate.now())
     fun selectedDate(): LiveData<LocalDate> {
