@@ -34,10 +34,11 @@ abstract class ReservationAppDatabase : RoomDatabase() {
                 val i = INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     ReservationAppDatabase::class.java,
-                    "reservation_app_database"
-                ).build()
+                    "sample.db"
+                ).createFromAsset("database/sample.db").build()
                 INSTANCE = i
                 INSTANCE
             })!!
     }
 }
+

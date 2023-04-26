@@ -2,12 +2,10 @@ package com.example.lab2.calendar
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.lab2.R
 import com.example.lab2.databinding.MonthCalendarCalendarDayBinding
@@ -19,7 +17,6 @@ import com.kizitonwose.calendar.core.yearMonth
 import com.kizitonwose.calendar.view.CalendarView
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.ViewContainer
-import com.kizitonwose.calendar.view.WeekCalendarView
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -31,7 +28,6 @@ class MonthCalendar : Fragment(R.layout.month_calendar_fragment){
 
     private lateinit var binding: MonthCalendarFragmentBinding
     private val monthCalendarView: CalendarView get() = binding.exOneCalendar
-    private val weekCalendarView: WeekCalendarView get() = binding.exOneWeekCalendar
 
     private lateinit var selectedDate: LocalDate
     private val today = LocalDate.now()
@@ -46,11 +42,8 @@ class MonthCalendar : Fragment(R.layout.month_calendar_fragment){
 
         binding = MonthCalendarFragmentBinding.bind(view)
 
-        //vm = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
-
-        vm.selectedDate().observe(viewLifecycleOwner){
+        vm.selectedDate.observe(viewLifecycleOwner){
             selectedDate = it
-            Log.e("Date", "Calendar: ${selectedDate.toString()}")
             binding.exOneCalendar.scrollToMonth(selectedDate.yearMonth)
         }
 
@@ -137,7 +130,7 @@ class MonthCalendar : Fragment(R.layout.month_calendar_fragment){
             monthCalendarView.notifyDateChanged(currentSelection)
         } else {
             selectedDate = date
-            vm.setSelectedDate(selectedDate)
+            vm.setSelectedDate(selectedDate!!)
 
             if (currentSelection != null) {
                 // We need to also reload the previously selected

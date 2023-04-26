@@ -36,7 +36,6 @@ import java.time.LocalDate
 import java.util.*
 import kotlin.concurrent.thread
 
-
 @AndroidEntryPoint
 class EditProfileActivity : AppCompatActivity() {
 

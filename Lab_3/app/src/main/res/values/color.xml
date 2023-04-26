@@ -20,4 +20,8 @@
     <color name="example_7_yellow">#FFEB3B</color>
     <color name="darker_blue">#000C37</color>
     <color name="darker_blue_disabled">#45000C37</color>
+    <color name="today_color">#D1D1D1</color>
+    <color name="dull_red">#900000</color>
+    <color name="bright_red">#B50202</color>
+    <color name="error">#900000</color>
 </resources>

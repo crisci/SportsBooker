@@ -14,9 +14,7 @@
             android:id="@+id/action_myReservations_to_fullScreenCalendar"
             app:destination="@id/fullScreenCalendar"
             app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:exitAnim="@anim/slide_out_left" />
     </fragment>
     <fragment
         android:id="@+id/fullScreenCalendar"
@@ -28,8 +26,6 @@
             app:destination="@id/myReservations"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_out_right"
-            app:popExitAnim="@anim/slide_in_left"
             app:popUpTo="@id/myReservations"
             app:popUpToInclusive="true" />
     </fragment>

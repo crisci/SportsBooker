@@ -5,7 +5,6 @@ import android.view.View
 import android.widget.ImageButton
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.example.lab2.R
@@ -28,8 +27,11 @@ class WeekCalendar : Fragment(R.layout.week_calendar_fragment){
     private lateinit var selectedDate : LocalDate //current date
     private val dateFormatter = DateTimeFormatter.ofPattern("dd")
     private lateinit var binding: WeekCalendarFragmentBinding
+
     @Inject
     lateinit var vm: CalendarViewModel
+
+
     private lateinit var roundCalendarButton : ImageButton
     private lateinit var oldDate: LocalDate
     private lateinit var navController: NavController
@@ -41,19 +43,15 @@ class WeekCalendar : Fragment(R.layout.week_calendar_fragment){
 
         binding = WeekCalendarFragmentBinding.bind(view)
 
-        //vm = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
-
-        vm.selectedDate().observe(viewLifecycleOwner){
+        vm.selectedDate.observe(viewLifecycleOwner){
             oldDate = selectedDate
             selectedDate = it
             binding.exSevenCalendar.scrollToWeek(selectedDate)
             updateDate()
         }
 
-        selectedDate = vm.selectedDate().value!!
+        selectedDate = vm.selectedDate.value!!
 
-
-        val fullCalendarFragment = MonthCalendar()
         roundCalendarButton = binding.roundCalendarButton
         roundCalendarButton.setOnClickListener {
             navController.navigate(R.id.action_myReservations_to_fullScreenCalendar)

@@ -11,6 +11,8 @@ interface CourtDAO {
     @Query("SELECT * FROM courts WHERE courtId = :courtId")
     fun loadCourtById(courtId: Int) : LiveData<Court>
 
+    @Query("SELECT * FROM courts")
+    fun loadAllCourts(): List<Court>
     @Insert
     fun save(court: Court)
 }
