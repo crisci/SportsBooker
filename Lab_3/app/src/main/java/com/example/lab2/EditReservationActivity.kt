@@ -5,8 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContentProviderCompat.requireContext
 import com.example.lab2.calendar.CalendarViewModel
@@ -29,6 +31,7 @@ class EditReservationActivity : AppCompatActivity() {
     private lateinit var location_edit_reservation: TextView
     private lateinit var cancelButton: Button
     private lateinit var db: ReservationAppDatabase
+    private lateinit var backButton: ImageView
 
     @Inject
     lateinit var vm: CalendarViewModel
@@ -80,11 +83,24 @@ class EditReservationActivity : AppCompatActivity() {
 
 
         //TODO: fetch the reservation from the DB using the reservationId
-        reservation = Reservation(reservationId,courtId,numOfPlayers,price, LocalDate.parse(date, DateTimeFormatter.ISO_DATE), LocalTime.now())
+        reservation = Reservation(reservationId,courtId,numOfPlayers,price, LocalDate.parse(date, DateTimeFormatter.ISO_DATE), LocalTime.parse(time))
         updateContent()
 
-        supportActionBar?.title = "Edit Reservation $reservationId"
+        /*supportActionBar?.title = "Edit Reservation $reservationId"
+        supportActionBar?.elevation = 0f*/
+
         supportActionBar?.elevation = 0f
+
+        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
+        supportActionBar?.setCustomView(R.layout.toolbar)
+        val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
+        titleTextView?.text = "Edit Reservations"
+
+        backButton = supportActionBar?.customView?.findViewById<ImageView>(R.id.custom_back_icon)!!
+        backButton.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

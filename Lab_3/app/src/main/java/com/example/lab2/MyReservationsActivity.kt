@@ -35,7 +35,8 @@ class MyReservationsActivity : AppCompatActivity() {
 
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
         supportActionBar?.setCustomView(R.layout.toolbar)
-        supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
+        val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
+        titleTextView?.text = "My Reservations"
 
 
 

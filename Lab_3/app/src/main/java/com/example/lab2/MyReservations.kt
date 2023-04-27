@@ -56,8 +56,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
                 list = db.reservationDao().loadAllReservations()
                 filteredList = list.filter { it.date.dayOfYear == calendar.selectedDate.value?.dayOfYear }
                 calendar.list.postValue(filteredList)
-                //Log.d("db",list.toString())
-                //adapterCard.setReservations(filteredList)
             }
         }
     }
@@ -66,29 +64,46 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         super.onViewCreated(view, savedInstanceState)
 
         db = ReservationAppDatabase.getDatabase(requireContext())
-
         filteredList = emptyList()
-
         navController = findNavController()
 
         val adapterCard = AdapterCard(filteredList, this )
-
-        calendar.list.observe(requireActivity()){
-            adapterCard.setReservations(calendar.list.value!!)
-        }
-
         val recyclerViewCard = view.findViewById<RecyclerView>(R.id.your_reservation_recycler_view)
         recyclerViewCard.adapter = adapterCard
         recyclerViewCard.layoutManager = LinearLayoutManager(requireContext())
 
+        CoroutineScope(Dispatchers.IO).launch {
+            db.reservationDao().saveReservation(
+                Reservation(
+                    0,
+                    1,
+                    3,
+                    7.0,
+                    LocalDate.now(),
+                    LocalTime.of(11,0)
+                )
+            )
+            db.reservationDao().saveReservation(
+                Reservation(
+                    0,
+                    1,
+                    3,
+                    7.0,
+                    LocalDate.now(),
+                    LocalTime.of(12,0)
+                )
+            )
+        }
+
+        calendar.list.observe(requireActivity()){
+            adapterCard.setReservations(calendar.list.value!!)
+        }
 
         calendar.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.reservationDao().loadAllReservations()
                 filteredList = list.filter { it.date.dayOfYear == calendar.selectedDate.value?.dayOfYear }
                 calendar.list.postValue(filteredList)
-                //Log.d("db",list.toString())
-                //adapterCard.setReservations(filteredList)
             }
         }
     }
@@ -105,7 +120,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             putExtra("price", reservation.price)
             putExtra("numOfPlayers", reservation.numOfPlayers)
         }
-        //startActivity(intentEditReservation)
         launcher.launch(intentEditReservation)
     }
 
