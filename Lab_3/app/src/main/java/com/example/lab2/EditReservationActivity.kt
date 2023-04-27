@@ -14,6 +14,7 @@ import androidx.core.content.ContentProviderCompat.requireContext
 import com.example.lab2.calendar.CalendarViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.Reservation
+import com.example.lab2.database.reservation.formatPrice
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +33,7 @@ class EditReservationActivity : AppCompatActivity() {
     private lateinit var cancelButton: Button
     private lateinit var db: ReservationAppDatabase
     private lateinit var backButton: ImageView
+    private lateinit var priceText: TextView
 
     @Inject
     lateinit var vm: CalendarViewModel
@@ -61,6 +63,7 @@ class EditReservationActivity : AppCompatActivity() {
         db = ReservationAppDatabase.getDatabase(this)
         court_name_edit_reservation = findViewById(R.id.court_name_edit_reservation)
         location_edit_reservation = findViewById(R.id.location_edit_reservation)
+        priceText = findViewById(R.id.local_price_edit_reservation)
         cancelButton = findViewById(R.id.cancel_button_edit_reservation)
         cancelButton.setOnClickListener {
             val intent = Intent(this, CancelReservationActivity::class.java).apply {
@@ -117,6 +120,7 @@ class EditReservationActivity : AppCompatActivity() {
     private fun updateContent() {
         court_name_edit_reservation.text = "Campo ${reservation.courtId}"
         location_edit_reservation.text = "Corso Duca degli Abruzzi 24, Torino"
+        priceText.text = "You will pay €${reservation.formatPrice()} locally."
     }
 
 }

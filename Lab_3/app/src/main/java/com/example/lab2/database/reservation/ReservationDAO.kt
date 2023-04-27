@@ -6,6 +6,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.lab2.database.court.Court
 
 @Dao
 interface ReservationDAO {
@@ -13,8 +14,10 @@ interface ReservationDAO {
     @Query("SELECT * FROM reservations WHERE reservationId = (:reservationId)")
     fun loadReservationById(reservationId: Int) : LiveData<Reservation>
 
-    @Query("SELECT * FROM reservations")
-    fun loadAllReservations(): List<Reservation>
+    // TODO FIX
+    @Query("SELECT * FROM reservations" +
+    "JOIN court ON reservations.courtId = courts.courtId")
+    fun loadAllReservations(): Map<Reservation, Court>
 
     //Not necessary to define update because of REPLACE strategy
     @Insert(onConflict = OnConflictStrategy.REPLACE)

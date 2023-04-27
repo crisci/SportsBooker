@@ -80,7 +80,7 @@ class CancelReservationActivity : AppCompatActivity() {
         val day = dayMonth[0]
         val month = dayMonth[1].replaceFirstChar { it.uppercase() }
         val formattedDate = "$day $month"
-        time_cancel_reservation.text = formattedDate
-        date_cancel_reservation.text = reservation.time.format(DateTimeFormatter.ofPattern("HH:mm")).toString()
+        date_cancel_reservation.text = formattedDate
+        time_cancel_reservation.text = reservation.time.format(DateTimeFormatter.ofPattern("HH:mm")).toString()
     }
 }

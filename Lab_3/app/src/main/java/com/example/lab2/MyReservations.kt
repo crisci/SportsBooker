@@ -72,13 +72,13 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         recyclerViewCard.adapter = adapterCard
         recyclerViewCard.layoutManager = LinearLayoutManager(requireContext())
 
-        CoroutineScope(Dispatchers.IO).launch {
+        /* CoroutineScope(Dispatchers.IO).launch {
             db.reservationDao().saveReservation(
                 Reservation(
                     0,
                     1,
                     3,
-                    7.0,
+                    7.00,
                     LocalDate.now(),
                     LocalTime.of(11,0)
                 )
@@ -88,12 +88,12 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
                     0,
                     1,
                     3,
-                    7.0,
+                    7.00,
                     LocalDate.now(),
                     LocalTime.of(12,0)
                 )
             )
-        }
+        }*/
 
         calendar.list.observe(requireActivity()){
             adapterCard.setReservations(calendar.list.value!!)
@@ -119,6 +119,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             putExtra("time", reservation.time.toString())
             putExtra("price", reservation.price)
             putExtra("numOfPlayers", reservation.numOfPlayers)
+            //putExtra("sport", ??? )
         }
         launcher.launch(intentEditReservation)
     }
@@ -165,12 +166,14 @@ class AdapterCard(private var list: List<Reservation>, private val listener: OnE
         holder.maxNumberOfPlayers.text = "/7"
         holder.time.text = list[position].time.format(DateTimeFormatter.ofPattern("HH:mm")).toString()
 
-        holder.editButton.setOnClickListener { listener.onEditClick(list[position]) }
+        holder.editButton.setOnClickListener { listener.onEditClick(list[holder.bindingAdapterPosition]) }
     }
 
     fun setReservations(newReservations: List<Reservation>) {
+
         val diffs = DiffUtil.calculateDiff(
-            ReservationDiffCallback(list, newReservations))
+            ReservationDiffCallback(list, newReservations)
+        )
         list = newReservations
         diffs.dispatchUpdatesTo(this)
     }
