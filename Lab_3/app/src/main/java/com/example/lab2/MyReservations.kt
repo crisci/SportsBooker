@@ -10,6 +10,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
@@ -41,15 +43,39 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
     private var list = listOf<Reservation>()
 
+    private lateinit var db: ReservationAppDatabase
+    private lateinit var filteredList: List<Reservation>
+
+    private val launcher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
+
+    private fun processResponse(response: androidx.activity.result.ActivityResult) {
+        if(response.resultCode == AppCompatActivity.RESULT_OK) {
+            val data: Intent? = response.data
+            CoroutineScope(Dispatchers.IO).launch {
+                list = db.reservationDao().loadAllReservations()
+                filteredList = list.filter { it.date.dayOfYear == calendar.selectedDate.value?.dayOfYear }
+                calendar.list.postValue(filteredList)
+                //Log.d("db",list.toString())
+                //adapterCard.setReservations(filteredList)
+            }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        var filteredList = emptyList<Reservation>()
-        val db: ReservationAppDatabase = ReservationAppDatabase.getDatabase(requireContext())
+        db = ReservationAppDatabase.getDatabase(requireContext())
+
+        filteredList = emptyList()
 
         navController = findNavController()
 
         val adapterCard = AdapterCard(filteredList, this )
+
+        calendar.list.observe(requireActivity()){
+            adapterCard.setReservations(calendar.list.value!!)
+        }
 
         val recyclerViewCard = view.findViewById<RecyclerView>(R.id.your_reservation_recycler_view)
         recyclerViewCard.adapter = adapterCard
@@ -60,8 +86,9 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.reservationDao().loadAllReservations()
                 filteredList = list.filter { it.date.dayOfYear == calendar.selectedDate.value?.dayOfYear }
-                adapterCard.setReservations(filteredList)
-                Log.e("db", list.toString() )
+                calendar.list.postValue(filteredList)
+                //Log.d("db",list.toString())
+                //adapterCard.setReservations(filteredList)
             }
         }
     }
@@ -78,7 +105,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             putExtra("price", reservation.price)
             putExtra("numOfPlayers", reservation.numOfPlayers)
         }
-        startActivity(intentEditReservation)
+        //startActivity(intentEditReservation)
+        launcher.launch(intentEditReservation)
     }
 
 }

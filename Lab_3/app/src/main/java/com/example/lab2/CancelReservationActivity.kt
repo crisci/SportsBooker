@@ -25,7 +25,6 @@ class CancelReservationActivity : AppCompatActivity() {
     private lateinit var cancelButton: Button
     private lateinit var menuItem: MenuItem
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cancel_reservation)

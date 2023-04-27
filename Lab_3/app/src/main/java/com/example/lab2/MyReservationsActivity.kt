@@ -15,10 +15,12 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.navigateUp
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.lab2.calendar.CalendarViewModel
 import com.example.lab2.database.reservation.Reservation
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
 import java.time.LocalTime
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MyReservationsActivity : AppCompatActivity() {
@@ -36,6 +38,7 @@ class MyReservationsActivity : AppCompatActivity() {
         supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
 
 
+
         navController = (
             supportFragmentManager
                 .findFragmentById(R.id.fragmentContainerView) as NavHostFragment
@@ -45,7 +48,6 @@ class MyReservationsActivity : AppCompatActivity() {
         backButton.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
-
 
     }
 }

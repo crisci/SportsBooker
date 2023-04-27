@@ -1,5 +1,6 @@
 package com.example.lab2
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +9,7 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContentProviderCompat.requireContext
+import com.example.lab2.calendar.CalendarViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.Reservation
 import dagger.hilt.android.AndroidEntryPoint
@@ -17,6 +19,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class EditReservationActivity : AppCompatActivity() {
@@ -26,6 +29,9 @@ class EditReservationActivity : AppCompatActivity() {
     private lateinit var location_edit_reservation: TextView
     private lateinit var cancelButton: Button
     private lateinit var db: ReservationAppDatabase
+
+    @Inject
+    lateinit var vm: CalendarViewModel
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
@@ -38,6 +44,7 @@ class EditReservationActivity : AppCompatActivity() {
                 CoroutineScope(Dispatchers.IO).launch {
                     db.reservationDao().cancelReservationById(reservation.reservationId)
                 }
+                setResult(Activity.RESULT_OK)
                 finish()
             }
         }
