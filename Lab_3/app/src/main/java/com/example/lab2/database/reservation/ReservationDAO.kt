@@ -15,9 +15,8 @@ interface ReservationDAO {
     fun loadReservationById(reservationId: Int) : LiveData<Reservation>
 
     // TODO FIX
-    @Query("SELECT * FROM reservations" +
-    "JOIN court ON reservations.courtId = courts.courtId")
-    fun loadAllReservations(): Map<Reservation, Court>
+    @Query("SELECT * FROM reservations")
+    fun loadAllReservations(): List<Reservation>
 
     //Not necessary to define update because of REPLACE strategy
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -25,5 +24,8 @@ interface ReservationDAO {
 
     @Query("DELETE FROM reservations WHERE reservationId = (:reservationId)")
     fun cancelReservationById(reservationId: Int)
+
+    @Query("DELETE FROM reservations")
+    fun deleteAllReservations()
 
 }

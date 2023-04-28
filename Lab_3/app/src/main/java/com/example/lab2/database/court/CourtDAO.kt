@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import java.time.LocalDate
 
 @Dao
 interface CourtDAO {
@@ -15,4 +16,7 @@ interface CourtDAO {
     fun loadAllCourts(): List<Court>
     @Insert
     fun save(court: Court)
+
+    @Query("SELECT c.*, r.time, r.date, r.price, r.numOfPlayers FROM courts c LEFT OUTER JOIN reservations r ON c.courtId = r.courtId AND r.date = :date")
+    fun getReservationsByDate(date: LocalDate): List<CourtWithReservations>
 }

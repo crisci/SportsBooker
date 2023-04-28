@@ -20,9 +20,14 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import com.example.lab2.calendar.setupTimeslots
 import com.example.lab2.database.ReservationAppDatabase
+import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.entities.User
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.LocalDate
+import java.time.LocalTime
+import kotlin.concurrent.thread
 
 @AndroidEntryPoint
 class ShowProfileActivity : AppCompatActivity() {
@@ -94,9 +99,20 @@ class ShowProfileActivity : AppCompatActivity() {
         db = ReservationAppDatabase.getDatabase(this)
 
         // IGNORE: DB gets created the very first time only if some Dao operations are executed
-        /* thread{
-            db.courtDao().save(Court(0, "CampoTest", "Tennis"))
-        } */
+        thread{
+            val courts = db.courtDao().loadAllCourts()
+            db.reservationDao().deleteAllReservations()
+            db.reservationDao().saveReservation(
+                Reservation(
+                    0,
+                    1,
+                    2,
+                    7.00,
+                    LocalDate.now(),
+                    LocalTime.of(10,0)
+                )
+            )
+        }
 
     }
 

@@ -2,7 +2,6 @@ package com.example.lab2
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
@@ -12,8 +11,6 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
@@ -22,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.lab2.calendar.CalendarViewModel
 import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
-import com.example.lab2.database.court.Court
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.formatPrice
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,18 +29,21 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import kotlin.random.Random
 
 @AndroidEntryPoint
 class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.OnEditClickListener  {
 
     private lateinit var navController : NavController
     @Inject
-    lateinit var calendar: CalendarViewModel
+    lateinit var vm: CalendarViewModel
 
     private var list = listOf<Reservation>()
 
     private lateinit var db: ReservationAppDatabase
     private lateinit var filteredList: List<Reservation>
+
+    private lateinit var findNewGamesButton: Button
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
@@ -54,8 +53,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             val data: Intent? = response.data
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.reservationDao().loadAllReservations()
-                filteredList = list.filter { it.date.dayOfYear == calendar.selectedDate.value?.dayOfYear }
-                calendar.list.postValue(filteredList)
+                filteredList = list.filter { it.date.dayOfYear == vm.selectedDate.value?.dayOfYear }
+                vm.list.postValue(filteredList)
             }
         }
     }
@@ -68,42 +67,31 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         navController = findNavController()
 
         val adapterCard = AdapterCard(filteredList, this )
-        val recyclerViewCard = view.findViewById<RecyclerView>(R.id.your_reservation_recycler_view)
-        recyclerViewCard.adapter = adapterCard
-        recyclerViewCard.layoutManager = LinearLayoutManager(requireContext())
+        val listReservationsRecyclerView = view.findViewById<RecyclerView>(R.id.your_reservation_recycler_view)
+        listReservationsRecyclerView.adapter = adapterCard
+        listReservationsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        /* CoroutineScope(Dispatchers.IO).launch {
-            db.reservationDao().saveReservation(
-                Reservation(
-                    0,
-                    1,
-                    3,
-                    7.00,
-                    LocalDate.now(),
-                    LocalTime.of(11,0)
-                )
-            )
-            db.reservationDao().saveReservation(
-                Reservation(
-                    0,
-                    1,
-                    3,
-                    7.00,
-                    LocalDate.now(),
-                    LocalTime.of(12,0)
-                )
-            )
-        }*/
-
-        calendar.list.observe(requireActivity()){
-            adapterCard.setReservations(calendar.list.value!!)
+        vm.list.observe(requireActivity()){
+            adapterCard.setReservations(vm.list.value!!)
         }
 
-        calendar.selectedDate.observe(viewLifecycleOwner) {
+        vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.reservationDao().loadAllReservations()
-                filteredList = list.filter { it.date.dayOfYear == calendar.selectedDate.value?.dayOfYear }
-                calendar.list.postValue(filteredList)
+                filteredList = list.filter { it.date.dayOfYear == vm.selectedDate.value?.dayOfYear }
+                vm.list.postValue(filteredList)
+            }
+        }
+
+        findNewGamesButton = view.findViewById(R.id.find_new_games_button)
+        findNewGamesButton.setOnClickListener {
+            navController.navigate(R.id.action_myReservations_to_newGames2)
+        }
+
+        val deleteAllButton = view.findViewById<Button>(R.id.delete_all_button)
+        deleteAllButton.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                db.reservationDao().deleteAllReservations()
             }
         }
     }
