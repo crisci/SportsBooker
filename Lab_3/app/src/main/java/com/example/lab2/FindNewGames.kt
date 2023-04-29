@@ -116,7 +116,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         )
 
         // create a map to store the available timeslots for each court
-        val availableTimeslotsByCourt = mutableMapOf<Court, Set<LocalTime>>()
+        val courtTimeslots = mutableMapOf<Court, Set<LocalTime>>()
 
         // loop through each court with reservations
         for (courtWithReservations in listCourtsWithReservations) {
@@ -124,14 +124,18 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
             val reservedTimeslots = courtWithReservations.reservations.map { it.time }
 
             // subtract the reserved timeslots from the set of all timeslots to get the available timeslots
-            val availableTimeslots = allTimeslots - reservedTimeslots.toSet()
+            var availableTimeslots = allTimeslots - reservedTimeslots.toSet()
+
+            var currentTime = LocalTime.now()
+            // remove the timeslots before the current time
+            availableTimeslots = availableTimeslots.filter { it >= currentTime }.toSet()
 
             // add the court and available timeslots to the map
-            availableTimeslotsByCourt[courtWithReservations.court] = availableTimeslots
+            courtTimeslots[courtWithReservations.court] = availableTimeslots
         }
 
         // return the map of available timeslots by court
-        return availableTimeslotsByCourt
+        return courtTimeslots
     }
 
     // TODO
