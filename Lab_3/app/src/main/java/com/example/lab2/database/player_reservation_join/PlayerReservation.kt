@@ -1,10 +1,12 @@
 package com.example.lab2.database.player_reservation_join
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.example.lab2.database.player.Player
 import com.example.lab2.database.reservation.Reservation
+import com.example.lab2.database.reservation.ReservationWithCourt
 
 @Entity(
     tableName = "players_reservations",

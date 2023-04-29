@@ -17,7 +17,7 @@ data class Reservation (
     val numOfPlayers: Int,
     val price: Double,
     val date: LocalDate,
-    val time: LocalTime,
+    var time: LocalTime,
 )
 
 fun Reservation.formatPrice(): String {

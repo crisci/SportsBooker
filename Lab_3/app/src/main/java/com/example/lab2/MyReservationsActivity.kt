@@ -51,7 +51,5 @@ class MyReservationsActivity : AppCompatActivity() {
             onBackPressedDispatcher.onBackPressed()
         }
 
-
-
     }
 }

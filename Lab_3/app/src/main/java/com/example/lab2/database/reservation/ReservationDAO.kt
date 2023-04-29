@@ -7,16 +7,17 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.lab2.database.court.Court
+import com.example.lab2.database.court.CourtWithReservations
+import com.example.lab2.database.player_reservation_join.ReservationWithPlayers
+import java.time.LocalDate
 
 @Dao
 interface ReservationDAO {
 
-    @Query("SELECT * FROM reservations WHERE reservationId = (:reservationId)")
-    fun loadReservationById(reservationId: Int) : LiveData<Reservation>
 
     // TODO FIX
-    @Query("SELECT * FROM reservations")
-    fun loadAllReservations(): List<Reservation>
+    @Query("SELECT r.*, c.name, c.sport FROM reservations r LEFT OUTER JOIN courts c ON c.courtId = r.courtId")
+    fun loadAllReservations(): List<ReservationWithCourt>
 
     //Not necessary to define update because of REPLACE strategy
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -27,5 +28,16 @@ interface ReservationDAO {
 
     @Query("DELETE FROM reservations")
     fun deleteAllReservations()
+
+    @Query(
+        "SELECT r.*, pr.* " +
+            "FROM reservations r" +
+            " JOIN players_reservations pr ON pr.reservationId = r.reservationId" +
+            " WHERE r.reservationId = (:reservationId)"
+    )
+    fun loadPlayersByReservationId(reservationId: Int) : ReservationWithPlayers
+
+
+
 
 }

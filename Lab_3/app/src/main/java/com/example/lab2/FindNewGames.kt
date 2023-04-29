@@ -27,7 +27,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalTime
+
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -52,8 +54,8 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         if(response.resultCode == AppCompatActivity.RESULT_OK) {
             val data: Intent? = response.data
             CoroutineScope(Dispatchers.IO).launch {
-                listCourtsWithReservations = db.courtDao().getReservationsByDate(vm.selectedDate.value!!)
-                mapCourtsWithAvailableTimeslots = computeAvailableTimeslotsForAllCourts(listCourtsWithReservations)
+                listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
+                mapCourtsWithAvailableTimeslots = computeAvailableTimeslotsForAllCourts(listCourtsWithReservations, vm.selectedDate.value!!)
                 Log.d("mapCourtsWithAvailableTimeslots",mapCourtsWithAvailableTimeslots.toString())
                 vm.mapCourtsWithAvailableTimeslots.postValue(mapCourtsWithAvailableTimeslots)
             }
@@ -91,8 +93,8 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
-                listCourtsWithReservations = db.courtDao().getReservationsByDate(vm.selectedDate.value!!)
-                mapCourtsWithAvailableTimeslots = computeAvailableTimeslotsForAllCourts(listCourtsWithReservations)
+                listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
+                mapCourtsWithAvailableTimeslots = computeAvailableTimeslotsForAllCourts(listCourtsWithReservations, vm.selectedDate.value!!)
                 Log.d("mapCourtsWithAvailableTimeslots",mapCourtsWithAvailableTimeslots.toString())
                 vm.mapCourtsWithAvailableTimeslots.postValue(mapCourtsWithAvailableTimeslots)
             }
@@ -100,7 +102,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
     }
 
     // Define a function to compute all available timeslots for all courts
-    private fun computeAvailableTimeslotsForAllCourts(listCourtsWithReservations: List<CourtWithReservations>): Map<Court, Set<LocalTime>> {
+    private fun computeAvailableTimeslotsForAllCourts(listCourtsWithReservations: List<CourtWithReservations>, date: LocalDate): MutableMap<Court, Set<LocalTime>> {
         // create a set of all available timeslots
         val allTimeslots = setOf(
             LocalTime.of(8, 30),
@@ -126,9 +128,14 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
             // subtract the reserved timeslots from the set of all timeslots to get the available timeslots
             var availableTimeslots = allTimeslots - reservedTimeslots.toSet()
 
-            var currentTime = LocalTime.now()
-            // remove the timeslots before the current time
-            availableTimeslots = availableTimeslots.filter { it >= currentTime }.toSet()
+            // if the selected date is today
+            if(date == LocalDate.now()) {
+
+                var currentTime = LocalTime.now()
+                // remove the timeslots before the current time
+                availableTimeslots = availableTimeslots.filter { it >= currentTime }.toSet()
+
+            }
 
             // add the court and available timeslots to the map
             courtTimeslots[courtWithReservations.court] = availableTimeslots
@@ -192,7 +199,7 @@ class AdapterNewGames(private var mapCourtsWithAvailableTimeslots: Map<Court,Set
                 }
                 holder.timeslots.addView(tv, layoutParams)
             }
-        holder.name.text = "Campo ${court.courtId}"
+        holder.name.text = "${court.name}"
         holder.location.text = "Via Giovanni Magni, 32"
     }
 

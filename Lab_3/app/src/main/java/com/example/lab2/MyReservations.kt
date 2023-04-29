@@ -2,6 +2,7 @@ package com.example.lab2
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
@@ -20,6 +21,7 @@ import com.example.lab2.calendar.CalendarViewModel
 import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.Reservation
+import com.example.lab2.database.reservation.ReservationWithCourt
 import com.example.lab2.database.reservation.formatPrice
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -38,10 +40,10 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
     @Inject
     lateinit var vm: CalendarViewModel
 
-    private var list = listOf<Reservation>()
+    private var list = listOf<ReservationWithCourt>()
 
     private lateinit var db: ReservationAppDatabase
-    private lateinit var filteredList: List<Reservation>
+    private lateinit var filteredList: List<ReservationWithCourt>
 
     private lateinit var findNewGamesButton: Button
 
@@ -53,7 +55,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             val data: Intent? = response.data
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.reservationDao().loadAllReservations()
-                filteredList = list.filter { it.date.dayOfYear == vm.selectedDate.value?.dayOfYear }
+                filteredList = list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear }
                 vm.list.postValue(filteredList)
             }
         }
@@ -77,8 +79,9 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
-                list = db.reservationDao().loadAllReservations()
-                filteredList = list.filter { it.date.dayOfYear == vm.selectedDate.value?.dayOfYear }
+                list = db.playerDao().loadReservationsByPlayerId(1)
+                filteredList = list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear }
+
                 vm.list.postValue(filteredList)
             }
         }
@@ -98,16 +101,17 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
 
 
-    override fun onEditClick(reservation: Reservation) {
+    override fun onEditClick(reservation: ReservationWithCourt) {
         val intentEditReservation = Intent(activity, EditReservationActivity::class.java).apply {
             addCategory(Intent.CATEGORY_SELECTED_ALTERNATIVE)
-            putExtra("reservationId", reservation.reservationId)
-            putExtra("courtId", reservation.courtId)
-            putExtra("date", reservation.date.toString())
-            putExtra("time", reservation.time.toString())
-            putExtra("price", reservation.price)
-            putExtra("numOfPlayers", reservation.numOfPlayers)
-            //putExtra("sport", ??? )
+            putExtra("reservationId", reservation.reservation.reservationId)
+            putExtra("date", reservation.reservation.date.toString())
+            putExtra("time", reservation.reservation.time.toString())
+            putExtra("price", reservation.reservation.price)
+            putExtra("numOfPlayers", reservation.reservation.numOfPlayers)
+            putExtra("courtId", reservation.court.courtId)
+            putExtra("courtName", reservation.court.name)
+            putExtra("sport", reservation.court.sport)
         }
         launcher.launch(intentEditReservation)
     }
@@ -122,12 +126,13 @@ class ViewHolderCard(v: View): RecyclerView.ViewHolder(v) {
     val maxNumberOfPlayers: TextView = v.findViewById(R.id.max_number_players)
     val time: TextView = v.findViewById(R.id.time_reservation)
     val editButton : ImageButton = v.findViewById(R.id.edit_reservation_button)
+    val sport : TextView = v.findViewById(R.id.sport_name)
 }
 
-class AdapterCard(private var list: List<Reservation>, private val listener: OnEditClickListener): RecyclerView.Adapter<ViewHolderCard>() {
+class AdapterCard(private var list: List<ReservationWithCourt>, private val listener: OnEditClickListener): RecyclerView.Adapter<ViewHolderCard>() {
 
     interface OnEditClickListener {
-        fun onEditClick(reservation: Reservation)
+        fun onEditClick(reservation: ReservationWithCourt)
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderCard {
         val v = LayoutInflater.from(parent.context)
@@ -141,23 +146,24 @@ class AdapterCard(private var list: List<Reservation>, private val listener: OnE
 
     override fun onBindViewHolder(holder: ViewHolderCard, position: Int) {
         val maxNumPlayers = 7
-        holder.name.text = "Campo ${list[position].courtId}"
+        holder.name.text = "${list[position].court.name}"
         holder.location.text = "Via Giovanni Magni, 32"
-        holder.price.text = "€ ${list[position].formatPrice()}"
-        if(list[position].numOfPlayers == maxNumPlayers) {
+        holder.price.text = "€ ${list[position].reservation.formatPrice()}"
+        if(list[position].reservation.numOfPlayers == maxNumPlayers) {
             holder.currentNumberOfPlayers.setTextColorRes(R.color.example_1_bg)
         }
         else {
             holder.currentNumberOfPlayers.setTextColorRes(R.color.bright_red)
         }
-        holder.currentNumberOfPlayers.text = "${list[position].numOfPlayers}"
+        holder.currentNumberOfPlayers.text = "${list[position].reservation.numOfPlayers}"
         holder.maxNumberOfPlayers.text = "/7"
-        holder.time.text = list[position].time.format(DateTimeFormatter.ofPattern("HH:mm")).toString()
+        holder.time.text = list[position].reservation.time.format(DateTimeFormatter.ofPattern("HH:mm")).toString()
+        holder.sport.text = "${list[position].court.sport}"
 
         holder.editButton.setOnClickListener { listener.onEditClick(list[holder.bindingAdapterPosition]) }
     }
 
-    fun setReservations(newReservations: List<Reservation>) {
+    fun setReservations(newReservations: List<ReservationWithCourt>) {
 
         val diffs = DiffUtil.calculateDiff(
             ReservationDiffCallback(list, newReservations)

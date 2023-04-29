@@ -7,7 +7,6 @@ import androidx.room.PrimaryKey
 data class Court (
     @PrimaryKey(autoGenerate = true)
     val courtId: Int = 0,
-
     val name: String,
     val sport: String,
 )

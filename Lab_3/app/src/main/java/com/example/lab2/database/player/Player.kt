@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import com.example.lab2.database.Converters
+import com.example.lab2.database.reservation.Reservation
 import java.time.LocalDate
 
 
@@ -11,7 +12,6 @@ import java.time.LocalDate
 data class Player (
     @PrimaryKey(autoGenerate = true)
     val playerId: Int = 0,
-
     val fullName: String,
     val location: String,
     val dateOfBirth: LocalDate,

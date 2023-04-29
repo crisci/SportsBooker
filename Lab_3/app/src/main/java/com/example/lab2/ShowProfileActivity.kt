@@ -101,7 +101,7 @@ class ShowProfileActivity : AppCompatActivity() {
         // IGNORE: DB gets created the very first time only if some Dao operations are executed
         thread{
             val courts = db.courtDao().loadAllCourts()
-            db.reservationDao().deleteAllReservations()
+            //db.reservationDao().deleteAllReservations()
             db.reservationDao().saveReservation(
                 Reservation(
                     0,

@@ -4,9 +4,12 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.transition.TransitionInflater
+import androidx.transition.TransitionManager
 import com.example.lab2.R
 import com.example.lab2.databinding.MonthCalendarCalendarDayBinding
 import com.example.lab2.databinding.MonthCalendarFragmentBinding
@@ -38,8 +41,6 @@ class MonthCalendar : Fragment(R.layout.month_calendar_fragment){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-
         binding = MonthCalendarFragmentBinding.bind(view)
 
         vm.selectedDate.observe(viewLifecycleOwner){
@@ -60,6 +61,7 @@ class MonthCalendar : Fragment(R.layout.month_calendar_fragment){
         val startMonth = currentMonth.minusMonths(100)
         val endMonth = currentMonth.plusMonths(100)
         setupMonthCalendar(startMonth, endMonth, currentMonth, daysOfWeek)
+
     }
 
     private fun setupMonthCalendar(
@@ -78,7 +80,7 @@ class MonthCalendar : Fragment(R.layout.month_calendar_fragment){
                     // Check the day position as we do not want to select in or out dates.
                     if (day.position == DayPosition.MonthDate && day.date >= LocalDate.now()) {
                         dateClicked(date = day.date)
-                        findNavController().navigate(R.id.action_fullScreenCalendar_to_myReservations)
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
                     }
                 }
             }
