@@ -54,7 +54,7 @@ class WeekCalendar : Fragment(R.layout.week_calendar_fragment){
 
         roundCalendarButton = binding.roundCalendarButton
         roundCalendarButton.setOnClickListener {
-            navController.navigate(R.id.action_myReservations_to_fullScreenCalendar)
+            navController.navigate(R.id.action_global_to_fullScreenCalendar)
         }
 
         /* DayViewContainer is our view container which acts as a view holder

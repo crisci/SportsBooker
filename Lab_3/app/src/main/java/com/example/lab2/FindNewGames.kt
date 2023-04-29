@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
@@ -61,11 +62,6 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        (activity as AppCompatActivity).supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
-        (activity as AppCompatActivity).supportActionBar?.setCustomView(R.layout.toolbar)
-        val titleTextView =  (activity as AppCompatActivity).supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
-        titleTextView?.text = "Find New Games"
 
         db = ReservationAppDatabase.getDatabase(requireContext())
         mapCourtsWithAvailableTimeslots = emptyMap()
@@ -149,7 +145,7 @@ class ViewHolderNewGames(v: View): RecyclerView.ViewHolder(v) {
 
     val name: TextView = v.findViewById(R.id.court_name_reservation)
     val location: TextView = v.findViewById(R.id.location_reservation)
-    val timeslots: LinearLayout = v.findViewById(R.id.timeslots)
+    val timeslots: GridLayout = v.findViewById(R.id.timeslots)
 }
 
 class AdapterNewGames(private var mapCourtsWithAvailableTimeslots: Map<Court,Set<LocalTime>>, var listener: OnClickTimeslot): RecyclerView.Adapter<ViewHolderNewGames>(){
@@ -175,13 +171,13 @@ class AdapterNewGames(private var mapCourtsWithAvailableTimeslots: Map<Court,Set
                 val tv = TextView(holder.itemView.context)
                 tv.text = "${t.format(DateTimeFormatter.ofPattern("HH:mm"))}"
                 val layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
+                    220,
+                    100
                 )
-                layoutParams.setMargins(0, 0, 20, 0)
+                layoutParams.setMargins(0, 0, 20, 20)
                 tv.setPadding(20,25,20,25)
                 tv.setTextAppearance(R.style.TimeslotTextAppearance)
-                tv.setTextColorRes(R.color.darker_blue)
+                tv.setTextColorRes(R.color.timeslot)
                 tv.elevation = 5F
                 tv.background = holder.itemView.context.getDrawable(R.drawable.timeslot)
                 tv.textAlignment = View.TEXT_ALIGNMENT_CENTER;

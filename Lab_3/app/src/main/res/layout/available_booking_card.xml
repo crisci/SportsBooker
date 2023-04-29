@@ -28,7 +28,8 @@
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/sport_name"
+            app:layout_constraintVertical_bias="0.26" />
 
         <TextView
             android:id="@+id/sport_name"
@@ -65,7 +66,6 @@
                 app:layout_constraintStart_toEndOf="@+id/imageView" />
         </LinearLayout>
 
-
         <HorizontalScrollView
             android:layout_marginTop="20dp"
             android:layout_width="match_parent"
@@ -76,10 +76,18 @@
             android:fillViewport="true">
 
             <LinearLayout
-                android:id="@+id/timeslots"
+                android:id="@+id/timeslots_wrapper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal" >
+
+                <GridLayout
+                    android:id="@+id/timeslots"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="5">
+                </GridLayout>
+
             </LinearLayout>
         </HorizontalScrollView>
 
