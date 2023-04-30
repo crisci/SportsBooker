@@ -100,18 +100,20 @@ class ShowProfileActivity : AppCompatActivity() {
 
         // IGNORE: DB gets created the very first time only if some Dao operations are executed
         thread{
-            val courts = db.courtDao().loadAllCourts()
-            //db.reservationDao().deleteAllReservations()
-            db.reservationDao().saveReservation(
-                Reservation(
-                    0,
-                    1,
-                    2,
-                    7.00,
-                    LocalDate.now(),
-                    LocalTime.of(10,0)
+            //val courts = db.courtDao().loadAllCourts()
+            db.reservationDao().deleteAllReservations()
+            for (i in 1..3) {
+                db.reservationDao().saveReservation(
+                    Reservation(
+                        reservationId = 0,
+                        courtId = i,
+                        numOfPlayers = 0,
+                        price = 7.00,
+                        date = LocalDate.now(),
+                        time = LocalTime.of(10 + i,0)
+                    )
                 )
-            )
+            }
         }
 
     }

@@ -9,4 +9,5 @@ data class Court (
     val courtId: Int = 0,
     val name: String,
     val sport: String,
+    val maxNumOfPlayers: Int
 )

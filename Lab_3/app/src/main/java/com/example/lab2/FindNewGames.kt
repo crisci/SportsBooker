@@ -44,7 +44,6 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
     private var listCourtsWithReservations = listOf<CourtWithReservations>()
 
     private lateinit var db: ReservationAppDatabase
-    private var mapCourtsWithAvailableTimeslots = mapOf<Court,Set<LocalTime>>()
 
 
     private val launcher = registerForActivityResult(
@@ -55,9 +54,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
             val data: Intent? = response.data
             CoroutineScope(Dispatchers.IO).launch {
                 listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
-                mapCourtsWithAvailableTimeslots = computeAvailableTimeslotsForAllCourts(listCourtsWithReservations, vm.selectedDate.value!!)
-                Log.d("mapCourtsWithAvailableTimeslots",mapCourtsWithAvailableTimeslots.toString())
-                vm.mapCourtsWithAvailableTimeslots.postValue(mapCourtsWithAvailableTimeslots)
+                vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
         }
     }
@@ -66,89 +63,29 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         super.onViewCreated(view, savedInstanceState)
 
         db = ReservationAppDatabase.getDatabase(requireContext())
-        mapCourtsWithAvailableTimeslots = emptyMap()
         navController = findNavController()
 
-        val adapterCard = AdapterNewGames(mapCourtsWithAvailableTimeslots, this)
+        val adapterCard = AdapterNewGames(listCourtsWithReservations, this)
         val listReservationsRecyclerView = view.findViewById<RecyclerView>(R.id.available_bookings)
         listReservationsRecyclerView.adapter = adapterCard
         listReservationsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-/*        CoroutineScope(Dispatchers.IO).launch {
-            db.reservationDao().saveReservation(
-                Reservation(
-                    0,
-                    Random.nextInt(1, 3),
-                    Random.nextInt(1, 7),
-                    7.00,
-                    LocalDate.now(),
-                    LocalTime.of(Random.nextInt(8, 24),Random.nextInt(0, 60))
-                )
-            )
-        }*/
 
-        vm.mapCourtsWithAvailableTimeslots.observe(requireActivity()){
-            adapterCard.setListCourts(vm.mapCourtsWithAvailableTimeslots.value!!)
+        vm.listAvailableReservations.observe(requireActivity()){
+            adapterCard.setListCourts(vm.listAvailableReservations.value!!)
         }
 
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
                 listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
-                mapCourtsWithAvailableTimeslots = computeAvailableTimeslotsForAllCourts(listCourtsWithReservations, vm.selectedDate.value!!)
-                Log.d("mapCourtsWithAvailableTimeslots",mapCourtsWithAvailableTimeslots.toString())
-                vm.mapCourtsWithAvailableTimeslots.postValue(mapCourtsWithAvailableTimeslots)
+                vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
         }
-    }
-
-    // Define a function to compute all available timeslots for all courts
-    private fun computeAvailableTimeslotsForAllCourts(listCourtsWithReservations: List<CourtWithReservations>, date: LocalDate): MutableMap<Court, Set<LocalTime>> {
-        // create a set of all available timeslots
-        val allTimeslots = setOf(
-            LocalTime.of(8, 30),
-            LocalTime.of(10, 0),
-            LocalTime.of(11, 30),
-            LocalTime.of(13, 0),
-            LocalTime.of(14, 30),
-            LocalTime.of(16, 0),
-            LocalTime.of(17,30),
-            LocalTime.of(19, 0),
-            LocalTime.of(20, 30),
-            LocalTime.of(22, 0),
-        )
-
-        // create a map to store the available timeslots for each court
-        val courtTimeslots = mutableMapOf<Court, Set<LocalTime>>()
-
-        // loop through each court with reservations
-        for (courtWithReservations in listCourtsWithReservations) {
-            // get the set of reserved timeslots for the court
-            val reservedTimeslots = courtWithReservations.reservations.map { it.time }
-
-            // subtract the reserved timeslots from the set of all timeslots to get the available timeslots
-            var availableTimeslots = allTimeslots - reservedTimeslots.toSet()
-
-            // if the selected date is today
-            if(date == LocalDate.now()) {
-
-                var currentTime = LocalTime.now()
-                // remove the timeslots before the current time
-                availableTimeslots = availableTimeslots.filter { it >= currentTime }.toSet()
-
-            }
-
-            // add the court and available timeslots to the map
-            courtTimeslots[courtWithReservations.court] = availableTimeslots
-        }
-
-        // return the map of available timeslots by court
-        return courtTimeslots
     }
 
     // TODO
     override fun onClickTimeslot() {
     }
-
 
 }
 
@@ -157,9 +94,10 @@ class ViewHolderNewGames(v: View): RecyclerView.ViewHolder(v) {
     val name: TextView = v.findViewById(R.id.court_name_reservation)
     val location: TextView = v.findViewById(R.id.location_reservation)
     val timeslots: GridLayout = v.findViewById(R.id.timeslots)
+    val sport_name: TextView = v.findViewById(R.id.sport_name)
 }
 
-class AdapterNewGames(private var mapCourtsWithAvailableTimeslots: Map<Court,Set<LocalTime>>, var listener: OnClickTimeslot): RecyclerView.Adapter<ViewHolderNewGames>(){
+class AdapterNewGames(private var listAvailableReservations: List<CourtWithReservations>, var listener: OnClickTimeslot): RecyclerView.Adapter<ViewHolderNewGames>(){
 
     interface OnClickTimeslot {
         fun onClickTimeslot()
@@ -172,12 +110,15 @@ class AdapterNewGames(private var mapCourtsWithAvailableTimeslots: Map<Court,Set
     }
 
     override fun getItemCount(): Int {
-        return mapCourtsWithAvailableTimeslots.size
+        return listAvailableReservations.size
     }
 
     override fun onBindViewHolder(holder: ViewHolderNewGames, position: Int) {
-            val court = mapCourtsWithAvailableTimeslots.keys.elementAt(position)
-            val timeSlots = mapCourtsWithAvailableTimeslots[court] ?: emptySet()
+            val court = listAvailableReservations[position].court
+            val timeSlots = listAvailableReservations[position].reservations.map { it.time }
+
+            holder.timeslots.removeAllViews()
+
             for (t in timeSlots) {
                 val tv = TextView(holder.itemView.context)
                 tv.text = "${t.format(DateTimeFormatter.ofPattern("HH:mm"))}"
@@ -201,14 +142,15 @@ class AdapterNewGames(private var mapCourtsWithAvailableTimeslots: Map<Court,Set
             }
         holder.name.text = "${court.name}"
         holder.location.text = "Via Giovanni Magni, 32"
+        holder.sport_name.text = "${court.sport}"
     }
 
-    fun setListCourts(newListCourts: Map<Court,Set<LocalTime>>) {
+    fun setListCourts(newListCourts: List<CourtWithReservations>) {
 
         val diffs = DiffUtil.calculateDiff(
-            CourtTimeslotDiffCallback(mapCourtsWithAvailableTimeslots, newListCourts)
+            CourtTimeslotDiffCallback(listAvailableReservations, newListCourts)
         )
-        mapCourtsWithAvailableTimeslots = newListCourts
+        listAvailableReservations = newListCourts
         diffs.dispatchUpdatesTo(this)
     }
 }

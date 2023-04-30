@@ -94,7 +94,7 @@ class EditReservationActivity : AppCompatActivity() {
 
 
         res = Reservation(reservationId,courtId,numOfPlayers,price,LocalDate.parse(date, DateTimeFormatter.ISO_DATE), LocalTime.parse(time))
-        reservation = ReservationWithCourt(res, Court(courtId, courtName!!, sport!!))
+        reservation = ReservationWithCourt(res, Court(courtId, courtName!!, sport!!, 0))
         updateContent()
 
         /*supportActionBar?.title = "Edit Reservation $reservationId"

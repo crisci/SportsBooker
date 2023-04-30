@@ -70,7 +70,7 @@ class CancelReservationActivity : AppCompatActivity() {
         val sport = intent.getStringExtra("sport")
 
         reservation = Reservation(reservationId,courtId,numOfPlayers,price, LocalDate.parse(date, DateTimeFormatter.ISO_DATE), LocalTime.parse(time))
-        court = Court(courtId, courtName!!, sport!!)
+        court = Court(courtId, courtName!!, sport!!, 0)
         updateContent()
 
         cancelButton.setOnClickListener{
