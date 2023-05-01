@@ -7,6 +7,7 @@ import com.example.lab2.database.Converters
 import com.example.lab2.database.reservation.Reservation
 import java.time.LocalDate
 
+//TODO: Player view model with all the information about the current player
 
 @Entity(tableName = "players")
 data class Player (

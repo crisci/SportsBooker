@@ -22,6 +22,7 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.lab2.calendar.setupTimeslots
 import com.example.lab2.database.ReservationAppDatabase
+import com.example.lab2.database.player.Player
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.entities.User
 import dagger.hilt.android.AndroidEntryPoint
@@ -101,12 +102,13 @@ class ShowProfileActivity : AppCompatActivity() {
         // IGNORE: DB gets created the very first time only if some Dao operations are executed
         thread{
             //val courts = db.courtDao().loadAllCourts()
+            db.playerReservationDAO().deletePlayerReservation()
             db.reservationDao().deleteAllReservations()
             for (i in 1..3) {
                 db.reservationDao().saveReservation(
                     Reservation(
                         reservationId = 0,
-                        courtId = i,
+                        courtId = 1,
                         numOfPlayers = 0,
                         price = 7.00,
                         date = LocalDate.now(),

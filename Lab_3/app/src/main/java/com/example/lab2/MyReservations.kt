@@ -90,13 +90,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         findNewGamesButton.setOnClickListener {
             navController.navigate(R.id.action_myReservations_to_newGames2)
         }
-
-        val deleteAllButton = view.findViewById<Button>(R.id.delete_all_button)
-        deleteAllButton.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                db.reservationDao().deleteAllReservations()
-            }
-        }
+        
     }
 
 

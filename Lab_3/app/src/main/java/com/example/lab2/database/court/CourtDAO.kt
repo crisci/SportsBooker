@@ -18,6 +18,6 @@ interface CourtDAO {
     fun save(court: Court)
 
     // TODO we can filter by r.numOfPlayers < c.maxNumOfPlayers to get only the available reservations for a given date
-    @Query("SELECT c.*, r.* FROM courts c JOIN reservations r ON c.courtId = r.courtId AND r.date = :date AND r.numOfPlayers < c.maxNumOfPlayers")
+    @Query("SELECT c.*, r.* FROM courts c JOIN reservations r ON c.courtId = r.courtId AND r.date = :date AND r.numOfPlayers < c.maxNumOfPlayers GROUP BY c.courtId")
     fun getAvailableReservationsByDate(date: LocalDate): List<CourtWithReservations>
 }

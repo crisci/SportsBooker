@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
-    android:background="@color/bright_red">
+    android:background="@color/example_1_bg">
 
     <com.google.android.material.card.MaterialCardView
         style="@style/CustomCardViewStyle"
@@ -23,7 +23,7 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/sport_name_cancel_reservation"
+                android:id="@+id/sport_name_confirm_reservation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
@@ -36,13 +36,13 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <LinearLayout
-                android:id="@+id/cancel_reservation_content"
+                android:id="@+id/confirm_reservation_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="15dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/sport_name_cancel_reservation">
+                app:layout_constraintTop_toBottomOf="@+id/sport_name_confirm_reservation">
 
                 <LinearLayout
                     android:id="@+id/linearLayout4"
@@ -74,20 +74,20 @@
                             android:layout_height="20dp"
                             android:layout_marginTop="5dp"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/court_name_cancel_reservation"
+                            app:layout_constraintTop_toBottomOf="@+id/court_name_confirm_reservation"
                             app:srcCompat="@drawable/baseline_location_on_24" />
 
                         <TextView
-                            android:id="@+id/location_cancel_reservation"
+                            android:id="@+id/location_confirm_reservation"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
                             android:text="@string/locationValue"
                             app:layout_constraintStart_toEndOf="@+id/imageView"
-                            app:layout_constraintTop_toBottomOf="@+id/court_name_cancel_reservation" />
+                            app:layout_constraintTop_toBottomOf="@+id/court_name_confirm_reservation" />
 
                         <TextView
-                            android:id="@+id/court_name_cancel_reservation"
+                            android:id="@+id/court_name_confirm_reservation"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Name"
@@ -129,14 +129,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@+id/date_cancel_reservation"
+                            app:layout_constraintEnd_toStartOf="@+id/date_confirm_reservation"
                             app:layout_constraintHorizontal_bias="0.5"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             app:srcCompat="@drawable/baseline_calendar_month_24_black" />
 
                         <TextView
-                            android:id="@+id/date_cancel_reservation"
+                            android:id="@+id/date_confirm_reservation"
                             android:layout_width="61dp"
                             android:layout_height="19dp"
                             android:fontFamily="@font/montserrat_bold"
@@ -174,14 +174,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@+id/time_cancel_reservation"
+                            app:layout_constraintEnd_toStartOf="@+id/time_confirm_reservation"
                             app:layout_constraintHorizontal_bias="0.0"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             app:srcCompat="@drawable/baseline_access_time_24" />
 
                         <TextView
-                            android:id="@+id/time_cancel_reservation"
+                            android:id="@+id/time_confirm_reservation"
                             android:layout_width="61dp"
                             android:layout_height="19dp"
                             android:fontFamily="@font/montserrat_bold"
@@ -198,7 +198,7 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/cancel_button_cancel_reservation"
+                android:id="@+id/confirm_button_confirm_reservation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
@@ -210,29 +210,27 @@
                 android:textAllCaps="false"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                app:backgroundTint="@color/bright_red"
+                app:backgroundTint="@color/example_1_bg"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cancel_reservation_content" />
+                app:layout_constraintTop_toBottomOf="@+id/confirm_reservation_content" />
 
             <TextView
-                android:id="@+id/local_price_edit_reservation"
+                android:id="@+id/local_price_confirm_reservation2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="15dp"
-                android:layout_marginEnd="10dp"
+                android:layout_marginTop="12dp"
                 android:maxLines="2"
-                android:text="You won't be able to retrieve this reservation and you'll need to book a new one."
+                android:text="You will pay locally"
                 android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textSize="10sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@+id/cancel_button_cancel_reservation"
-                app:layout_constraintStart_toStartOf="@+id/cancel_button_cancel_reservation"
-                app:layout_constraintTop_toBottomOf="@+id/cancel_button_cancel_reservation" />
+                app:layout_constraintEnd_toEndOf="@+id/confirm_button_confirm_reservation"
+                app:layout_constraintStart_toStartOf="@+id/confirm_button_confirm_reservation"
+                app:layout_constraintTop_toBottomOf="@+id/confirm_button_confirm_reservation" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

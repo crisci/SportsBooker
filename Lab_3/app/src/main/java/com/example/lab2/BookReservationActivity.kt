@@ -1,7 +1,6 @@
 package com.example.lab2
 
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.example.lab2.calendar.WeekCalendar
 import com.example.lab2.databinding.BookReservationActivityBinding
@@ -23,4 +22,5 @@ class BookReservationActivity : AppCompatActivity() {
             .commit()
 
     }
+
 }

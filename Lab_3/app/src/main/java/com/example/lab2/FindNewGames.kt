@@ -1,16 +1,18 @@
 package com.example.lab2
 
+import android.content.Context
 import android.content.Intent
+import android.icu.util.BuddhistCalendar
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
@@ -21,14 +23,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.lab2.calendar.CalendarViewModel
 import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
-import com.example.lab2.database.court.Court
 import com.example.lab2.database.court.CourtWithReservations
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.LocalTime
+import java.lang.RuntimeException
 
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -36,6 +36,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickTimeslot {
+
 
     private lateinit var navController : NavController
     @Inject
@@ -53,18 +54,17 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         if(response.resultCode == AppCompatActivity.RESULT_OK) {
             val data: Intent? = response.data
             CoroutineScope(Dispatchers.IO).launch {
-                listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
-                vm.listAvailableReservations.postValue(listCourtsWithReservations)
+               listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
+               vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
+            navController.navigate(R.id.action_newGames_to_myReservations)
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         db = ReservationAppDatabase.getDatabase(requireContext())
         navController = findNavController()
-
         val adapterCard = AdapterNewGames(listCourtsWithReservations, this)
         val listReservationsRecyclerView = view.findViewById<RecyclerView>(R.id.available_bookings)
         listReservationsRecyclerView.adapter = adapterCard
@@ -78,13 +78,16 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
                 listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
+                Log.e("list", listCourtsWithReservations.toString())
                 vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
         }
     }
 
     // TODO
-    override fun onClickTimeslot() {
+    override fun onClickTimeslot(informations: Bundle) {
+        val intentConfirmReservationActivity = Intent(activity, ConfirmReservationActivity::class.java).putExtras(informations)
+        launcher.launch(intentConfirmReservationActivity)
     }
 
 }
@@ -100,7 +103,7 @@ class ViewHolderNewGames(v: View): RecyclerView.ViewHolder(v) {
 class AdapterNewGames(private var listAvailableReservations: List<CourtWithReservations>, var listener: OnClickTimeslot): RecyclerView.Adapter<ViewHolderNewGames>(){
 
     interface OnClickTimeslot {
-        fun onClickTimeslot()
+        fun onClickTimeslot(informations: Bundle)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderNewGames {
@@ -136,7 +139,22 @@ class AdapterNewGames(private var listAvailableReservations: List<CourtWithReser
                 tv.id = View.generateViewId()
                 // TODO When the user presses a timeslot, a window ConfirmBooking will open
                 tv.setOnClickListener {
-                    listener.onClickTimeslot()
+                    //TODO: save the content of the selected game
+                    Log.d("db", listAvailableReservations[position].reservations[timeSlots.indexOf(t)].toString())
+                    Log.d("db", listAvailableReservations[position].court.toString())
+                    val currentGameBundle = Bundle().apply {
+                        putInt("reservationId", listAvailableReservations[position].reservations[timeSlots.indexOf(t)].reservationId)
+                        putString("date", listAvailableReservations[position].reservations[timeSlots.indexOf(t)].date.toString())
+                        putString("time", listAvailableReservations[position].reservations[timeSlots.indexOf(t)].time.toString())
+                        putDouble("price", listAvailableReservations[position].reservations[timeSlots.indexOf(t)].price)
+                        putInt("numOfPlayers", listAvailableReservations[position].reservations[timeSlots.indexOf(t)].numOfPlayers)
+                        putInt("courtId", listAvailableReservations[position].reservations[timeSlots.indexOf(t)].courtId)
+                        putString("courtName", listAvailableReservations[position].court.name)
+                        putString("sport", listAvailableReservations[position].court.sport)
+                        putInt("maxNumberOfPlayers", court.maxNumOfPlayers)
+
+                    }
+                    listener.onClickTimeslot(currentGameBundle)
                 }
                 holder.timeslots.addView(tv, layoutParams)
             }

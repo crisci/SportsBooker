@@ -6,6 +6,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.court.CourtWithReservations
 import com.example.lab2.database.player_reservation_join.ReservationWithPlayers
@@ -36,6 +37,11 @@ interface ReservationDAO {
             " WHERE r.reservationId = (:reservationId)"
     )
     fun loadPlayersByReservationId(reservationId: Int) : ReservationWithPlayers
+
+    @Query("UPDATE reservations " +
+            "SET numOfPlayers = numOfPlayers + 1 " +
+            "WHERE reservationId = :reservationId")
+    fun updateNumOfPlayers(reservationId: Int)
 
 
 
