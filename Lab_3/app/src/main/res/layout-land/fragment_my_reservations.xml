@@ -53,10 +53,11 @@
 
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/find_new_games_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
+                android:layout_marginBottom="30dp"
                 android:background="@drawable/rectangle_radius"
                 android:backgroundTint="@color/example_1_bg"
                 android:fontFamily="@font/montserrat_regular"
@@ -67,8 +68,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/body"
-                android:layout_marginBottom="30dp"/>
+                app:layout_constraintTop_toBottomOf="@id/body" />
 
 
 

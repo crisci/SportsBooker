@@ -12,6 +12,9 @@ interface PlayerReservationDAO {
     @Query("INSERT INTO players_reservations VALUES (:playerId, :reservationId)")
     fun confirmReservation(playerId: Int, reservationId: Int)
 
+    @Query("DELETE FROM players_reservations WHERE reservationId=:reservationId")
+    fun deletePlayerReservationByReservationId(reservationId: Int)
+
     @Query("DELETE FROM players_reservations")
     fun deletePlayerReservation()
 

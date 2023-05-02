@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
-    android:background="@color/example_1_bg">
+    android:background="@color/example_1_bg"
+    tools:layout_editor_absoluteX="0dp"
+    tools:layout_editor_absoluteY="204dp">
 
     <com.google.android.material.card.MaterialCardView
         style="@style/CustomCardViewStyle"
@@ -215,22 +217,24 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/confirm_reservation_content" />
+                app:layout_constraintTop_toBottomOf="@+id/confirm_reservation_content"
+                app:layout_constraintVertical_bias="0.93" />
 
             <TextView
                 android:id="@+id/local_price_confirm_reservation2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
                 android:maxLines="2"
+                android:paddingBottom="20dp"
                 android:text="You will pay locally"
                 android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textSize="10sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/confirm_button_confirm_reservation"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="@+id/confirm_button_confirm_reservation"
-                app:layout_constraintTop_toBottomOf="@+id/confirm_button_confirm_reservation" />
+                app:layout_constraintTop_toBottomOf="@+id/confirm_reservation_content" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

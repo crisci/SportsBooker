@@ -3,6 +3,7 @@ package com.example.lab2
 import android.app.Activity
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.ImageView
@@ -13,6 +14,8 @@ import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.formatPrice
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -30,6 +33,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
     private lateinit var time_confirm_reservation: TextView
     private lateinit var confirmButton: Button
     private lateinit var priceText: TextView
+    private lateinit var backButton: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +68,11 @@ class ConfirmReservationActivity : AppCompatActivity() {
         reservation = Reservation(reservationId!!,courtId!!,numOfPlayers!!,price!!, LocalDate.parse(date, DateTimeFormatter.ISO_DATE), LocalTime.parse(time))
         court = Court(courtId, courtName!!, sport!!, maxNumberOfPlayers!!)
 
+        backButton = supportActionBar?.customView?.findViewById<ImageView>(R.id.custom_back_icon)!!
+        backButton.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+
         updateContent()
     }
 
@@ -80,13 +89,18 @@ class ConfirmReservationActivity : AppCompatActivity() {
         priceText.text = "You will pay €${reservation.formatPrice()} locally."
         confirmButton.setOnClickListener {
             thread {
+                // TODO: Check also the if the player has already booked match in the same timeslot
                 if(reservation.numOfPlayers < court.maxNumOfPlayers) {
-                    db.playerReservationDAO().confirmReservation(1, reservation.reservationId)
-                    db.reservationDao().updateNumOfPlayers(reservation.reservationId)
-                    setResult(Activity.RESULT_OK)
-                    finish()
+                    try {
+                        db.playerReservationDAO().confirmReservation(1, reservation.reservationId)
+                        db.reservationDao().updateNumOfPlayers(reservation.reservationId, +1)
+                        setResult(Activity.RESULT_OK)
+                        finish()
+                    } catch (err: RuntimeException) {
+                        Log.e("confirm", "Cannot duplicate the match")
+                    }
                 } else {
-                    //TODO: Toast notify error
+                        Toast.makeText(applicationContext, "The maximum number of players is reached.", Toast.LENGTH_SHORT).show()
                 }
             }
         }

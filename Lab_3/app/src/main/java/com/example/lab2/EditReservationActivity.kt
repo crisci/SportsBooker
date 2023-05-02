@@ -132,17 +132,6 @@ class EditReservationActivity : AppCompatActivity() {
 
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        //TODO: Serialization of reservation
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        //TODO: fromJSON
-        updateContent()
-    }
-
     private fun updateContent() {
         sport_name.text = "${reservation.court.sport}"
         court_name_edit_reservation.text = "${reservation.court.name}"

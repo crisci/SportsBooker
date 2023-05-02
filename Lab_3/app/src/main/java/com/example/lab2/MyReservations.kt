@@ -54,7 +54,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         if(response.resultCode == AppCompatActivity.RESULT_OK) {
             val data: Intent? = response.data
             CoroutineScope(Dispatchers.IO).launch {
-                list = db.reservationDao().loadAllReservations()
+                list = db.playerDao().loadReservationsByPlayerId(1)
                 filteredList = list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear }
                 vm.list.postValue(filteredList)
             }

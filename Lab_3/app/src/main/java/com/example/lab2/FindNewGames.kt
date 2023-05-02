@@ -57,7 +57,8 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
                listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
                vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
-            navController.navigate(R.id.action_newGames_to_myReservations)
+            // TODO: go back to my reservation to see the reservation done
+            // ! if it is done with navigation, more fragment are placed one on top of the other
         }
     }
 
@@ -137,9 +138,7 @@ class AdapterNewGames(private var listAvailableReservations: List<CourtWithReser
                 tv.background = holder.itemView.context.getDrawable(R.drawable.timeslot)
                 tv.textAlignment = View.TEXT_ALIGNMENT_CENTER;
                 tv.id = View.generateViewId()
-                // TODO When the user presses a timeslot, a window ConfirmBooking will open
                 tv.setOnClickListener {
-                    //TODO: save the content of the selected game
                     Log.d("db", listAvailableReservations[position].reservations[timeSlots.indexOf(t)].toString())
                     Log.d("db", listAvailableReservations[position].court.toString())
                     val currentGameBundle = Bundle().apply {

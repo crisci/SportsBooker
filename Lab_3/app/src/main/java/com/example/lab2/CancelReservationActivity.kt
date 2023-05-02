@@ -3,6 +3,7 @@ package com.example.lab2
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.ImageView
@@ -71,12 +72,14 @@ class CancelReservationActivity : AppCompatActivity() {
         cancelButton.setOnClickListener{
             CoroutineScope(Dispatchers.IO).launch {
                 try{
-                    db.reservationDao().cancelReservationById(reservationId)
+                    db.playerReservationDAO().deletePlayerReservationByReservationId(reservationId)
+                    db.reservationDao().updateNumOfPlayers(reservationId, -1)
                     val result: Intent = Intent()
                     result.putExtra("result", true)
                     setResult(Activity.RESULT_OK, result)
                     finish()
-                }catch(err: RuntimeException) {
+                } catch (err: RuntimeException) {
+                    Log.e("cancel", err.toString())
                     withContext(Dispatchers.Main) {
                         Toast.makeText(applicationContext, "Unable to cancel your reservation.", Toast.LENGTH_SHORT).show()
                     }
