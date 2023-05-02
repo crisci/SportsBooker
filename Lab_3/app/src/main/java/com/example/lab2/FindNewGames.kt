@@ -55,6 +55,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
             val data: Intent? = response.data
             CoroutineScope(Dispatchers.IO).launch {
                listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
+                listCourtsWithReservations = listCourtsWithReservations.filter { it.court.sport == "Padel" }
                vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
             // TODO: go back to my reservation to see the reservation done
@@ -79,6 +80,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
                 listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
+                listCourtsWithReservations = listCourtsWithReservations.filter { it.court.sport == "Padel" }
                 Log.e("list", listCourtsWithReservations.toString())
                 vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }

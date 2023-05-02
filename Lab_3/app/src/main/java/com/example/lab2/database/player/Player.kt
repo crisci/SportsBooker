@@ -17,6 +17,5 @@ data class Player (
     val location: String,
     val dateOfBirth: LocalDate,
     val email: String,
-    val description: String,
     val profileImage: String,
 )

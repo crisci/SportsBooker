@@ -115,6 +115,16 @@ class ShowProfileActivity : AppCompatActivity() {
                         time = LocalTime.of(10 + i,0)
                     )
                 )
+                db.reservationDao().saveReservation(
+                    Reservation(
+                        reservationId = 0,
+                        courtId = 3,
+                        numOfPlayers = 0,
+                        price = 7.00,
+                        date = LocalDate.now(),
+                        time = LocalTime.of(10 + i,0)
+                    )
+                )
             }
         }
 
