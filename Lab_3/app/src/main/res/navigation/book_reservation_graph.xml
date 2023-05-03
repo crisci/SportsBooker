@@ -2,14 +2,14 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/my_reservations_graph"
-    app:startDestination="@id/myReservations">
+    android:id="@+id/book_reservation_graph"
+    app:startDestination="@id/findNewGames">
 
     <fragment
-        android:id="@+id/myReservations"
-        android:name="com.example.lab2.MyReservations"
-        android:label="fragment_my_reservations"
-        tools:layout="@layout/fragment_my_reservations" >
+        android:id="@+id/findNewGames"
+        android:name="com.example.lab2.NewGames"
+        android:label="fragment_new_games"
+        tools:layout="@layout/fragment_new_games" >
     </fragment>
     <fragment
         android:id="@+id/fullScreenCalendar"
@@ -17,11 +17,11 @@
         android:label="fragment_full_screen_calendar"
         tools:layout="@layout/month_calendar_fragment">
         <action
-            android:id="@+id/action_fullScreenCalendar_to_myReservations"
-            app:destination="@id/myReservations"
+            android:id="@+id/action_fullScreenCalendar_to_findNewGames"
+            app:destination="@id/findNewGames"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
-            app:popUpTo="@id/myReservations"
+            app:popUpTo="@id/findNewGames"
             app:popUpToInclusive="true" />
     </fragment>
     <action

@@ -1,5 +1,6 @@
 package com.example.lab2
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Layout
 import android.text.Spannable
@@ -8,6 +9,7 @@ import android.text.style.AlignmentSpan
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -27,7 +29,10 @@ import javax.inject.Inject
 class MyReservationsActivity : AppCompatActivity() {
 
     private lateinit var navController : NavController
-    private lateinit var backButton: ImageView
+    private lateinit var myProfileButton: ImageView
+
+    private val launcher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +40,7 @@ class MyReservationsActivity : AppCompatActivity() {
         supportActionBar?.elevation = 0f
 
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
-        supportActionBar?.setCustomView(R.layout.toolbar)
+        supportActionBar?.setCustomView(R.layout.toolbar_with_profile)
         val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
         titleTextView?.text = "My Reservations"
 
@@ -46,9 +51,10 @@ class MyReservationsActivity : AppCompatActivity() {
                 .findFragmentById(R.id.fragmentContainerView) as NavHostFragment
         ).navController
 
-        backButton = supportActionBar?.customView?.findViewById<ImageView>(R.id.custom_back_icon)!!
-        backButton.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
+        myProfileButton = supportActionBar?.customView?.findViewById<ImageView>(R.id.custom_my_profile)!!
+        myProfileButton.setOnClickListener {
+            val intentShowProfile = Intent(this, ShowProfileActivity::class.java)
+            launcher.launch(intentShowProfile)
         }
 
     }

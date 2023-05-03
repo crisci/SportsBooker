@@ -12,6 +12,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityOptionsCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
@@ -88,7 +89,14 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         findNewGamesButton = view.findViewById(R.id.find_new_games_button)
         findNewGamesButton.setOnClickListener {
-            navController.navigate(R.id.action_myReservations_to_newGames2)
+            //navController.navigate(R.id.action_myReservations_to_newGames2)
+            /*val options = ActivityOptionsCompat.makeCustomAnimation(
+                requireContext(),
+                R.anim.slide_in_up,
+                R.anim.fade_out
+            )*/
+            val intentBookReservation = Intent(requireContext(), BookReservationActivity::class.java)
+            launcher.launch(intentBookReservation)
         }
         
     }
