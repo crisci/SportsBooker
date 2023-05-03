@@ -2,12 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/my_reservations"
-        android:icon="@drawable/baseline_bookmark_24"
-        android:title="@string/edit"
-        app:showAsAction="ifRoom"
-        />
-
     <item android:id="@+id/edit"
         android:icon="@drawable/baseline_edit_24"
         android:title="@string/edit"

@@ -160,10 +160,6 @@ class ShowProfileActivity : AppCompatActivity() {
                 launcher.launch(intentEditProfile)
                 true
             }
-            R.id.my_reservations -> {
-                launcher.launch(intentMyReservations)
-                true
-            }
             else -> super.onContextItemSelected(item)
         }
     }
