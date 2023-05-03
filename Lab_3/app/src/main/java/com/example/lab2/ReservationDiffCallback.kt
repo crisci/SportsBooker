@@ -4,10 +4,11 @@ import android.util.Log
 import androidx.recyclerview.widget.DiffUtil
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationWithCourt
+import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 
 class ReservationDiffCallback(
-    private  val reservations: List<ReservationWithCourt>,
-    private val newReservations: List<ReservationWithCourt>): DiffUtil.Callback() {
+    private  val reservations: List<ReservationWithCourtAndEquipments>,
+    private val newReservations: List<ReservationWithCourtAndEquipments>): DiffUtil.Callback() {
 
     override fun getOldListSize(): Int = reservations.size
 

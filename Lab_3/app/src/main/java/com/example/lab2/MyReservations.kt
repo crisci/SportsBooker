@@ -23,7 +23,9 @@ import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationWithCourt
+import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
+import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,14 +39,17 @@ import kotlin.random.Random
 @AndroidEntryPoint
 class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.OnEditClickListener  {
 
+    // TODO : this is hard-coded for now
+    val playerId = 1
+
     private lateinit var navController : NavController
     @Inject
     lateinit var vm: CalendarViewModel
 
-    private var list = listOf<ReservationWithCourt>()
+    private var list = listOf<ReservationWithCourtAndEquipments>()
 
     private lateinit var db: ReservationAppDatabase
-    private lateinit var filteredList: List<ReservationWithCourt>
+    private lateinit var filteredList: List<ReservationWithCourtAndEquipments>
 
     private lateinit var findNewGamesButton: Button
 
@@ -81,6 +86,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.playerDao().loadReservationsByPlayerId(1)
+                Log.d("list",list.toString())
                 filteredList = list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear }
 
                 vm.list.postValue(filteredList)
@@ -103,7 +109,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
 
 
-    override fun onEditClick(reservation: ReservationWithCourt) {
+    override fun onEditClick(reservation: ReservationWithCourtAndEquipments) {
+
         val intentEditReservation = Intent(activity, EditReservationActivity::class.java).apply {
             addCategory(Intent.CATEGORY_SELECTED_ALTERNATIVE)
             putExtra("reservationId", reservation.reservation.reservationId)
@@ -114,6 +121,9 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             putExtra("courtId", reservation.court.courtId)
             putExtra("courtName", reservation.court.name)
             putExtra("sport", reservation.court.sport)
+            putExtra("equipments", Gson().toJson(reservation.equipments))
+            putExtra("finalPrice", reservation.finalPrice)
+            putExtra("playerId", playerId)
         }
         launcher.launch(intentEditReservation)
     }
@@ -131,10 +141,10 @@ class ViewHolderCard(v: View): RecyclerView.ViewHolder(v) {
     val sport : TextView = v.findViewById(R.id.sport_name)
 }
 
-class AdapterCard(private var list: List<ReservationWithCourt>, private val listener: OnEditClickListener): RecyclerView.Adapter<ViewHolderCard>() {
+class AdapterCard(private var list: List<ReservationWithCourtAndEquipments>, private val listener: OnEditClickListener): RecyclerView.Adapter<ViewHolderCard>() {
 
     interface OnEditClickListener {
-        fun onEditClick(reservation: ReservationWithCourt)
+        fun onEditClick(reservation: ReservationWithCourtAndEquipments)
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderCard {
         val v = LayoutInflater.from(parent.context)
@@ -150,7 +160,7 @@ class AdapterCard(private var list: List<ReservationWithCourt>, private val list
         val maxNumPlayers = 7
         holder.name.text = "${list[position].court.name}"
         holder.location.text = "Via Giovanni Magni, 32"
-        holder.price.text = "€ ${list[position].reservation.formatPrice()}"
+        holder.price.text = "€ ${list[position].formatPrice()}"
         if(list[position].reservation.numOfPlayers == maxNumPlayers) {
             holder.currentNumberOfPlayers.setTextColorRes(R.color.example_1_bg)
         }
@@ -165,7 +175,7 @@ class AdapterCard(private var list: List<ReservationWithCourt>, private val list
         holder.editButton.setOnClickListener { listener.onEditClick(list[holder.bindingAdapterPosition]) }
     }
 
-    fun setReservations(newReservations: List<ReservationWithCourt>) {
+    fun setReservations(newReservations: List<ReservationWithCourtAndEquipments>) {
 
         val diffs = DiffUtil.calculateDiff(
             ReservationDiffCallback(list, newReservations)

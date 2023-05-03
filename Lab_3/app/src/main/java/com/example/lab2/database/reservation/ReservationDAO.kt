@@ -39,9 +39,9 @@ interface ReservationDAO {
     fun loadPlayersByReservationId(reservationId: Int) : ReservationWithPlayers
 
     @Query("UPDATE reservations " +
-            "SET numOfPlayers = numOfPlayers + (:num)" +
+            "SET numOfPlayers = (SELECT COUNT(*) FROM players_reservations WHERE reservationId = :reservationId)" +
             "WHERE reservationId = :reservationId")
-    fun updateNumOfPlayers(reservationId: Int, num: Int)
+    fun updateNumOfPlayers(reservationId: Int)
 
 
 

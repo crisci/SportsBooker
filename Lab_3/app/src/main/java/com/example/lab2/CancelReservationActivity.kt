@@ -77,7 +77,7 @@ class CancelReservationActivity : AppCompatActivity() {
             CoroutineScope(Dispatchers.IO).launch {
                 try{
                     db.playerReservationDAO().deletePlayerReservationByReservationId(reservationId)
-                    db.reservationDao().updateNumOfPlayers(reservationId, -1)
+                    db.reservationDao().updateNumOfPlayers(reservationId)
                     val result: Intent = Intent()
                     result.putExtra("result", true)
                     setResult(Activity.RESULT_OK, result)

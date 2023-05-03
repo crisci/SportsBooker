@@ -10,4 +10,8 @@ import javax.inject.Inject
 
 @ActivityRetainedScoped
 class BookingViewModel @Inject constructor(): ViewModel() {
+    var personalPrice = MutableLiveData<Double>()
+    fun setPersonalPrice(value: Double) {
+        personalPrice.value = value
+    }
 }

@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.lifecycle.MutableLiveData
+import com.example.lab2.calendar.BookingViewModel
 import com.example.lab2.calendar.CalendarViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
@@ -22,13 +23,16 @@ import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationWithCourt
 import com.example.lab2.database.reservation.formatPrice
 import com.example.lab2.entities.Equipment
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 import kotlin.concurrent.thread
 
+@AndroidEntryPoint
 class ConfirmReservationActivity : AppCompatActivity() {
 
     private lateinit var db: ReservationAppDatabase
@@ -43,6 +47,9 @@ class ConfirmReservationActivity : AppCompatActivity() {
     private lateinit var priceText: TextView
     private lateinit var backButton: ImageView
     private lateinit var checkboxContainer : LinearLayout
+    private lateinit var disablingBox: CheckBox
+    @Inject
+    lateinit var vm: BookingViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_confirm_booking)
@@ -56,9 +63,11 @@ class ConfirmReservationActivity : AppCompatActivity() {
         checkboxContainer = findViewById(R.id.checkbox_container)
         confirmButton = findViewById(R.id.confirm_button_confirm_reservation)
         priceText = findViewById(R.id.local_price_confirm_reservation2)
+        disablingBox = findViewById(R.id.disablingCheckbox)
 
 
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
+        supportActionBar?.elevation = 0F
         supportActionBar?.setCustomView(R.layout.toolbar)
         val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
         titleTextView?.text = "Confirm Reservation"
@@ -97,45 +106,8 @@ class ConfirmReservationActivity : AppCompatActivity() {
         time_confirm_reservation.text = reservation.time.format(DateTimeFormatter.ofPattern("HH:mm")).toString()
 
         //val equipments = equipmentsBySport(court.sport)
+        setupCheckboxes(reservation.price)
 
-        val equipments = listOf(
-            Equipment("Shoes",1.5),
-            Equipment("Racket",1.5)
-        )
-
-        var personalPrice = MutableLiveData<Double>(reservation.price)
-
-        for (e in equipments) {
-            val checkbox = CheckBox(this)
-            checkbox.text = "${e.name} - €${e.price}"
-            checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
-                if(isChecked) {
-                    personalPrice.value = personalPrice.value?.plus(e.price)
-                }
-                else {
-                    personalPrice.value = personalPrice.value?.minus(e.price)
-                }
-            }
-            checkboxContainer.addView(checkbox)
-        }
-
-        val disablingBox = findViewById<CheckBox>(R.id.disablingCheckbox)
-        disablingBox.setOnCheckedChangeListener { _ , isChecked ->
-            for (i in 0 until checkboxContainer.childCount) {
-                val view = checkboxContainer.getChildAt(i)
-                if (view is CheckBox) {
-                    view.isChecked = false
-                    view.isEnabled = !isChecked
-                }
-            }
-        }
-
-        personalPrice.observe(this) {
-            priceText.text = "You will pay €${personalPrice.value} locally."
-        }
-
-
-        priceText.text = "You will pay €${reservation.price} locally."
         confirmButton.setOnClickListener {
             val listEquipments = mutableListOf<Equipment>()
             for (i in 0 until checkboxContainer.childCount) {
@@ -155,8 +127,8 @@ class ConfirmReservationActivity : AppCompatActivity() {
                 // TODO: Check also the if the player has already booked match in the same timeslot
                 if(reservation.numOfPlayers < court.maxNumOfPlayers) {
                     try {
-                        db.playerReservationDAO().confirmReservation(1, reservation.reservationId, listEquipments)
-                        db.reservationDao().updateNumOfPlayers(reservation.reservationId, +1)
+                        db.playerReservationDAO().confirmReservation(1, reservation.reservationId, listEquipments, vm.personalPrice.value!!)
+                        db.reservationDao().updateNumOfPlayers(reservation.reservationId)
                         setResult(Activity.RESULT_OK)
                         finish()
                     } catch (err: RuntimeException) {
@@ -169,4 +141,41 @@ class ConfirmReservationActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupCheckboxes(startingPrice: Double) {
+
+        vm.setPersonalPrice(startingPrice)
+
+        val equipments = listOf(
+            Equipment("Shoes",1.5),
+            Equipment("Racket",1.5)
+        )
+
+        for (e in equipments) {
+            val checkbox = CheckBox(this)
+            checkbox.text = "${e.name} - €${e.price}"
+            checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
+                if(isChecked) {
+                    vm.setPersonalPrice(vm.personalPrice.value?.plus(e.price)!!)
+                }
+                else {
+                    vm.setPersonalPrice(vm.personalPrice.value?.minus(e.price)!!)
+                }
+            }
+            checkboxContainer.addView(checkbox)
+        }
+
+        disablingBox.setOnCheckedChangeListener { _ , isChecked ->
+            for (i in 0 until checkboxContainer.childCount) {
+                val view = checkboxContainer.getChildAt(i)
+                if (view is CheckBox) {
+                    view.isChecked = false
+                    view.isEnabled = !isChecked
+                }
+            }
+        }
+
+        vm.personalPrice.observe(this) {
+            priceText.text = "You will pay €${String.format("%.02f", vm.personalPrice.value)} locally."
+        }
+    }
 }

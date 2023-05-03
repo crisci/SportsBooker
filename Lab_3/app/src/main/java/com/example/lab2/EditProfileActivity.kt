@@ -13,7 +13,6 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Matrix
 import android.net.Uri
-import android.nfc.Tag
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -25,6 +24,7 @@ import android.widget.*
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.cunoraz.tagview.*
@@ -55,6 +55,7 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var birthday_m: EditText
     private lateinit var tagGroup: TagView
     private lateinit var confirmButton: Button
+    private lateinit var backButton: ImageButton
 
     var image_uri: Uri? = null
     var file_name: String? = null
@@ -65,9 +66,16 @@ class EditProfileActivity : AppCompatActivity() {
 
         findViews()
 
-
-        supportActionBar?.title = "Edit Profile"
         supportActionBar?.elevation = 0f
+        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
+        supportActionBar?.setCustomView(R.layout.toolbar_edit_profile)
+        val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title_edit_profile)
+        titleTextView?.text = "Edit Profile"
+        backButton = supportActionBar?.customView?.findViewById<ImageButton>(R.id.edit_profile_back_button)!!
+
+        backButton.setOnClickListener {
+            finish()
+        }
 
         // Get the user information sended by the showProfile Activity,
         // than update the content of the views
@@ -263,24 +271,6 @@ class EditProfileActivity : AppCompatActivity() {
         outState.putString("statistics", jsonStatistics)
     }
 
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        super.onCreateOptionsMenu(menu)
-        val inflater: MenuInflater = menuInflater
-        inflater.inflate(R.menu.backmenu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        return when (item.itemId) {
-            R.id.backmenu -> {
-                finish()
-                true
-            }
-            else -> super.onContextItemSelected(item)
-        }
-    }
 
     //TODO This function fills the fields
     private fun updateContent() {

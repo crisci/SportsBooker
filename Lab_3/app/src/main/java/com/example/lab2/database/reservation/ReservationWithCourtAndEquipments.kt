@@ -5,7 +5,7 @@ import androidx.room.Relation
 import com.example.lab2.database.court.Court
 import com.example.lab2.entities.Equipment
 
-data class ReservationWithCourt (
+data class ReservationWithCourtAndEquipments (
     @Embedded val reservation : Reservation,
 
     @Relation(
@@ -13,4 +13,10 @@ data class ReservationWithCourt (
         entityColumn = "courtId"
     )
     val court : Court,
+    val equipments: List<Equipment>,
+    val finalPrice: Double
 )
+
+fun ReservationWithCourtAndEquipments.formatPrice(): String {
+    return String.format("%.02f", finalPrice)
+}

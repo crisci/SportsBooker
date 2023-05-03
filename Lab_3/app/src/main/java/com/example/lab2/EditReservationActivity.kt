@@ -4,18 +4,25 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import com.example.lab2.calendar.BookingViewModel
 import com.example.lab2.calendar.CalendarViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationWithCourt
+import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
+import com.example.lab2.entities.Equipment
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +37,7 @@ import javax.inject.Inject
 class EditReservationActivity : AppCompatActivity() {
 
     private lateinit var res : Reservation
-    private lateinit var reservation:ReservationWithCourt
+    private lateinit var reservation:ReservationWithCourtAndEquipments
     private lateinit var court_name_edit_reservation: TextView
     private lateinit var location_edit_reservation: TextView
     private lateinit var cancelButton: Button
@@ -40,8 +47,13 @@ class EditReservationActivity : AppCompatActivity() {
     private lateinit var priceText: TextView
     private lateinit var sport_name: TextView
 
+    private lateinit var equipments: MutableList<Equipment>
+
     @Inject
     lateinit var vm: CalendarViewModel
+
+    @Inject
+    lateinit var bookingViewModel: BookingViewModel
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
@@ -83,6 +95,7 @@ class EditReservationActivity : AppCompatActivity() {
             launcher.launch(intent)
         }
 
+        val playerId = intent.getIntExtra("playerId", 0)
         val reservationId = intent.getIntExtra("reservationId", 0)
         val date = intent.getStringExtra("date")
         val time = intent.getStringExtra("time")
@@ -91,10 +104,15 @@ class EditReservationActivity : AppCompatActivity() {
         val courtId = intent.getIntExtra("courtId", 0)
         val courtName = intent.getStringExtra("courtName")
         val sport = intent.getStringExtra("sport")
+        val equipmentsString = intent.getStringExtra("equipments")
+        val finalPrice = intent.getDoubleExtra("finalPrice", 0.0)
+
+        val listType = object : TypeToken<MutableList<Equipment>>() {}.type
+        equipments = Gson().fromJson(equipmentsString, listType)
 
 
         res = Reservation(reservationId,courtId,numOfPlayers,price,LocalDate.parse(date, DateTimeFormatter.ISO_DATE), LocalTime.parse(time))
-        reservation = ReservationWithCourt(res, Court(courtId, courtName!!, sport!!, 0))
+        reservation = ReservationWithCourtAndEquipments(res, Court(courtId, courtName!!, sport!!, 0),equipments,finalPrice)
         updateContent()
 
         /*supportActionBar?.title = "Edit Reservation $reservationId"
@@ -116,8 +134,19 @@ class EditReservationActivity : AppCompatActivity() {
 
             CoroutineScope(Dispatchers.IO).launch {
                 try{
-                    res.time = res.time.plusHours(1)
-                    db.reservationDao().saveReservation(res)
+
+                    db.playerReservationDAO().updateReservation(
+                        playerId = playerId,
+                        reservationId = reservationId,
+                        //TODO newReservationId from timeslots
+                        newReservationId = reservationId + 2,
+                        newEquipments = equipments,
+                        newFinalPrice = bookingViewModel.personalPrice.value!!)
+
+                    db.reservationDao().updateNumOfPlayers(reservationId)
+                    //TODO newReservationId from timeslots
+                    //db.reservationDao().updateNumOfPlayers(newReservationId)
+
                     setResult(Activity.RESULT_OK)
                     finish()
                 }catch(err: RuntimeException) {
@@ -136,7 +165,66 @@ class EditReservationActivity : AppCompatActivity() {
         sport_name.text = "${reservation.court.sport}"
         court_name_edit_reservation.text = "${reservation.court.name}"
         location_edit_reservation.text = "Via Giovanni Magni, 32"
-        priceText.text = "You will pay €${reservation.reservation.formatPrice()} locally."
+
+        setupCheckboxes(reservation.finalPrice)
+    }
+
+    private fun setupCheckboxes(startingPrice: Double) {
+
+        val checkboxContainer = findViewById<LinearLayout>(R.id.checkbox_container)
+
+        bookingViewModel.setPersonalPrice(startingPrice)
+
+        val listEquipments = listOf(
+            Equipment("Shoes",1.5),
+            Equipment("Racket",1.5)
+        )
+
+        for (e in listEquipments) {
+            val checkbox = CheckBox(this)
+            checkbox.text = "${e.name} - €${e.price}"
+
+            if(reservation.equipments.any { it.name == e.name })
+                checkbox.isChecked = true
+
+            checkbox.setOnCheckedChangeListener { _, isChecked ->
+                if(isChecked) {
+                    bookingViewModel.setPersonalPrice(bookingViewModel.personalPrice.value?.plus(e.price)!!)
+                    equipments.add(e)
+                }
+                else {
+                    bookingViewModel.setPersonalPrice(bookingViewModel.personalPrice.value?.minus(e.price)!!)
+                    equipments.remove(e)
+                }
+            }
+            checkboxContainer.addView(checkbox)
+        }
+
+        val disablingBox = findViewById<CheckBox>(R.id.disablingCheckbox)
+        if(reservation.equipments.isEmpty()){
+            disablingBox.isChecked = true
+            for (i in 0 until checkboxContainer.childCount) {
+                val view = checkboxContainer.getChildAt(i)
+                if (view is CheckBox) {
+                    view.isChecked = false
+                    view.isEnabled = !disablingBox.isChecked
+                }
+            }
+        }
+
+        disablingBox.setOnCheckedChangeListener { _ , isChecked ->
+            for (i in 0 until checkboxContainer.childCount) {
+                val view = checkboxContainer.getChildAt(i)
+                if (view is CheckBox) {
+                    view.isChecked = false
+                    view.isEnabled = !isChecked
+                }
+            }
+        }
+
+        bookingViewModel.personalPrice.observe(this) {
+            priceText.text = "You will pay €${String.format("%.02f", bookingViewModel.personalPrice.value)} locally."
+        }
     }
 
 }

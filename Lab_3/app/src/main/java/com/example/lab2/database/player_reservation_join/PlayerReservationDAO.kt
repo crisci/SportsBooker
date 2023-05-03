@@ -10,13 +10,16 @@ import com.example.lab2.entities.Equipment
 @Dao
 interface PlayerReservationDAO {
 
-    @Query("INSERT INTO players_reservations VALUES (:playerId, :reservationId, :listEquipments)")
-    fun confirmReservation(playerId: Int, reservationId: Int, listEquipments: List<Equipment>)
+    @Query("INSERT INTO players_reservations VALUES (:playerId, :reservationId, :listEquipments, :finalPrice)")
+    fun confirmReservation(playerId: Int, reservationId: Int, listEquipments: List<Equipment>, finalPrice: Double)
 
     @Query("DELETE FROM players_reservations WHERE reservationId=:reservationId")
     fun deletePlayerReservationByReservationId(reservationId: Int)
 
     @Query("DELETE FROM players_reservations")
     fun deletePlayerReservation()
+
+    @Query("UPDATE players_reservations SET reservationId = :newReservationId, equipments = :newEquipments, finalPrice = :newFinalPrice WHERE playerId = :playerId AND reservationId = :reservationId")
+    suspend fun updateReservation(playerId: Int, reservationId: Int, newReservationId: Int, newEquipments: List<Equipment>, newFinalPrice: Double)
 
 }

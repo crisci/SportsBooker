@@ -20,5 +20,6 @@ data class PlayerReservation (
     val playerId: Int,
     val reservationId : Int,
     @TypeConverters(EquipmentConverter::class)
-    val equipments: List<Equipment>
+    val equipments: List<Equipment>,
+    val finalPrice: Double
 )

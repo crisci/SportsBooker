@@ -10,25 +10,18 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.Window
 import android.widget.Button
 import android.widget.GridView
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
-import com.example.lab2.calendar.setupTimeslots
+import androidx.appcompat.app.ActionBar
 import com.example.lab2.database.ReservationAppDatabase
-import com.example.lab2.database.player.Player
-import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.entities.User
 import dagger.hilt.android.AndroidEntryPoint
-import java.time.LocalDate
-import java.time.LocalTime
-import kotlin.concurrent.thread
 
 @AndroidEntryPoint
 class ShowProfileActivity : AppCompatActivity() {
@@ -44,6 +37,8 @@ class ShowProfileActivity : AppCompatActivity() {
     private lateinit var badgesLayout: LinearLayout
     private lateinit var statisticsLayout: LinearLayout
     private lateinit var skills: LinearLayout
+    private lateinit var backButton: ImageButton
+    private lateinit var editProfile: ImageButton
     var image_uri: Uri? = null
 
     private lateinit var sharedPref: SharedPreferences
@@ -84,10 +79,30 @@ class ShowProfileActivity : AppCompatActivity() {
         statisticsLayout = findViewById(R.id.profile_statistics)
         skills = findViewById(R.id.profile_badges)
 
+
         skills.setOnClickListener { showCustomDialog() }
 
-        supportActionBar?.setDisplayShowTitleEnabled(false)
         supportActionBar?.elevation = 0f
+
+        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
+        supportActionBar?.setCustomView(R.layout.toolbar_show_profile)
+        val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title_show_profile)
+        titleTextView?.text = "Profile"
+        backButton = supportActionBar?.customView?.findViewById<ImageButton>(R.id.edit_profile_back_button)!!
+        editProfile = supportActionBar?.customView?.findViewById<ImageButton>(R.id.profile_edit_button)!!
+
+        backButton.setOnClickListener {
+            finish()
+        }
+
+        editProfile.setOnClickListener {
+            val intentEditProfile = Intent(this, EditProfileActivity::class.java).apply {
+                addCategory(Intent.CATEGORY_SELECTED_ALTERNATIVE)
+                putExtra("user", user.toJson())
+            }
+            launcher.launch(intentEditProfile)
+        }
+
 
         //load the shared preferences and update the views
         sharedPref = this.getSharedPreferences(
@@ -96,7 +111,7 @@ class ShowProfileActivity : AppCompatActivity() {
         val userPref = sharedPref.getString("user", null) ?: User().toJson()
         user = User.fromJson(userPref)
         updateContent()
-        
+
         db = ReservationAppDatabase.getDatabase(this)
 
     }
@@ -112,28 +127,28 @@ class ShowProfileActivity : AppCompatActivity() {
         updateContent()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        super.onCreateOptionsMenu(menu)
-        val inflater: MenuInflater = menuInflater
-        inflater.inflate(R.menu.editmenu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val intentEditProfile = Intent(this, EditProfileActivity::class.java).apply {
-            addCategory(Intent.CATEGORY_SELECTED_ALTERNATIVE)
-            putExtra("user", user.toJson())
+    /*    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+            super.onCreateOptionsMenu(menu)
+            val inflater: MenuInflater = menuInflater
+            inflater.inflate(R.menu.editmenu, menu)
+            return true
         }
-        val intentMyReservations = Intent(this, MyReservationsActivity::class.java)
 
-        return when (item.itemId) {
-            R.id.edit -> {
-                launcher.launch(intentEditProfile)
-                true
+        override fun onOptionsItemSelected(item: MenuItem): Boolean {
+            val intentEditProfile = Intent(this, EditProfileActivity::class.java).apply {
+                addCategory(Intent.CATEGORY_SELECTED_ALTERNATIVE)
+                putExtra("user", user.toJson())
             }
-            else -> super.onContextItemSelected(item)
-        }
-    }
+            val intentMyReservations = Intent(this, MyReservationsActivity::class.java)
+
+            return when (item.itemId) {
+                R.id.edit -> {
+                    launcher.launch(intentEditProfile)
+                    true
+                }
+                else -> super.onContextItemSelected(item)
+            }
+        }*/
 
 
     private fun updateContent() {
