@@ -5,8 +5,6 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.court.CourtDAO
 import com.example.lab2.database.player.Player
@@ -19,7 +17,7 @@ import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationDAO
 
 @Database(entities = [Player::class, Reservation::class, Court::class, PlayerBadgeRating::class, PlayerReservation::class], version = 1, exportSchema = false)
-@TypeConverters(Converters::class)
+@TypeConverters(DateTimeConverter::class, EquipmentConverter::class)
 abstract class ReservationAppDatabase : RoomDatabase() {
     abstract fun playerDao() : PlayerDAO
     abstract fun reservationDao() : ReservationDAO

@@ -1,5 +1,6 @@
 package com.example.lab2
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.Layout
@@ -19,17 +20,20 @@ import androidx.navigation.ui.navigateUp
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lab2.calendar.CalendarViewModel
+import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.Reservation
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
 import java.time.LocalTime
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 @AndroidEntryPoint
 class MyReservationsActivity : AppCompatActivity() {
 
     private lateinit var navController : NavController
     private lateinit var myProfileButton: ImageView
+    private lateinit var db: ReservationAppDatabase
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {}
@@ -44,7 +48,7 @@ class MyReservationsActivity : AppCompatActivity() {
         val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
         titleTextView?.text = "My Reservations"
 
-
+        db = ReservationAppDatabase.getDatabase(this)
 
         navController = (
             supportFragmentManager
@@ -55,6 +59,35 @@ class MyReservationsActivity : AppCompatActivity() {
         myProfileButton.setOnClickListener {
             val intentShowProfile = Intent(this, ShowProfileActivity::class.java)
             launcher.launch(intentShowProfile)
+        }
+
+        // IGNORE: DB gets created the very first time only if some Dao operations are executed
+        thread{
+            //val courts = db.courtDao().loadAllCourts()
+            db.playerReservationDAO().deletePlayerReservation()
+            db.reservationDao().deleteAllReservations()
+            for (i in 1..3) {
+                db.reservationDao().saveReservation(
+                    Reservation(
+                        reservationId = 0,
+                        courtId = 1,
+                        numOfPlayers = 0,
+                        price = 7.00,
+                        date = LocalDate.now(),
+                        time = LocalTime.of(10 + i,0)
+                    )
+                )
+                db.reservationDao().saveReservation(
+                    Reservation(
+                        reservationId = 0,
+                        courtId = 3,
+                        numOfPlayers = 0,
+                        price = 7.00,
+                        date = LocalDate.now(),
+                        time = LocalTime.of(10 + i,0)
+                    )
+                )
+            }
         }
 
     }

@@ -199,6 +199,44 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/checkbox_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/card_reservation"
+                android:elevation="5dp"
+                android:orientation="vertical"
+                android:padding="25dp"
+                app:layout_constraintTop_toBottomOf="@+id/confirm_reservation_content"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Do you need any equipment?"
+                    android:fontFamily="@font/montserrat_bold"
+                    android:layout_marginBottom="5dp"/>
+
+                <LinearLayout
+                    android:id="@+id/checkbox_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"/>
+
+                <CheckBox
+                    android:id="@+id/disablingCheckbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No, I'm not interested"
+                    android:fontFamily="@font/montserrat_bold"/>
+
+
+
+            </LinearLayout>
+
+
             <Button
                 android:id="@+id/confirm_button_confirm_reservation"
                 android:layout_width="match_parent"
@@ -231,10 +269,11 @@
                 android:textColor="@color/black"
                 android:textSize="10sp"
                 android:textStyle="bold"
+                android:layout_marginTop="5dp"
                 app:layout_constraintEnd_toEndOf="@+id/confirm_button_confirm_reservation"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="@+id/confirm_button_confirm_reservation"
-                app:layout_constraintTop_toBottomOf="@+id/confirm_reservation_content" />
+                app:layout_constraintTop_toBottomOf="@+id/checkbox_wrapper" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

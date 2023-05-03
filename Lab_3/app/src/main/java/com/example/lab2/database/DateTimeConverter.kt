@@ -6,7 +6,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 
-class Converters {
+class DateTimeConverter {
 
     private val formatterDate: DateTimeFormatter = DateTimeFormatter.ISO_DATE
     private val formatterTime: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")

@@ -1,5 +1,6 @@
 package com.example.lab2
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.icu.util.BuddhistCalendar
@@ -24,6 +25,7 @@ import com.example.lab2.calendar.CalendarViewModel
 import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.CourtWithReservations
+import com.example.lab2.database.reservation.ReservationWithCourt
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +48,9 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
     private lateinit var db: ReservationAppDatabase
 
+    private var list = listOf<ReservationWithCourt>()
+    private lateinit var filteredList: List<ReservationWithCourt>
+
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
@@ -58,6 +63,8 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
                 listCourtsWithReservations = listCourtsWithReservations.filter { it.court.sport == "Padel" }
                vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
+            requireActivity().setResult(Activity.RESULT_OK)
+            requireActivity().finish()
             // TODO: go back to my reservation to see the reservation done
             // ! if it is done with navigation, more fragment are placed one on top of the other
         }

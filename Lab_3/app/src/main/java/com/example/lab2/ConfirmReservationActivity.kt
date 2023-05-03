@@ -1,19 +1,27 @@
 package com.example.lab2
 
 import android.app.Activity
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
+import androidx.lifecycle.MutableLiveData
+import com.example.lab2.calendar.CalendarViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.reservation.Reservation
+import com.example.lab2.database.reservation.ReservationWithCourt
 import com.example.lab2.database.reservation.formatPrice
+import com.example.lab2.entities.Equipment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -34,7 +42,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
     private lateinit var confirmButton: Button
     private lateinit var priceText: TextView
     private lateinit var backButton: ImageView
-
+    private lateinit var checkboxContainer : LinearLayout
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_confirm_booking)
@@ -45,6 +53,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
         location_confirm_reservation = findViewById(R.id.location_confirm_reservation)
         date_confirm_reservation = findViewById(R.id.date_confirm_reservation)
         time_confirm_reservation = findViewById(R.id.time_confirm_reservation)
+        checkboxContainer = findViewById(R.id.checkbox_container)
         confirmButton = findViewById(R.id.confirm_button_confirm_reservation)
         priceText = findViewById(R.id.local_price_confirm_reservation2)
 
@@ -86,13 +95,67 @@ class ConfirmReservationActivity : AppCompatActivity() {
         val formattedDate = "$day $month"
         date_confirm_reservation.text = formattedDate
         time_confirm_reservation.text = reservation.time.format(DateTimeFormatter.ofPattern("HH:mm")).toString()
-        priceText.text = "You will pay €${reservation.formatPrice()} locally."
+
+        //val equipments = equipmentsBySport(court.sport)
+
+        val equipments = listOf(
+            Equipment("Shoes",1.5),
+            Equipment("Racket",1.5)
+        )
+
+        var personalPrice = MutableLiveData<Double>(reservation.price)
+
+        for (e in equipments) {
+            val checkbox = CheckBox(this)
+            checkbox.text = "${e.name} - €${e.price}"
+            checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
+                if(isChecked) {
+                    personalPrice.value = personalPrice.value?.plus(e.price)
+                }
+                else {
+                    personalPrice.value = personalPrice.value?.minus(e.price)
+                }
+            }
+            checkboxContainer.addView(checkbox)
+        }
+
+        val disablingBox = findViewById<CheckBox>(R.id.disablingCheckbox)
+        disablingBox.setOnCheckedChangeListener { _ , isChecked ->
+            for (i in 0 until checkboxContainer.childCount) {
+                val view = checkboxContainer.getChildAt(i)
+                if (view is CheckBox) {
+                    view.isChecked = false
+                    view.isEnabled = !isChecked
+                }
+            }
+        }
+
+        personalPrice.observe(this) {
+            priceText.text = "You will pay €${personalPrice.value} locally."
+        }
+
+
+        priceText.text = "You will pay €${reservation.price} locally."
         confirmButton.setOnClickListener {
+            val listEquipments = mutableListOf<Equipment>()
+            for (i in 0 until checkboxContainer.childCount) {
+                val view = checkboxContainer.getChildAt(i)
+                if (view is CheckBox) {
+                    if(view.isChecked) {
+                        val text = view.text.toString()
+                        val parts = text.split(" - €")
+                        val name = parts[0]
+                        val price = parts[1]
+                        listEquipments.add(Equipment(name,price.toDouble()))
+                    }
+                }
+            }
+
             thread {
                 // TODO: Check also the if the player has already booked match in the same timeslot
                 if(reservation.numOfPlayers < court.maxNumOfPlayers) {
                     try {
-                        db.playerReservationDAO().confirmReservation(1, reservation.reservationId)
+                        db.playerReservationDAO().confirmReservation(1, reservation.reservationId, listEquipments)
                         db.reservationDao().updateNumOfPlayers(reservation.reservationId, +1)
                         setResult(Activity.RESULT_OK)
                         finish()
@@ -105,4 +168,5 @@ class ConfirmReservationActivity : AppCompatActivity() {
             }
         }
     }
+
 }

@@ -12,6 +12,8 @@ import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.reservation.Reservation
@@ -22,6 +24,8 @@ import java.time.format.DateTimeFormatter
 
 
 class CancelReservationActivity : AppCompatActivity() {
+
+    private lateinit var navController : NavController
 
     private lateinit var db: ReservationAppDatabase
     private lateinit var reservation: Reservation
