@@ -121,6 +121,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
                 R.anim.fade_out
             )*/
             val intentBookReservation = Intent(requireContext(), BookReservationActivity::class.java)
+            filterVM.setSportFilter(null)
             launcher.launch(intentBookReservation)
         }
         

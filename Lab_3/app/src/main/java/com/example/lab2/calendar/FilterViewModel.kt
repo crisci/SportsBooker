@@ -2,8 +2,11 @@ package com.example.lab2.calendar
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.scopes.ViewModelScoped
+import dagger.hilt.android.scopes.ViewScoped
 import java.time.LocalDate
 import javax.inject.Inject
+
 
 class FilterViewModel @Inject constructor(): ViewModel() {
 
