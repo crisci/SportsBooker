@@ -19,9 +19,12 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
+import androidx.lifecycle.lifecycleScope
+import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.entities.User
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ShowProfileActivity : AppCompatActivity() {
@@ -45,6 +48,9 @@ class ShowProfileActivity : AppCompatActivity() {
 
     private lateinit var db : ReservationAppDatabase
 
+    @Inject
+    lateinit var userVM: UserViewModel
+
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
@@ -54,7 +60,7 @@ class ShowProfileActivity : AppCompatActivity() {
             val data: Intent? = response.data
             val userModified = data?.getStringExtra("user")
             user = User.fromJson(userModified!!)
-            updateContent()
+            userVM.setUser(user)
             //commit the data in the shared preferences
             with(sharedPref.edit()) {
                 putString("user", user.toJson())
@@ -91,6 +97,10 @@ class ShowProfileActivity : AppCompatActivity() {
         backButton = supportActionBar?.customView?.findViewById<ImageButton>(R.id.edit_profile_back_button)!!
         editProfile = supportActionBar?.customView?.findViewById<ImageButton>(R.id.profile_edit_button)!!
 
+        userVM.user.observe(this) {
+            updateContent()
+        }
+
         backButton.setOnClickListener {
             finish()
         }
@@ -110,7 +120,7 @@ class ShowProfileActivity : AppCompatActivity() {
 
         val userPref = sharedPref.getString("user", null) ?: User().toJson()
         user = User.fromJson(userPref)
-        updateContent()
+        userVM.setUser(user)
 
         db = ReservationAppDatabase.getDatabase(this)
 

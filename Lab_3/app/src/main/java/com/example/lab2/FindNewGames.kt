@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lab2.calendar.CalendarViewModel
 import com.example.lab2.calendar.FilterViewModel
+import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.CourtWithReservations
@@ -48,6 +49,8 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
     @Inject
     lateinit var filterVM: FilterViewModel
 
+    @Inject lateinit var userVM: UserViewModel
+
     private var listCourtsWithReservations = listOf<CourtWithReservations>()
 
     private lateinit var db: ReservationAppDatabase
@@ -66,7 +69,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
             val data: Intent? = response.data
             CoroutineScope(Dispatchers.IO).launch {
                listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
-                listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations
+                listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations.filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
                vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
             requireActivity().setResult(Activity.RESULT_OK)
@@ -93,6 +96,10 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         listOfSportRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false);
 
 
+        userVM.user.observe(viewLifecycleOwner) {
+            adapterCardFilters.setFilters(listOf(null).plus(userVM.getUser().interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
+        }
+
         vm.listAvailableReservations.observe(requireActivity()){
             adapterCard.setListCourts(vm.listAvailableReservations.value!!)
         }
@@ -101,7 +108,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
             CoroutineScope(Dispatchers.IO).launch {
                 listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
                 filterVM.sportFilter.postValue(null)
-                listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations
+                listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations.filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
                 Log.e("list", listCourtsWithReservations.toString())
                 vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
@@ -111,7 +118,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
             selectedFilterName.text = filterVM.getSportFilter()?:"All"
             CoroutineScope(Dispatchers.IO).launch {
                 listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
-                listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations
+                listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations.filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
                 Log.e("list", listCourtsWithReservations.toString())
                 vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
@@ -228,8 +235,15 @@ class AdapterFilters(private var listOfSport: List<String?>, val setFilter: (inp
         holder.layout.setOnClickListener {
             setFilter(name)
         }
+    }
 
+    fun setFilters(newFilters: List<String?>) {
 
+        val diffs = DiffUtil.calculateDiff(
+            FilterDiffCallback(listOfSport, newFilters)
+        )
+        listOfSport = newFilters
+        diffs.dispatchUpdatesTo(this)
     }
 
 }

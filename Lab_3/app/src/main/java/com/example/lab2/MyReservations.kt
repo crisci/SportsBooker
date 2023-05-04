@@ -13,7 +13,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityOptionsCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
@@ -21,10 +20,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lab2.calendar.CalendarViewModel
 import com.example.lab2.calendar.FilterViewModel
+import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
-import com.example.lab2.database.reservation.Reservation
-import com.example.lab2.database.reservation.ReservationWithCourt
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
 import com.google.gson.Gson
@@ -32,12 +30,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
-import java.time.LocalDate
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
-import kotlin.random.Random
 
 @AndroidEntryPoint
 class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.OnEditClickListener  {
@@ -51,6 +45,9 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
     @Inject
     lateinit var filterVM: FilterViewModel
+
+    @Inject
+    lateinit var userVM: UserViewModel
 
     private var list = listOf<ReservationWithCourtAndEquipments>()
 
@@ -69,7 +66,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             filterVM.setSportFilter(null)
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.playerDao().loadReservationsByPlayerId(1)
-                filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear }
+                filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
                 vm.list.postValue(filteredList)
             }
         }
@@ -81,7 +78,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         db = ReservationAppDatabase.getDatabase(requireContext())
         filteredList = emptyList()
         navController = findNavController()
-f
         requireActivity().actionBar?.elevation = 0f
 
         selectedFilterName = view.findViewById(R.id.selected_filter)
@@ -92,10 +88,14 @@ f
         listReservationsRecyclerView.adapter = adapterCard
         listReservationsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        val adapterCardFilters = AdapterFilterReservation(listOf(null, "Padel", "Soccer", "Something"), filterVM::setSportFilter)
+        val adapterCardFilters = AdapterFilterReservation(listOf(null).plus(userVM.getUser().interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }), filterVM::setSportFilter)
         val listOfSportRecyclerView = view.findViewById<RecyclerView>(R.id.my_reservation_filter)
         listOfSportRecyclerView.adapter = adapterCardFilters
         listOfSportRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false);
+
+        userVM.user.observe(viewLifecycleOwner) {
+            adapterCardFilters.setFilters(listOf(null).plus(userVM.getUser().interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
+        }
 
         vm.list.observe(requireActivity()){
             adapterCard.setReservations(vm.list.value!!)
@@ -104,9 +104,8 @@ f
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.playerDao().loadReservationsByPlayerId(1)
-                Log.d("list",list.toString())
                 filterVM.sportFilter.postValue(null)
-                filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear }
+                filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
                 vm.list.postValue(filteredList)
             }
         }
@@ -115,7 +114,7 @@ f
             selectedFilterName.text = filterVM.getSportFilter()?:"All"
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.playerDao().loadReservationsByPlayerId(1)
-                filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear }
+                filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
                 Log.d("list", filteredList.toString())
                 vm.list.postValue(filteredList)
             }
@@ -243,8 +242,15 @@ class AdapterFilterReservation(private var listOfSport: List<String?>, val setFi
         holder.layout.setOnClickListener {
             setFilter(name)
         }
+    }
 
+    fun setFilters(newFilters: List<String?>) {
 
+        val diffs = DiffUtil.calculateDiff(
+            FilterDiffCallback(listOfSport, newFilters)
+        )
+        listOfSport = newFilters
+        diffs.dispatchUpdatesTo(this)
     }
 
 }
