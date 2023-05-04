@@ -81,6 +81,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         db = ReservationAppDatabase.getDatabase(requireContext())
         filteredList = emptyList()
         navController = findNavController()
+f
+        requireActivity().actionBar?.elevation = 0f
 
         selectedFilterName = view.findViewById(R.id.selected_filter)
         selectedFilterName.text = filterVM.getSportFilter()?:"All"
