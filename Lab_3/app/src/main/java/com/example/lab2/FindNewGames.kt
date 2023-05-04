@@ -55,6 +55,8 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
     private var list = listOf<ReservationWithCourt>()
     private lateinit var filteredList: List<ReservationWithCourt>
 
+    private lateinit var selectedFilterName: TextView
+
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
@@ -76,6 +78,9 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         super.onViewCreated(view, savedInstanceState)
         db = ReservationAppDatabase.getDatabase(requireContext())
         navController = findNavController()
+
+        selectedFilterName = view.findViewById(R.id.selected_filter)
+        selectedFilterName.text = filterVM.getSportFilter()?:"All"
 
         val adapterCard = AdapterNewGames(listCourtsWithReservations, this)
         val listReservationsRecyclerView = view.findViewById<RecyclerView>(R.id.available_bookings)
@@ -103,6 +108,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         }
 
         filterVM.sportFilter.observe(viewLifecycleOwner) {
+            selectedFilterName.text = filterVM.getSportFilter()?:"All"
             CoroutineScope(Dispatchers.IO).launch {
                 listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
                 listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations

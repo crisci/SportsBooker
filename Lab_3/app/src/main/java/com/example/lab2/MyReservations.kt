@@ -32,6 +32,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.w3c.dom.Text
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -57,6 +58,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
     private lateinit var filteredList: List<ReservationWithCourtAndEquipments>
 
     private lateinit var findNewGamesButton: Button
+    private lateinit var selectedFilterName: TextView
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
@@ -79,6 +81,9 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         db = ReservationAppDatabase.getDatabase(requireContext())
         filteredList = emptyList()
         navController = findNavController()
+
+        selectedFilterName = view.findViewById(R.id.selected_filter)
+        selectedFilterName.text = filterVM.getSportFilter()?:"All"
 
         val adapterCard = AdapterCard(filteredList, this )
         val listReservationsRecyclerView = view.findViewById<RecyclerView>(R.id.your_reservation_recycler_view)
@@ -105,6 +110,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         }
 
         filterVM.sportFilter.observe(viewLifecycleOwner) {
+            selectedFilterName.text = filterVM.getSportFilter()?:"All"
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.playerDao().loadReservationsByPlayerId(1)
                 filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear }
