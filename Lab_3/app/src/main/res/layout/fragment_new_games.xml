@@ -33,10 +33,16 @@
             app:layout_constraintTop_toBottomOf="@+id/weekCalendarFragment">
 
             <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/filters_find_game"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/available_bookings"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_weight="10"
                 android:paddingBottom="100dp"
                 android:clipToPadding="false"
                 />

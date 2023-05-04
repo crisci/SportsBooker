@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lab2.calendar.CalendarViewModel
+import com.example.lab2.calendar.FilterViewModel
 import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.CourtWithReservations
@@ -44,6 +45,9 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
     @Inject
     lateinit var vm: CalendarViewModel
 
+    @Inject
+    lateinit var filterVM: FilterViewModel
+
     private var listCourtsWithReservations = listOf<CourtWithReservations>()
 
     private lateinit var db: ReservationAppDatabase
@@ -60,7 +64,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
             val data: Intent? = response.data
             CoroutineScope(Dispatchers.IO).launch {
                listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
-                listCourtsWithReservations = listCourtsWithReservations.filter { it.court.sport == "Padel" }
+                listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations
                vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
             requireActivity().setResult(Activity.RESULT_OK)
@@ -74,10 +78,16 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         super.onViewCreated(view, savedInstanceState)
         db = ReservationAppDatabase.getDatabase(requireContext())
         navController = findNavController()
+
         val adapterCard = AdapterNewGames(listCourtsWithReservations, this)
         val listReservationsRecyclerView = view.findViewById<RecyclerView>(R.id.available_bookings)
         listReservationsRecyclerView.adapter = adapterCard
         listReservationsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        val adapterCardFilters = AdapterFilters(listOf(null, "Padel", "Soccer", "Something"), filterVM::setSportFilter)
+        val listOfSportRecyclerView = view.findViewById<RecyclerView>(R.id.filters_find_game)
+        listOfSportRecyclerView.adapter = adapterCardFilters
+        listOfSportRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false);
 
 
         vm.listAvailableReservations.observe(requireActivity()){
@@ -87,11 +97,21 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
                 listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
-                listCourtsWithReservations = listCourtsWithReservations.filter { it.court.sport == "Padel" }
+                listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations
                 Log.e("list", listCourtsWithReservations.toString())
                 vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
         }
+
+        filterVM.sportFilter.observe(viewLifecycleOwner) {
+            CoroutineScope(Dispatchers.IO).launch {
+                listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
+                listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations
+                Log.e("list", listCourtsWithReservations.toString())
+                vm.listAvailableReservations.postValue(listCourtsWithReservations)
+            }
+        }
+
     }
 
     // TODO
@@ -101,6 +121,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
     }
 
 }
+
 
 class ViewHolderNewGames(v: View): RecyclerView.ViewHolder(v) {
 
@@ -179,4 +200,31 @@ class AdapterNewGames(private var listAvailableReservations: List<CourtWithReser
         listAvailableReservations = newListCourts
         diffs.dispatchUpdatesTo(this)
     }
+}
+
+class ViewHolderFilter(v: View): RecyclerView.ViewHolder(v) {
+    val name: TextView = v.findViewById(R.id.filter_name)
+    val layout: LinearLayout = v.findViewById(R.id.filter_button_layout)
+}
+
+class AdapterFilters(private var listOfSport: List<String?>, val setFilter: (input: String?) -> Unit): RecyclerView.Adapter<ViewHolderFilter>(){
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderFilter {
+        val v = LayoutInflater.from(parent.context)
+            .inflate(R.layout.filter_button, parent, false)
+        return ViewHolderFilter(v)
+    }
+
+    override fun getItemCount(): Int = listOfSport.size
+
+    override fun onBindViewHolder(holder: ViewHolderFilter, position: Int) {
+        val name = listOfSport[position]
+
+        holder.name.text = name?:"All"
+        holder.layout.setOnClickListener {
+            setFilter(name)
+        }
+
+
+    }
+
 }
