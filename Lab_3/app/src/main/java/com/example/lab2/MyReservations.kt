@@ -97,6 +97,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.playerDao().loadReservationsByPlayerId(1)
                 Log.d("list",list.toString())
+                filterVM.sportFilter.postValue(null)
                 filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear }
                 vm.list.postValue(filteredList)
             }
