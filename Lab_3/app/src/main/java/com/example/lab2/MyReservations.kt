@@ -64,6 +64,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
     private fun processResponse(response: androidx.activity.result.ActivityResult) {
         if(response.resultCode == AppCompatActivity.RESULT_OK) {
             val data: Intent? = response.data
+            filterVM.setSportFilter(null)
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.playerDao().loadReservationsByPlayerId(1)
                 filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear }
@@ -122,10 +123,16 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
                 R.anim.fade_out
             )*/
             val intentBookReservation = Intent(requireContext(), BookReservationActivity::class.java)
-            filterVM.setSportFilter(null)
             launcher.launch(intentBookReservation)
         }
-        
+    }
+
+    override fun onResume() {
+        super.onResume()
+        //When the activity become again visible the filter is setted to null
+        //So that if onBackPressed the filter is resetted
+        filterVM.setSportFilter(null)
+        Log.e("onResume", "filter null")
     }
 
 

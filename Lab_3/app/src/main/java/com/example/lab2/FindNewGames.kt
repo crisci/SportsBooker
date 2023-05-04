@@ -69,8 +69,6 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
             }
             requireActivity().setResult(Activity.RESULT_OK)
             requireActivity().finish()
-            // TODO: go back to my reservation to see the reservation done
-            // ! if it is done with navigation, more fragment are placed one on top of the other
         }
     }
 
@@ -97,6 +95,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
                 listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
+                filterVM.sportFilter.postValue(null)
                 listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations
                 Log.e("list", listCourtsWithReservations.toString())
                 vm.listAvailableReservations.postValue(listCourtsWithReservations)
