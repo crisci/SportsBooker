@@ -12,15 +12,19 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.example.lab2.calendar.BookingViewModel
 import com.example.lab2.calendar.CalendarViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
+import com.example.lab2.database.court.CourtWithReservations
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationWithCourt
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
 import com.example.lab2.entities.Equipment
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,6 +36,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 @AndroidEntryPoint
 class EditReservationActivity : AppCompatActivity() {
@@ -47,7 +52,14 @@ class EditReservationActivity : AppCompatActivity() {
     private lateinit var priceText: TextView
     private lateinit var sport_name: TextView
 
+    private lateinit var chipGroup: ChipGroup
+    var selectedText: String = ""
+    var time: String? = ""
+    var noTimeslotSelected = false
+
     private lateinit var equipments: MutableList<Equipment>
+    private lateinit var listAllCourtsWithReservations: List<CourtWithReservations>
+    private lateinit var mapReservationIdTimeslot: Map<Int,LocalTime>
 
     @Inject
     lateinit var vm: CalendarViewModel
@@ -80,6 +92,7 @@ class EditReservationActivity : AppCompatActivity() {
         location_edit_reservation = findViewById(R.id.location_edit_reservation)
         priceText = findViewById(R.id.local_price_edit_reservation)
         saveButton = findViewById(R.id.save_button_edit_reservation)
+        chipGroup = findViewById(R.id.time_slots_chip_group_edit_reservation)
         cancelButton = findViewById(R.id.cancel_button_edit_reservation)
         cancelButton.setOnClickListener {
             val intent = Intent(this, CancelReservationActivity::class.java).apply {
@@ -98,7 +111,7 @@ class EditReservationActivity : AppCompatActivity() {
         val playerId = intent.getIntExtra("playerId", 0)
         val reservationId = intent.getIntExtra("reservationId", 0)
         val date = intent.getStringExtra("date")
-        val time = intent.getStringExtra("time")
+        time = intent.getStringExtra("time")
         val numOfPlayers = intent.getIntExtra("numOfPlayers", 0)
         val price = intent.getDoubleExtra("price", 0.0)
         val courtId = intent.getIntExtra("courtId", 0)
@@ -109,6 +122,14 @@ class EditReservationActivity : AppCompatActivity() {
 
         val listType = object : TypeToken<MutableList<Equipment>>() {}.type
         equipments = Gson().fromJson(equipmentsString, listType)
+
+        thread {
+            listAllCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(LocalDate.parse(date, DateTimeFormatter.ISO_DATE))
+            mapReservationIdTimeslot = listAllCourtsWithReservations
+                .flatMap { it.reservations }
+                .distinctBy { it.time }
+                .associate { it.reservationId to it.time }
+        }
 
 
         res = Reservation(reservationId,courtId,numOfPlayers,price,LocalDate.parse(date, DateTimeFormatter.ISO_DATE), LocalTime.parse(time))
@@ -132,20 +153,26 @@ class EditReservationActivity : AppCompatActivity() {
 
         saveButton.setOnClickListener {
 
+            if (noTimeslotSelected) {
+                Toast.makeText(applicationContext, "Please, select a timeslot", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             CoroutineScope(Dispatchers.IO).launch {
                 try{
+
+                    val newReservationId = mapReservationIdTimeslot.entries.firstOrNull { it.value.format(
+                        DateTimeFormatter.ofPattern("HH:mm")).toString() == selectedText }?.key!!
 
                     db.playerReservationDAO().updateReservation(
                         playerId = playerId,
                         reservationId = reservationId,
-                        //TODO newReservationId from timeslots
-                        newReservationId = reservationId + 2,
+                        newReservationId = newReservationId,
                         newEquipments = equipments,
                         newFinalPrice = bookingViewModel.personalPrice.value!!)
 
                     db.reservationDao().updateNumOfPlayers(reservationId)
-                    //TODO newReservationId from timeslots
-                    //db.reservationDao().updateNumOfPlayers(newReservationId)
+                    db.reservationDao().updateNumOfPlayers(newReservationId)
 
                     setResult(Activity.RESULT_OK)
                     finish()
@@ -167,6 +194,36 @@ class EditReservationActivity : AppCompatActivity() {
         location_edit_reservation.text = "Via Giovanni Magni, 32"
 
         setupCheckboxes(reservation.finalPrice)
+
+        for (r in mapReservationIdTimeslot) {
+            val chip = Chip(this)
+            chip.isClickable = true
+            chip.isCheckable = true
+            chip.setChipBackgroundColorResource(androidx.appcompat.R.color.material_blue_grey_800)
+            chip.setTextColor(ContextCompat.getColor(this, R.color.white))
+            chip.setChipStrokeColorResource(R.color.white)
+            chip.chipStrokeWidth = 2F
+            chip.text = "${r.value}"
+            if (chip.text == time) chip.isChecked = true
+            chip.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    chip.setChipBackgroundColorResource(R.color.darker_blue)
+                } else {
+                    chip.setChipBackgroundColorResource(androidx.appcompat.R.color.material_blue_grey_800)
+                }
+            }
+            chipGroup.addView(chip)
+        }
+        chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
+            if(checkedIds.isNotEmpty()) {
+                val selectedChip = findViewById<Chip>(checkedIds.first())
+                selectedText = selectedChip.text.toString()
+                noTimeslotSelected = false
+            }
+            else {
+                noTimeslotSelected = true
+            }
+        }
     }
 
     private fun setupCheckboxes(startingPrice: Double) {

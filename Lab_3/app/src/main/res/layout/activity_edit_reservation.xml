@@ -81,11 +81,12 @@
                         app:layout_constraintTop_toBottomOf="@+id/court_name_edit_reservation"
                         app:srcCompat="@drawable/baseline_location_on_24" />
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/time_slots_recicle_view_edit_reservation"
-                        android:layout_width="355dp"
-                        android:layout_height="47dp"
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/time_slots_chip_group_edit_reservation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
+                        app:singleSelection="true"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
