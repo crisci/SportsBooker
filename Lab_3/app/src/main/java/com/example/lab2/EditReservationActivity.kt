@@ -124,7 +124,8 @@ class EditReservationActivity : AppCompatActivity() {
         equipments = Gson().fromJson(equipmentsString, listType)
 
         thread {
-            listAllCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(LocalDate.parse(date, DateTimeFormatter.ISO_DATE))
+            listAllCourtsWithReservations = db.playerReservationDAO().
+                getPlayerAvailableReservationsByDate(LocalDate.parse(date, DateTimeFormatter.ISO_DATE), playerId)
             mapReservationIdTimeslot = listAllCourtsWithReservations
                 .flatMap { it.reservations }
                 .distinctBy { it.time }

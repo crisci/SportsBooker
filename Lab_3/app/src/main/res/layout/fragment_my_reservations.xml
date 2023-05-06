@@ -22,6 +22,35 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:layout="@layout/week_calendar_fragment" />
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/no_results"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            tools:layout_editor_absoluteY="346dp">
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/no_results_found"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no_results"
+                app:layout_constraintTop_toBottomOf="@id/imageView2"
+                app:layout_constraintStart_toStartOf="@id/imageView2"
+                app:layout_constraintEnd_toEndOf="@+id/imageView2"
+                android:fontFamily="@font/montserrat_semibold"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <LinearLayout
             android:id="@+id/body"
             android:layout_width="match_parent"
@@ -56,7 +85,9 @@
                 android:layout_weight="10"
                 android:paddingBottom="100dp"
                 android:clipToPadding="false"
-                />
+                >
+
+            </androidx.recyclerview.widget.RecyclerView>
 
         </LinearLayout>
 
@@ -77,8 +108,8 @@
                 android:layout_marginHorizontal="20dp"
                 android:background="@drawable/rectangle_radius"
                 android:backgroundTint="@color/example_1_bg"
-                android:fontFamily="@font/montserrat_regular"
-                android:text="Find New Games"
+                android:fontFamily="@font/montserrat_semibold"
+                android:text="@string/join_match"
                 android:textAllCaps="false"
                 android:textSize="16sp"
                 android:textStyle="bold" />

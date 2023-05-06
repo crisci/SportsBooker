@@ -13,6 +13,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
@@ -30,6 +31,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -54,6 +56,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
     private lateinit var db: ReservationAppDatabase
     private lateinit var filteredList: List<ReservationWithCourtAndEquipments>
 
+    private lateinit var noResults: ConstraintLayout
     private lateinit var findNewGamesButton: Button
     private lateinit var selectedFilterName: TextView
 
@@ -66,6 +69,13 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             filterVM.setSportFilter(null)
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.playerDao().loadReservationsByPlayerId(1)
+                withContext(Dispatchers.Main) {
+                    if (list.isNotEmpty()) {
+                        noResults.visibility = View.GONE
+                    } else {
+                        noResults.visibility = View.VISIBLE
+                    }
+                }
                 filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
                 vm.list.postValue(filteredList)
             }
@@ -93,6 +103,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         listOfSportRecyclerView.adapter = adapterCardFilters
         listOfSportRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false);
 
+        noResults = view.findViewById(R.id.no_results)
+
         userVM.user.observe(viewLifecycleOwner) {
             adapterCardFilters.setFilters(listOf(null).plus(userVM.getUser().interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
         }
@@ -104,6 +116,13 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.playerDao().loadReservationsByPlayerId(1)
+                withContext(Dispatchers.Main) {
+                    if (list.isNotEmpty()) {
+                        noResults.visibility = View.GONE
+                    } else {
+                        noResults.visibility = View.VISIBLE
+                    }
+                }
                 filterVM.sportFilter.postValue(null)
                 filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
                 vm.list.postValue(filteredList)
@@ -114,6 +133,13 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             selectedFilterName.text = filterVM.getSportFilter()?:"All"
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.playerDao().loadReservationsByPlayerId(1)
+                withContext(Dispatchers.Main) {
+                    if (list.isNotEmpty()) {
+                        noResults.visibility = View.GONE
+                    } else {
+                        noResults.visibility = View.VISIBLE
+                    }
+                }
                 filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
                 Log.d("list", filteredList.toString())
                 vm.list.postValue(filteredList)
@@ -241,6 +267,13 @@ class AdapterFilterReservation(private var listOfSport: List<String?>, val setFi
         holder.name.text = name?:"All"
         holder.layout.setOnClickListener {
             setFilter(name)
+            // TODO When I change filter, noResults must show up but both the list and noResults are on another scope,
+            // TODO so it must be handled by the ViewModel maybe
+            /*if (list.isNotEmpty()) {
+                noResults.visibility = View.GONE
+            } else {
+                noResults.visibility = View.VISIBLE
+            }*/
         }
     }
 

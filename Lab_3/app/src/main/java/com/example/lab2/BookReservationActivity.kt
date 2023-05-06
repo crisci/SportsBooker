@@ -25,7 +25,7 @@ class BookReservationActivity : AppCompatActivity() {
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
         supportActionBar?.setCustomView(R.layout.toolbar)
         val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
-        titleTextView?.text = "Join a game"
+        titleTextView?.text = "Join a match"
 
 
 

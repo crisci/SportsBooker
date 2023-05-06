@@ -34,4 +34,6 @@
     <string name="close">Close</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="no_results">You have no reservations</string>
+    <string name="join_match">Join a match</string>
 </resources>
