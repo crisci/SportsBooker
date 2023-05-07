@@ -26,6 +26,7 @@ import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
+import com.google.android.material.chip.Chip
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -58,7 +59,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
     private lateinit var noResults: ConstraintLayout
     private lateinit var findNewGamesButton: Button
-    private lateinit var selectedFilterName: TextView
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
@@ -89,9 +89,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         filteredList = emptyList()
         navController = findNavController()
         requireActivity().actionBar?.elevation = 0f
-
-        selectedFilterName = view.findViewById(R.id.selected_filter)
-        selectedFilterName.text = filterVM.getSportFilter()?:"All"
 
         val adapterCard = AdapterCard(filteredList, this )
         val listReservationsRecyclerView = view.findViewById<RecyclerView>(R.id.your_reservation_recycler_view)
@@ -130,7 +127,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         }
 
         filterVM.sportFilter.observe(viewLifecycleOwner) {
-            selectedFilterName.text = filterVM.getSportFilter()?:"All"
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.playerDao().loadReservationsByPlayerId(1)
                 withContext(Dispatchers.Main) {
@@ -149,12 +145,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         findNewGamesButton = view.findViewById(R.id.find_new_games_button)
         findNewGamesButton.setOnClickListener {
-            //navController.navigate(R.id.action_myReservations_to_newGames2)
-            /*val options = ActivityOptionsCompat.makeCustomAnimation(
-                requireContext(),
-                R.anim.slide_in_up,
-                R.anim.fade_out
-            )*/
             val intentBookReservation = Intent(requireContext(), BookReservationActivity::class.java)
             launcher.launch(intentBookReservation)
         }
@@ -249,10 +239,13 @@ class AdapterCard(private var list: List<ReservationWithCourtAndEquipments>, pri
 
 class ViewHolderFilterReservation(v: View): RecyclerView.ViewHolder(v) {
     val name: TextView = v.findViewById(R.id.filter_name)
-    val layout: LinearLayout = v.findViewById(R.id.filter_button_layout)
+    val layout: ConstraintLayout = v.findViewById(R.id.filter_button_layout)
+    val selectionIndicator: View = v.findViewById(R.id.selectionIndicator)
 }
 
 class AdapterFilterReservation(private var listOfSport: List<String?>, val setFilter: (input: String?) -> Unit): RecyclerView.Adapter<ViewHolderFilterReservation>(){
+
+    var selectedPosition = 0
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderFilterReservation {
         val v = LayoutInflater.from(parent.context)
             .inflate(R.layout.filter_button, parent, false)
@@ -264,16 +257,15 @@ class AdapterFilterReservation(private var listOfSport: List<String?>, val setFi
     override fun onBindViewHolder(holder: ViewHolderFilterReservation, position: Int) {
         val name = listOfSport[position]
 
+        holder.selectionIndicator.visibility = if (selectedPosition == position) View.VISIBLE else View.INVISIBLE
+
         holder.name.text = name?:"All"
         holder.layout.setOnClickListener {
+            val previousPosition = selectedPosition
+            selectedPosition = holder.bindingAdapterPosition
+            notifyItemChanged(previousPosition)
+            notifyItemChanged(selectedPosition)
             setFilter(name)
-            // TODO When I change filter, noResults must show up but both the list and noResults are on another scope,
-            // TODO so it must be handled by the ViewModel maybe
-            /*if (list.isNotEmpty()) {
-                noResults.visibility = View.GONE
-            } else {
-                noResults.visibility = View.VISIBLE
-            }*/
         }
     }
 

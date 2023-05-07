@@ -15,6 +15,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -58,9 +59,6 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
     private var list = listOf<ReservationWithCourt>()
     private lateinit var filteredList: List<ReservationWithCourt>
 
-    private lateinit var selectedFilterName: TextView
-
-
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
 
@@ -82,8 +80,6 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         db = ReservationAppDatabase.getDatabase(requireContext())
         navController = findNavController()
 
-        selectedFilterName = view.findViewById(R.id.selected_filter)
-        selectedFilterName.text = filterVM.getSportFilter()?:"All"
 
         val adapterCard = AdapterNewGames(listCourtsWithReservations, this)
         val listReservationsRecyclerView = view.findViewById<RecyclerView>(R.id.available_bookings)
@@ -115,7 +111,6 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         }
 
         filterVM.sportFilter.observe(viewLifecycleOwner) {
-            selectedFilterName.text = filterVM.getSportFilter()?:"All"
             CoroutineScope(Dispatchers.IO).launch {
                 listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
                 listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations.filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
@@ -172,11 +167,10 @@ class AdapterNewGames(private var listAvailableReservations: List<CourtWithReser
                     220,
                     100
                 )
-                layoutParams.setMargins(0, 0, 20, 20)
+                layoutParams.setMargins(10, 0, 20, 20)
                 tv.setPadding(20,25,20,25)
                 tv.setTextAppearance(R.style.TimeslotTextAppearance)
-                tv.setTextColorRes(R.color.timeslot)
-                tv.elevation = 5F
+                tv.elevation = 10F
                 tv.background = holder.itemView.context.getDrawable(R.drawable.timeslot)
                 tv.textAlignment = View.TEXT_ALIGNMENT_CENTER;
                 tv.id = View.generateViewId()
@@ -216,10 +210,13 @@ class AdapterNewGames(private var listAvailableReservations: List<CourtWithReser
 
 class ViewHolderFilter(v: View): RecyclerView.ViewHolder(v) {
     val name: TextView = v.findViewById(R.id.filter_name)
-    val layout: LinearLayout = v.findViewById(R.id.filter_button_layout)
+    val layout: ConstraintLayout = v.findViewById(R.id.filter_button_layout)
+    val selectionIndicator: View = v.findViewById(R.id.selectionIndicator)
 }
 
 class AdapterFilters(private var listOfSport: List<String?>, val setFilter: (input: String?) -> Unit): RecyclerView.Adapter<ViewHolderFilter>(){
+
+    var selectedPosition = 0
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderFilter {
         val v = LayoutInflater.from(parent.context)
             .inflate(R.layout.filter_button, parent, false)
@@ -231,8 +228,14 @@ class AdapterFilters(private var listOfSport: List<String?>, val setFilter: (inp
     override fun onBindViewHolder(holder: ViewHolderFilter, position: Int) {
         val name = listOfSport[position]
 
+        holder.selectionIndicator.visibility = if (selectedPosition == position) View.VISIBLE else View.INVISIBLE
+
         holder.name.text = name?:"All"
         holder.layout.setOnClickListener {
+            val previousPosition = selectedPosition
+            selectedPosition = holder.bindingAdapterPosition
+            notifyItemChanged(previousPosition)
+            notifyItemChanged(selectedPosition)
             setFilter(name)
         }
     }
