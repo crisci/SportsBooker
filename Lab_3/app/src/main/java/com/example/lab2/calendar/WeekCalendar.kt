@@ -112,7 +112,7 @@ class WeekCalendar : Fragment(R.layout.week_calendar_fragment){
         binding.exSevenCalendar.setup(
             LocalDate.now(),
             currentMonth.plusMonths(5).atEndOfMonth(),
-            firstDayOfWeekFromLocale(),
+            LocalDate.now().dayOfWeek,
         )
         binding.exSevenCalendar.scrollToDate(LocalDate.now())
     }

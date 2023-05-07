@@ -35,6 +35,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -56,6 +57,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
     private var list = listOf<ReservationWithCourtAndEquipments>()
 
+    lateinit private var adapterCardFilters: AdapterFilterReservation
+
     private lateinit var db: ReservationAppDatabase
     private lateinit var filteredList: List<ReservationWithCourtAndEquipments>
 
@@ -67,20 +70,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
     private fun processResponse(response: androidx.activity.result.ActivityResult) {
         if(response.resultCode == AppCompatActivity.RESULT_OK) {
-            val data: Intent? = response.data
             filterVM.setSportFilter(null)
-            CoroutineScope(Dispatchers.IO).launch {
-                list = db.playerDao().loadReservationsByPlayerId(1)
-                withContext(Dispatchers.Main) {
-                    if (list.isNotEmpty()) {
-                        noResults.visibility = View.GONE
-                    } else {
-                        noResults.visibility = View.VISIBLE
-                    }
-                }
-                filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
-                vm.list.postValue(filteredList)
-            }
+            vm.selectedDate.value = LocalDate.now()
         }
     }
 
@@ -97,7 +88,12 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         listReservationsRecyclerView.adapter = adapterCard
         listReservationsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        val adapterCardFilters = AdapterFilterReservation(listOf(null).plus(userVM.getUser().interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }), filterVM::setSportFilter)
+        adapterCardFilters = AdapterFilterReservation(
+            listOf(null)
+                .plus(userVM.getUser().interests
+                .map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }),
+            filterVM::setSportFilter
+        )
         val listOfSportRecyclerView = view.findViewById<RecyclerView>(R.id.my_reservation_filter)
         listOfSportRecyclerView.adapter = adapterCardFilters
         listOfSportRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false);
@@ -105,7 +101,10 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         noResults = view.findViewById(R.id.no_results)
 
         userVM.user.observe(viewLifecycleOwner) {
-            adapterCardFilters.setFilters(listOf(null).plus(userVM.getUser().interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
+            adapterCardFilters.setFilters(
+                listOf(null)
+                    .plus(userVM.getUser().interests
+                        .map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
         }
 
         vm.list.observe(requireActivity()){
@@ -114,7 +113,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
-                list = db.playerDao().loadReservationsByPlayerId(1)
+                list = db.playerDao().loadReservationsByPlayerId(1, it)
                 withContext(Dispatchers.Main) {
                     if (list.isNotEmpty()) {
                         noResults.visibility = View.GONE
@@ -129,8 +128,12 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         }
 
         filterVM.sportFilter.observe(viewLifecycleOwner) {
+            if(it == null) {
+                adapterCardFilters.selectedPosition = 0
+                adapterCardFilters.notifyDataSetChanged()
+            }
             CoroutineScope(Dispatchers.IO).launch {
-                list = db.playerDao().loadReservationsByPlayerId(1)
+                list = db.playerDao().loadReservationsByPlayerId(1, vm.selectedDate.value!!)
                 withContext(Dispatchers.Main) {
                     if (list.isNotEmpty()) {
                         noResults.visibility = View.GONE
@@ -139,7 +142,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
                     }
                 }
                 filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
-                Log.d("list", filteredList.toString())
                 vm.list.postValue(filteredList)
             }
         }
@@ -157,7 +159,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         //When the activity become again visible the filter is setted to null
         //So that if onBackPressed the filter is resetted
         filterVM.setSportFilter(null)
-        Log.e("onResume", "filter null")
+        vm.selectedDate.value = LocalDate.now()
     }
 
 
@@ -247,6 +249,7 @@ class ViewHolderFilterReservation(v: View): RecyclerView.ViewHolder(v) {
 
 class AdapterFilterReservation(private var listOfSport: List<String?>, val setFilter: (input: String?) -> Unit): RecyclerView.Adapter<ViewHolderFilterReservation>(){
 
+
     var selectedPosition = 0
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderFilterReservation {
         val v = LayoutInflater.from(parent.context)
@@ -259,10 +262,9 @@ class AdapterFilterReservation(private var listOfSport: List<String?>, val setFi
     override fun onBindViewHolder(holder: ViewHolderFilterReservation, position: Int) {
         val name = listOfSport[position]
 
-
-        holder.selectionIndicator.visibility = if (selectedPosition == position) View.VISIBLE else View.GONE
-
         holder.name.text = name?:"All"
+        holder.selectionIndicator.visibility = if (selectedPosition == holder.bindingAdapterPosition) View.VISIBLE else View.GONE
+
         holder.layout.setOnClickListener {
             val previousPosition = selectedPosition
             selectedPosition = holder.bindingAdapterPosition

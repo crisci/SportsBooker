@@ -18,7 +18,12 @@ interface CourtDAO {
     fun save(court: Court)
 
     @Query("SELECT c.*, r.* FROM courts c JOIN reservations r" +
-            " ON c.courtId = r.courtId AND r.date = :date AND r.numOfPlayers < c.maxNumOfPlayers" +
-            " GROUP BY c.courtId")
+            " ON c.courtId = r.courtId AND r.date = :date AND r.numOfPlayers < c.maxNumOfPlayers")
     fun getAvailableReservationsByDate(date: LocalDate): List<CourtWithReservations>
+
+    @Query("SELECT c.*, r.* FROM courts c JOIN reservations r" +
+            " ON c.courtId = r.courtId AND r.date = :date AND r.numOfPlayers < c.maxNumOfPlayers" +
+            " WHERE r.reservationId NOT IN" +
+            " (SELECT pr.reservationId FROM players_reservations pr WHERE pr.playerId = :playerId)")
+    fun getReservationsByDate(date: LocalDate, playerId: Int): List<CourtWithReservations>
 }

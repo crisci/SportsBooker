@@ -121,7 +121,8 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
-                listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
+                listCourtsWithReservations = db.courtDao().getReservationsByDate(vm.selectedDate.value!!, 1)
+                Log.d("listCourts",listCourtsWithReservations.toString())
                 withContext(Dispatchers.Main) {
                     if (listCourtsWithReservations.isNotEmpty()) {
                         noResults.visibility = View.GONE

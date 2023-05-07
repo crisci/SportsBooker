@@ -8,6 +8,7 @@ import androidx.room.Query
 import com.example.lab2.database.reservation.ReservationWithCourt
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.google.android.material.circularreveal.CircularRevealHelper.Strategy
+import java.time.LocalDate
 
 @Dao
 interface PlayerDAO {
@@ -20,9 +21,9 @@ interface PlayerDAO {
             " ON c.courtId = r.courtId" +
             " JOIN players_reservations pr" +
             " ON pr.reservationId = r.reservationId" +
-            " WHERE pr.playerId = :playerId"
+            " WHERE pr.playerId = :playerId AND r.date = :date"
     )
-    fun loadReservationsByPlayerId(playerId: Int) : List<ReservationWithCourtAndEquipments>
+    fun loadReservationsByPlayerId(playerId: Int, date: LocalDate) : List<ReservationWithCourtAndEquipments>
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
