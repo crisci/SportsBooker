@@ -110,7 +110,7 @@ class WeekCalendar : Fragment(R.layout.week_calendar_fragment){
 
         val currentMonth = YearMonth.now()
         binding.exSevenCalendar.setup(
-            currentMonth.minusMonths(5).atStartOfMonth(),
+            LocalDate.now(),
             currentMonth.plusMonths(5).atEndOfMonth(),
             firstDayOfWeekFromLocale(),
         )

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="selection_indicator_margin" format="dimension" />
+</resources>

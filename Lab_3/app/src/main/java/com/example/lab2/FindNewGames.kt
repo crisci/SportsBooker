@@ -33,6 +33,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.RuntimeException
 
 import java.time.format.DateTimeFormatter
@@ -59,6 +60,8 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
     private var list = listOf<ReservationWithCourt>()
     private lateinit var filteredList: List<ReservationWithCourt>
 
+    private lateinit var noResults: ConstraintLayout
+
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
 
@@ -67,7 +70,21 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
             val data: Intent? = response.data
             CoroutineScope(Dispatchers.IO).launch {
                listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
+                withContext(Dispatchers.Main) {
+                    if (listCourtsWithReservations.isNotEmpty()) {
+                        noResults.visibility = View.GONE
+                    } else {
+                        noResults.visibility = View.VISIBLE
+                    }
+                }
                 listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations.filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
+                withContext(Dispatchers.Main) {
+                    if (listCourtsWithReservations.isNotEmpty()) {
+                        noResults.visibility = View.GONE
+                    } else {
+                        noResults.visibility = View.VISIBLE
+                    }
+                }
                vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
             requireActivity().setResult(Activity.RESULT_OK)
@@ -91,6 +108,8 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         listOfSportRecyclerView.adapter = adapterCardFilters
         listOfSportRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false);
 
+        noResults = view.findViewById(R.id.no_results)
+
 
         userVM.user.observe(viewLifecycleOwner) {
             adapterCardFilters.setFilters(listOf(null).plus(userVM.getUser().interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
@@ -103,8 +122,22 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
                 listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
+                withContext(Dispatchers.Main) {
+                    if (listCourtsWithReservations.isNotEmpty()) {
+                        noResults.visibility = View.GONE
+                    } else {
+                        noResults.visibility = View.VISIBLE
+                    }
+                }
                 filterVM.sportFilter.postValue(null)
                 listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations.filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
+                withContext(Dispatchers.Main) {
+                    if (listCourtsWithReservations.isNotEmpty()) {
+                        noResults.visibility = View.GONE
+                    } else {
+                        noResults.visibility = View.VISIBLE
+                    }
+                }
                 Log.e("list", listCourtsWithReservations.toString())
                 vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
@@ -113,7 +146,21 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         filterVM.sportFilter.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
                 listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
+                withContext(Dispatchers.Main) {
+                    if (listCourtsWithReservations.isNotEmpty()) {
+                        noResults.visibility = View.GONE
+                    } else {
+                        noResults.visibility = View.VISIBLE
+                    }
+                }
                 listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations.filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
+                withContext(Dispatchers.Main) {
+                    if (listCourtsWithReservations.isNotEmpty()) {
+                        noResults.visibility = View.GONE
+                    } else {
+                        noResults.visibility = View.VISIBLE
+                    }
+                }
                 Log.e("list", listCourtsWithReservations.toString())
                 vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }

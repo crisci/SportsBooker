@@ -1,5 +1,7 @@
 package com.example.lab2
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -257,7 +259,8 @@ class AdapterFilterReservation(private var listOfSport: List<String?>, val setFi
     override fun onBindViewHolder(holder: ViewHolderFilterReservation, position: Int) {
         val name = listOfSport[position]
 
-        holder.selectionIndicator.visibility = if (selectedPosition == position) View.VISIBLE else View.INVISIBLE
+
+        holder.selectionIndicator.visibility = if (selectedPosition == position) View.VISIBLE else View.GONE
 
         holder.name.text = name?:"All"
         holder.layout.setOnClickListener {
