@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.DiffUtil
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationWithCourt
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
+import com.example.lab2.database.reservation.formatPrice
 
 class ReservationDiffCallback(
     private  val reservations: List<ReservationWithCourtAndEquipments>,
@@ -16,11 +17,14 @@ class ReservationDiffCallback(
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         return reservations[oldItemPosition].reservation.reservationId == newReservations[newItemPosition].reservation.reservationId
+                && reservations[oldItemPosition].equipments == newReservations[newItemPosition].equipments
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        val (_, courtId, numOfPlayers, price, date, time) = reservations[oldItemPosition].reservation
-        val (_, courtId1, numOfPlayers1, price1, date1, time1) = newReservations[newItemPosition].reservation
+        val (_, courtId, numOfPlayers, _, date, time) = reservations[oldItemPosition].reservation
+        val (_, courtId1, numOfPlayers1, _, date1, time1) = newReservations[newItemPosition].reservation
+        val price = reservations[oldItemPosition].formatPrice()
+        val price1 = reservations[newItemPosition].formatPrice()
         return  courtId == courtId1 && numOfPlayers == numOfPlayers1 && price == price1 && date == date1 && time == time1
     }
 

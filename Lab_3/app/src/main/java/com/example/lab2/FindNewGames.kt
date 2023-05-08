@@ -62,6 +62,13 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
     private lateinit var noResults: ConstraintLayout
 
+    private suspend fun getReservations() {
+        listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!).map { CourtWithReservations(it.court, it.reservations.filter { r -> !userVM.listBookedReservations.value!!.any { it == r.reservationId } }) }
+        listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations.filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
+        showOrHideNoResultImage()
+        vm.listAvailableReservations.postValue(listCourtsWithReservations)
+    }
+
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
 
@@ -69,26 +76,20 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         if(response.resultCode == AppCompatActivity.RESULT_OK) {
             val data: Intent? = response.data
             CoroutineScope(Dispatchers.IO).launch {
-               listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!).map { CourtWithReservations(it.court, it.reservations.filter { r -> !userVM.listBookedReservations.value!!.any { it == r.reservationId } }) }
-                withContext(Dispatchers.Main) {
-                    if (listCourtsWithReservations.isNotEmpty()) {
-                        noResults.visibility = View.GONE
-                    } else {
-                        noResults.visibility = View.VISIBLE
-                    }
-                }
-                listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations.filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
-                withContext(Dispatchers.Main) {
-                    if (listCourtsWithReservations.isNotEmpty()) {
-                        noResults.visibility = View.GONE
-                    } else {
-                        noResults.visibility = View.VISIBLE
-                    }
-                }
-               vm.listAvailableReservations.postValue(listCourtsWithReservations)
+                getReservations()
             }
             requireActivity().setResult(Activity.RESULT_OK)
             requireActivity().finish()
+        }
+    }
+
+    private suspend fun showOrHideNoResultImage() {
+        withContext(Dispatchers.Main) {
+            if (listCourtsWithReservations.isNotEmpty()) {
+                noResults.visibility = View.GONE
+            } else {
+                noResults.visibility = View.VISIBLE
+            }
         }
     }
 
@@ -121,52 +122,18 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
-                listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!).map { CourtWithReservations(it.court, it.reservations.filter { r -> !userVM.listBookedReservations.value!!.any { it == r.reservationId } }) }
-                withContext(Dispatchers.Main) {
-                    if (listCourtsWithReservations.isNotEmpty()) {
-                        noResults.visibility = View.GONE
-                    } else {
-                        noResults.visibility = View.VISIBLE
-                    }
-                }
                 filterVM.sportFilter.postValue(null)
-                listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations.filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
-                withContext(Dispatchers.Main) {
-                    if (listCourtsWithReservations.isNotEmpty()) {
-                        noResults.visibility = View.GONE
-                    } else {
-                        noResults.visibility = View.VISIBLE
-                    }
-                }
-                vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
         }
 
         filterVM.sportFilter.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
-                listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!).map { CourtWithReservations(it.court, it.reservations.filter { r -> !userVM.listBookedReservations.value!!.any { it == r.reservationId } }) }
-                withContext(Dispatchers.Main) {
-                    if (listCourtsWithReservations.isNotEmpty()) {
-                        noResults.visibility = View.GONE
-                    } else {
-                        noResults.visibility = View.VISIBLE
-                    }
-                }
-                listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations.filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
-                withContext(Dispatchers.Main) {
-                    if (listCourtsWithReservations.isNotEmpty()) {
-                        noResults.visibility = View.GONE
-                    } else {
-                        noResults.visibility = View.VISIBLE
-                    }
-                }
-                vm.listAvailableReservations.postValue(listCourtsWithReservations)
+                getReservations()
             }
         }
 
     }
 
-    // TODO
     override fun onClickTimeslot(informations: Bundle) {
         val intentConfirmReservationActivity = Intent(activity, ConfirmReservationActivity::class.java).putExtras(informations)
         launcher.launch(intentConfirmReservationActivity)
