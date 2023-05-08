@@ -69,7 +69,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         if(response.resultCode == AppCompatActivity.RESULT_OK) {
             val data: Intent? = response.data
             CoroutineScope(Dispatchers.IO).launch {
-               listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
+               listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!).map { CourtWithReservations(it.court, it.reservations.filter { r -> !userVM.listBookedReservations.value!!.any { it == r.reservationId } }) }
                 withContext(Dispatchers.Main) {
                     if (listCourtsWithReservations.isNotEmpty()) {
                         noResults.visibility = View.GONE
@@ -121,8 +121,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
-                listCourtsWithReservations = db.courtDao().getReservationsByDate(vm.selectedDate.value!!, 1)
-                Log.d("listCourts",listCourtsWithReservations.toString())
+                listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!).map { CourtWithReservations(it.court, it.reservations.filter { r -> !userVM.listBookedReservations.value!!.any { it == r.reservationId } }) }
                 withContext(Dispatchers.Main) {
                     if (listCourtsWithReservations.isNotEmpty()) {
                         noResults.visibility = View.GONE
@@ -139,14 +138,13 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
                         noResults.visibility = View.VISIBLE
                     }
                 }
-                Log.e("list", listCourtsWithReservations.toString())
                 vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
         }
 
         filterVM.sportFilter.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
-                listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
+                listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!).map { CourtWithReservations(it.court, it.reservations.filter { r -> !userVM.listBookedReservations.value!!.any { it == r.reservationId } }) }
                 withContext(Dispatchers.Main) {
                     if (listCourtsWithReservations.isNotEmpty()) {
                         noResults.visibility = View.GONE
@@ -162,7 +160,6 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
                         noResults.visibility = View.VISIBLE
                     }
                 }
-                Log.e("list", listCourtsWithReservations.toString())
                 vm.listAvailableReservations.postValue(listCourtsWithReservations)
             }
         }

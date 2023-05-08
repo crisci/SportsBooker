@@ -3,6 +3,7 @@ package com.example.lab2
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ImageView
@@ -15,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.lab2.calendar.BookingViewModel
 import com.example.lab2.calendar.CalendarViewModel
+import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.court.CourtWithReservations
@@ -63,6 +65,9 @@ class EditReservationActivity : AppCompatActivity() {
 
     @Inject
     lateinit var vm: CalendarViewModel
+
+    @Inject
+    lateinit var userVM: UserViewModel
 
     @Inject
     lateinit var bookingViewModel: BookingViewModel
@@ -130,6 +135,7 @@ class EditReservationActivity : AppCompatActivity() {
                 .flatMap { it.reservations }
                 .distinctBy { it.time }
                 .associate { it.reservationId to it.time }
+            Log.e("map", mapReservationIdTimeslot.toString())
         }
 
 
@@ -161,10 +167,8 @@ class EditReservationActivity : AppCompatActivity() {
 
             CoroutineScope(Dispatchers.IO).launch {
                 try{
-
                     val newReservationId = mapReservationIdTimeslot.entries.firstOrNull { it.value.format(
-                        DateTimeFormatter.ofPattern("HH:mm")).toString() == selectedText }?.key!!
-
+                        DateTimeFormatter.ofPattern("HH:mm")).toString() == selectedText }?.key ?: reservationId
                     db.playerReservationDAO().updateReservation(
                         playerId = playerId,
                         reservationId = reservationId,
@@ -174,7 +178,7 @@ class EditReservationActivity : AppCompatActivity() {
 
                     db.reservationDao().updateNumOfPlayers(reservationId)
                     db.reservationDao().updateNumOfPlayers(newReservationId)
-
+                    userVM.listBookedReservations.postValue(userVM.listBookedReservations.value?.minus(reservationId)?.plus(newReservationId) as MutableSet<Int>)
                     setResult(Activity.RESULT_OK)
                     finish()
                 }catch(err: RuntimeException) {

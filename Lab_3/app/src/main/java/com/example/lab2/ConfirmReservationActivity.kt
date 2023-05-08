@@ -17,6 +17,7 @@ import androidx.appcompat.app.ActionBar
 import androidx.lifecycle.MutableLiveData
 import com.example.lab2.calendar.BookingViewModel
 import com.example.lab2.calendar.CalendarViewModel
+import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.reservation.Reservation
@@ -50,6 +51,8 @@ class ConfirmReservationActivity : AppCompatActivity() {
     private lateinit var disablingBox: CheckBox
     @Inject
     lateinit var vm: BookingViewModel
+    @Inject
+    lateinit var userVM: UserViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_confirm_booking)
@@ -129,6 +132,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
                     try {
                         db.playerReservationDAO().confirmReservation(1, reservation.reservationId, listEquipments, vm.personalPrice.value!!)
                         db.reservationDao().updateNumOfPlayers(reservation.reservationId)
+                        userVM.listBookedReservations.postValue(userVM.listBookedReservations.value!!.plus(reservation.reservationId) as MutableSet<Int>?)
                         setResult(Activity.RESULT_OK)
                         finish()
                     } catch (err: RuntimeException) {

@@ -9,10 +9,12 @@ import javax.inject.Singleton
 @Singleton
 class UserViewModel @Inject constructor(): ViewModel() {
     var user = MutableLiveData<User>(User())
+    var listBookedReservations = MutableLiveData<MutableSet<Int>>(mutableSetOf())
 
     fun setUser(value: User) {
         user.value = value
     }
+
 
     fun getUser(): User {
         return user.value!!

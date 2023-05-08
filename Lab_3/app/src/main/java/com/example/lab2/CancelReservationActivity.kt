@@ -14,15 +14,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.reservation.Reservation
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class CancelReservationActivity : AppCompatActivity() {
 
     private lateinit var navController : NavController
@@ -38,6 +42,9 @@ class CancelReservationActivity : AppCompatActivity() {
     private lateinit var cancelButton: Button
     private lateinit var menuItem: MenuItem
     private lateinit var backButton: ImageView
+
+    @Inject
+    lateinit var userVM: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,6 +87,7 @@ class CancelReservationActivity : AppCompatActivity() {
                     db.reservationDao().updateNumOfPlayers(reservationId)
                     val result: Intent = Intent()
                     result.putExtra("result", true)
+                    userVM.listBookedReservations.postValue(userVM.listBookedReservations.value?.minus(reservationId) as MutableSet<Int>?)
                     setResult(Activity.RESULT_OK, result)
                     finish()
                 } catch (err: RuntimeException) {
