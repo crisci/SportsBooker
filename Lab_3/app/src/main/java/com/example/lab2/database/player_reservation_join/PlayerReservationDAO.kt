@@ -25,10 +25,10 @@ interface PlayerReservationDAO {
     suspend fun updateReservation(playerId: Int, reservationId: Int, newReservationId: Int, newEquipments: List<Equipment>, newFinalPrice: Double)
 
     @Query("SELECT c.*, r.* FROM courts c JOIN reservations r" +
-            " ON c.courtId = r.courtId AND r.date = :date AND r.numOfPlayers < c.maxNumOfPlayers" +
+            " ON c.courtId = r.courtId AND r.date = :date AND r.numOfPlayers < c.maxNumOfPlayers AND c.sport = :sport" +
             " AND r.reservationId NOT IN" +
             " (SELECT pr.reservationId FROM players_reservations pr " +
             " WHERE playerId = :playerId)" +
             " GROUP BY c.courtId")
-    fun getPlayerAvailableReservationsByDate(date: LocalDate, playerId: Int): List<CourtWithReservations>
+    fun getPlayerAvailableReservationsByDate(date: LocalDate, playerId: Int, sport: String): List<CourtWithReservations>
 }

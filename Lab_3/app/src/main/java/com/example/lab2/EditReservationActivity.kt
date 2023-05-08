@@ -133,7 +133,7 @@ class EditReservationActivity : AppCompatActivity() {
 
         thread {
             listAllCourtsWithReservations = db.playerReservationDAO().
-                getPlayerAvailableReservationsByDate(LocalDate.parse(date, DateTimeFormatter.ISO_DATE), playerId)
+                getPlayerAvailableReservationsByDate(LocalDate.parse(date, DateTimeFormatter.ISO_DATE), playerId, sport!!)
             mapReservationIdTimeslot = listAllCourtsWithReservations
                 .flatMap { it.reservations }
                 .distinctBy { it.time }
