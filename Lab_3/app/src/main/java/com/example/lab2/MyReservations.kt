@@ -71,7 +71,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
     private fun processResponse(response: androidx.activity.result.ActivityResult) {
         if(response.resultCode == AppCompatActivity.RESULT_OK) {
             filterVM.setSportFilter(null)
-            vm.selectedDate.value = LocalDate.now()
         }
     }
 
@@ -159,7 +158,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         //When the activity become again visible the filter is setted to null
         //So that if onBackPressed the filter is resetted
         filterVM.setSportFilter(null)
-        vm.selectedDate.value = LocalDate.now()
     }
 
 
