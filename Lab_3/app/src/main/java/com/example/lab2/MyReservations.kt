@@ -82,6 +82,49 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         db = ReservationAppDatabase.getDatabase(requireContext())
 
+        CoroutineScope(Dispatchers.IO).launch {
+            db.reservationDao().saveReservation(
+                Reservation(
+                    1,
+                    1,
+                    0,
+                    7.0,
+                    LocalDate.now(),
+                    LocalTime.of(20, 0)
+                )
+            )
+            db.reservationDao().saveReservation(
+                Reservation(
+                    2,
+                    1,
+                    0,
+                    7.0,
+                    LocalDate.now(),
+                    LocalTime.of(21, 0)
+                )
+            )
+            db.reservationDao().saveReservation(
+                Reservation(
+                    3,
+                    3,
+                    0,
+                    9.0,
+                    LocalDate.now(),
+                    LocalTime.of(19, 0)
+                )
+            )
+            db.reservationDao().saveReservation(
+                Reservation(
+                    4,
+                    2,
+                    0,
+                    9.0,
+                    LocalDate.now(),
+                    LocalTime.of(18, 0)
+                )
+            )
+        }
+
         filteredList = emptyList()
         navController = findNavController()
         requireActivity().actionBar?.elevation = 0f
@@ -156,50 +199,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         findNewGamesButton.setOnClickListener {
             val intentBookReservation = Intent(requireContext(), BookReservationActivity::class.java)
             launcher.launch(intentBookReservation)
-        }
-
-        CoroutineScope(Dispatchers.IO).launch {
-            db.reservationDao().deleteAllReservations()
-                db.reservationDao().saveReservation(
-                    Reservation(
-                        1,
-                        1,
-                        0,
-                        7.0,
-                        LocalDate.now(),
-                        LocalTime.of(20, 0)
-                    )
-                )
-                db.reservationDao().saveReservation(
-                    Reservation(
-                        2,
-                        1,
-                        0,
-                        7.0,
-                        LocalDate.now(),
-                        LocalTime.of(21, 0)
-                    )
-                )
-                db.reservationDao().saveReservation(
-                    Reservation(
-                        3,
-                        3,
-                        0,
-                        9.0,
-                        LocalDate.now(),
-                        LocalTime.of(19, 0)
-                    )
-                )
-                db.reservationDao().saveReservation(
-                    Reservation(
-                        4,
-                        2,
-                        0,
-                        9.0,
-                        LocalDate.now(),
-                        LocalTime.of(18, 0)
-                    )
-                )
         }
     }
 
