@@ -230,15 +230,6 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"/>
 
-                    <CheckBox
-                        android:id="@+id/disablingCheckbox"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="No, I'm not interested"
-                        android:fontFamily="@font/montserrat_bold"/>
-
-
-
                 </LinearLayout>
 
 

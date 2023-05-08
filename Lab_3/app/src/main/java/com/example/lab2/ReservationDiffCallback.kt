@@ -21,10 +21,8 @@ class ReservationDiffCallback(
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        val (_, courtId, numOfPlayers, _, date, time) = reservations[oldItemPosition].reservation
-        val (_, courtId1, numOfPlayers1, _, date1, time1) = newReservations[newItemPosition].reservation
-        val price = reservations[oldItemPosition].formatPrice()
-        val price1 = reservations[newItemPosition].formatPrice()
+        val (_, courtId, numOfPlayers, price, date, time) = reservations[oldItemPosition].reservation
+        val (_, courtId1, numOfPlayers1, price1, date1, time1) = newReservations[newItemPosition].reservation
         return  courtId == courtId1 && numOfPlayers == numOfPlayers1 && price == price1 && date == date1 && time == time1
     }
 

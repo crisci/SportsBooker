@@ -48,7 +48,6 @@ class ConfirmReservationActivity : AppCompatActivity() {
     private lateinit var priceText: TextView
     private lateinit var backButton: ImageView
     private lateinit var checkboxContainer : LinearLayout
-    private lateinit var disablingBox: CheckBox
     @Inject
     lateinit var vm: BookingViewModel
     @Inject
@@ -66,7 +65,6 @@ class ConfirmReservationActivity : AppCompatActivity() {
         checkboxContainer = findViewById(R.id.checkbox_container)
         confirmButton = findViewById(R.id.confirm_button_confirm_reservation)
         priceText = findViewById(R.id.local_price_confirm_reservation2)
-        disablingBox = findViewById(R.id.disablingCheckbox)
 
 
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
@@ -166,16 +164,6 @@ class ConfirmReservationActivity : AppCompatActivity() {
                 }
             }
             checkboxContainer.addView(checkbox)
-        }
-
-        disablingBox.setOnCheckedChangeListener { _ , isChecked ->
-            for (i in 0 until checkboxContainer.childCount) {
-                val view = checkboxContainer.getChildAt(i)
-                if (view is CheckBox) {
-                    view.isChecked = false
-                    view.isEnabled = !isChecked
-                }
-            }
         }
 
         vm.personalPrice.observe(this) {

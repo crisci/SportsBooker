@@ -19,6 +19,16 @@
         app:layout_constraintTop_toTopOf="parent"
         >
 
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -122,15 +132,6 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"/>
 
-                <CheckBox
-                    android:id="@+id/disablingCheckbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="No, I'm not interested"
-                    android:fontFamily="@font/montserrat_bold"/>
-
-
-
             </LinearLayout>
 
             <LinearLayout
@@ -208,6 +209,10 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+        </ScrollView>
 
 
     </com.google.android.material.card.MaterialCardView>

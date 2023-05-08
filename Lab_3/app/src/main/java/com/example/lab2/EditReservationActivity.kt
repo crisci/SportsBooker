@@ -2,6 +2,7 @@ package com.example.lab2
 
 import android.app.Activity
 import android.content.Intent
+import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -57,7 +58,7 @@ class EditReservationActivity : AppCompatActivity() {
     private lateinit var chipGroup: ChipGroup
     var selectedText: String = ""
     var time: String? = ""
-    var noTimeslotSelected = false
+    private var noTimeslotSelected = false
 
     private lateinit var equipments: MutableList<Equipment>
     private lateinit var listAllCourtsWithReservations: List<CourtWithReservations>
@@ -90,6 +91,8 @@ class EditReservationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_reservation)
+
+        mapReservationIdTimeslot = emptyMap()
 
         db = ReservationAppDatabase.getDatabase(this)
         sport_name = findViewById(R.id.sport_name_edit_reservation)
@@ -143,9 +146,6 @@ class EditReservationActivity : AppCompatActivity() {
         reservation = ReservationWithCourtAndEquipments(res, Court(courtId, courtName!!, sport!!, 0),equipments,finalPrice)
         updateContent()
 
-        /*supportActionBar?.title = "Edit Reservation $reservationId"
-        supportActionBar?.elevation = 0f*/
-
         supportActionBar?.elevation = 0f
 
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
@@ -181,9 +181,14 @@ class EditReservationActivity : AppCompatActivity() {
                     userVM.listBookedReservations.postValue(userVM.listBookedReservations.value?.minus(reservationId)?.plus(newReservationId) as MutableSet<Int>)
                     setResult(Activity.RESULT_OK)
                     finish()
-                }catch(err: RuntimeException) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(applicationContext, "Unable to update your reservation.", Toast.LENGTH_SHORT).show()
+                }catch(err: Exception) {
+                    when(err) {
+                        is SQLiteConstraintException -> withContext(Dispatchers.Main) {
+                            Toast.makeText(applicationContext, "This timeslot is already booked.", Toast.LENGTH_SHORT).show()
+                        }
+                        else -> withContext(Dispatchers.Main) {
+                            Toast.makeText(applicationContext, "Unable to update your reservation.", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
@@ -260,28 +265,6 @@ class EditReservationActivity : AppCompatActivity() {
                 }
             }
             checkboxContainer.addView(checkbox)
-        }
-
-        val disablingBox = findViewById<CheckBox>(R.id.disablingCheckbox)
-        if(reservation.equipments.isEmpty()){
-            disablingBox.isChecked = true
-            for (i in 0 until checkboxContainer.childCount) {
-                val view = checkboxContainer.getChildAt(i)
-                if (view is CheckBox) {
-                    view.isChecked = false
-                    view.isEnabled = !disablingBox.isChecked
-                }
-            }
-        }
-
-        disablingBox.setOnCheckedChangeListener { _ , isChecked ->
-            for (i in 0 until checkboxContainer.childCount) {
-                val view = checkboxContainer.getChildAt(i)
-                if (view is CheckBox) {
-                    view.isChecked = false
-                    view.isEnabled = !isChecked
-                }
-            }
         }
 
         bookingViewModel.personalPrice.observe(this) {
