@@ -133,12 +133,6 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
-                filterVM.sportFilter.postValue(null)
-            }
-        }
-
-        filterVM.sportFilter.observe(viewLifecycleOwner) {
-            CoroutineScope(Dispatchers.IO).launch {
                 getReservations()
             }
         }

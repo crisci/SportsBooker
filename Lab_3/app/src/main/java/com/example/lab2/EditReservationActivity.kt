@@ -22,6 +22,7 @@ import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.court.CourtWithReservations
 import com.example.lab2.database.reservation.Reservation
+import com.example.lab2.database.reservation.ReservationTimeslot
 import com.example.lab2.database.reservation.ReservationWithCourt
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
@@ -61,8 +62,7 @@ class EditReservationActivity : AppCompatActivity() {
     private var noTimeslotSelected = false
 
     private lateinit var equipments: MutableList<Equipment>
-    private lateinit var listAllCourtsWithReservations: List<CourtWithReservations>
-    private lateinit var mapReservationIdTimeslot: Map<Int,LocalTime>
+    private lateinit var listReservationTimeslot: MutableList<ReservationTimeslot>
 
     @Inject
     lateinit var vm: CalendarViewModel
@@ -92,7 +92,7 @@ class EditReservationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_reservation)
 
-        mapReservationIdTimeslot = emptyMap()
+        listReservationTimeslot = mutableListOf()
 
         db = ReservationAppDatabase.getDatabase(this)
         sport_name = findViewById(R.id.sport_name_edit_reservation)
@@ -120,6 +120,7 @@ class EditReservationActivity : AppCompatActivity() {
         val reservationId = intent.getIntExtra("reservationId", 0)
         val date = intent.getStringExtra("date")
         time = intent.getStringExtra("time")
+        listReservationTimeslot.add(ReservationTimeslot(reservationId,LocalTime.parse(time)))
         val numOfPlayers = intent.getIntExtra("numOfPlayers", 0)
         val price = intent.getDoubleExtra("price", 0.0)
         val courtId = intent.getIntExtra("courtId", 0)
@@ -132,13 +133,9 @@ class EditReservationActivity : AppCompatActivity() {
         equipments = Gson().fromJson(equipmentsString, listType)
 
         thread {
-            listAllCourtsWithReservations = db.playerReservationDAO().
-                getPlayerAvailableReservationsByDate(LocalDate.parse(date, DateTimeFormatter.ISO_DATE), playerId, sport!!)
-            mapReservationIdTimeslot = listAllCourtsWithReservations
-                .flatMap { it.reservations }
-                .distinctBy { it.time }
-                .associate { it.reservationId to it.time }
-            Log.e("map", mapReservationIdTimeslot.toString())
+            val list = db.playerReservationDAO().
+            getPlayerAvailableReservationsByDate(LocalDate.parse(date, DateTimeFormatter.ISO_DATE), playerId, sport!!)
+            listReservationTimeslot = listReservationTimeslot.plus(list).sortedBy { it.time } as MutableList<ReservationTimeslot>
         }
 
 
@@ -167,8 +164,10 @@ class EditReservationActivity : AppCompatActivity() {
 
             CoroutineScope(Dispatchers.IO).launch {
                 try{
-                    val newReservationId = mapReservationIdTimeslot.entries.firstOrNull { it.value.format(
-                        DateTimeFormatter.ofPattern("HH:mm")).toString() == selectedText }?.key ?: reservationId
+
+                    val newReservationId = listReservationTimeslot.find { it.time.format(
+                        DateTimeFormatter.ofPattern("HH:mm")).toString()  == selectedText }?.reservationId ?: reservationId
+
                     db.playerReservationDAO().updateReservation(
                         playerId = playerId,
                         reservationId = reservationId,
@@ -205,7 +204,7 @@ class EditReservationActivity : AppCompatActivity() {
 
         setupCheckboxes(reservation.finalPrice)
 
-        for (r in mapReservationIdTimeslot) {
+        for (r in listReservationTimeslot) {
             val chip = Chip(this)
             chip.isClickable = true
             chip.isCheckable = true
@@ -213,7 +212,7 @@ class EditReservationActivity : AppCompatActivity() {
             chip.setTextColor(ContextCompat.getColor(this, R.color.white))
             chip.setChipStrokeColorResource(R.color.white)
             chip.chipStrokeWidth = 2F
-            chip.text = "${r.value}"
+            chip.text = "${r.time.format(DateTimeFormatter.ofPattern("HH:mm"))}"
             if (chip.text == time) chip.isChecked = true
             chip.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
