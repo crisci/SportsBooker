@@ -92,8 +92,6 @@ class EditReservationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_reservation)
 
-        listReservationTimeslot = mutableListOf()
-
         db = ReservationAppDatabase.getDatabase(this)
         sport_name = findViewById(R.id.sport_name_edit_reservation)
         court_name_edit_reservation = findViewById(R.id.court_name_edit_reservation)
@@ -120,7 +118,7 @@ class EditReservationActivity : AppCompatActivity() {
         val reservationId = intent.getIntExtra("reservationId", 0)
         val date = intent.getStringExtra("date")
         time = intent.getStringExtra("time")
-        listReservationTimeslot.add(ReservationTimeslot(reservationId,LocalTime.parse(time)))
+        listReservationTimeslot = mutableListOf(ReservationTimeslot(reservationId,LocalTime.parse(time)))
         val numOfPlayers = intent.getIntExtra("numOfPlayers", 0)
         val price = intent.getDoubleExtra("price", 0.0)
         val courtId = intent.getIntExtra("courtId", 0)
