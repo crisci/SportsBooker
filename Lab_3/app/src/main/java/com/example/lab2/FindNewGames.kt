@@ -66,8 +66,13 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
     private lateinit var noResults: ConstraintLayout
 
     private suspend fun getReservations() {
-        listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
-        listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations.filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
+
+        listCourtsWithReservations = if (filterVM.getSportFilter() != null)
+            db.reservationDao().getAvailableReservationsByDateAndSport(vm.selectedDate.value!!, filterVM.getSportFilter()!!)
+        else
+            db.reservationDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
+                .filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
+
         mapCourtReservations = listCourtsWithReservations
             .groupBy({ it.court }, { it.reservation })
             .mapValues { it.value.toList() }

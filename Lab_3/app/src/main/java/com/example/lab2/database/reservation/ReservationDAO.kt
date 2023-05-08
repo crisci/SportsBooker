@@ -46,7 +46,15 @@ interface ReservationDAO {
             "WHERE reservationId = :reservationId")
     fun updateNumOfPlayers(reservationId: Int)
 
+    @Query("SELECT c.*, r.* FROM courts c JOIN reservations r" +
+            " ON c.courtId = r.courtId AND r.date = :date AND r.numOfPlayers < c.maxNumOfPlayers" +
+            " GROUP BY c.courtId, r.reservationId")
+    fun getAvailableReservationsByDate(date: LocalDate): List<ReservationWithCourt>
 
+    @Query("SELECT c.*, r.* FROM courts c JOIN reservations r" +
+            " ON c.courtId = r.courtId AND r.date = :date AND r.numOfPlayers < c.maxNumOfPlayers AND c.sport = :sport" +
+            " GROUP BY c.courtId, r.reservationId")
+    fun getAvailableReservationsByDateAndSport(date: LocalDate, sport: String): List<ReservationWithCourt>
 
 
 }

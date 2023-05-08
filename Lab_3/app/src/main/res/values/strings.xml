@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">myReservation</string>
+    <string name="app_name">SportsBooker</string>
     <string name="nameSurname">Achille Mago</string>
     <string name="statistics">Statistics</string>
     <string name="your_interests">Your interests</string>
