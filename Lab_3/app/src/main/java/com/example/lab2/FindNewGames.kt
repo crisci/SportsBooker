@@ -137,6 +137,12 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
             }
         }
 
+        filterVM.sportFilter.observe(viewLifecycleOwner) {
+            CoroutineScope(Dispatchers.IO).launch {
+                getReservations()
+            }
+        }
+
     }
 
     override fun onClickTimeslot(informations: Bundle) {
