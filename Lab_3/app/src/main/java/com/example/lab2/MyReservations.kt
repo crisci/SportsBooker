@@ -26,6 +26,7 @@ import com.example.lab2.calendar.FilterViewModel
 import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
+import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
 import com.google.android.material.chip.Chip
@@ -36,8 +37,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import kotlin.math.floor
 
 @AndroidEntryPoint
 class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.OnEditClickListener  {
@@ -78,6 +81,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         super.onViewCreated(view, savedInstanceState)
 
         db = ReservationAppDatabase.getDatabase(requireContext())
+
         filteredList = emptyList()
         navController = findNavController()
         requireActivity().actionBar?.elevation = 0f
@@ -112,7 +116,9 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
+
                 list = db.playerDao().loadReservationsByPlayerId(1, it)
+                userVM.listBookedReservations.postValue(list.map { it.reservation.reservationId }.toMutableSet())
                 withContext(Dispatchers.Main) {
                     if (list.isNotEmpty()) {
                         noResults.visibility = View.GONE
@@ -150,6 +156,50 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         findNewGamesButton.setOnClickListener {
             val intentBookReservation = Intent(requireContext(), BookReservationActivity::class.java)
             launcher.launch(intentBookReservation)
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            db.reservationDao().deleteAllReservations()
+                db.reservationDao().saveReservation(
+                    Reservation(
+                        1,
+                        1,
+                        0,
+                        7.0,
+                        LocalDate.now(),
+                        LocalTime.of(20, 0)
+                    )
+                )
+                db.reservationDao().saveReservation(
+                    Reservation(
+                        2,
+                        1,
+                        0,
+                        7.0,
+                        LocalDate.now(),
+                        LocalTime.of(21, 0)
+                    )
+                )
+                db.reservationDao().saveReservation(
+                    Reservation(
+                        3,
+                        3,
+                        0,
+                        9.0,
+                        LocalDate.now(),
+                        LocalTime.of(19, 0)
+                    )
+                )
+                db.reservationDao().saveReservation(
+                    Reservation(
+                        4,
+                        2,
+                        0,
+                        9.0,
+                        LocalDate.now(),
+                        LocalTime.of(18, 0)
+                    )
+                )
         }
     }
 

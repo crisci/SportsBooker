@@ -67,12 +67,18 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
     private suspend fun getReservations() {
 
-        listCourtsWithReservations = if (filterVM.getSportFilter() != null)
-            db.reservationDao().getAvailableReservationsByDateAndSport(vm.selectedDate.value!!, filterVM.getSportFilter()!!)
-        else
-            db.reservationDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
-                .filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
-
+        if (filterVM.getSportFilter() != null) {
+            listCourtsWithReservations = db.reservationDao().getAvailableReservationsByDateAndSport(
+                vm.selectedDate.value!!,
+                filterVM.getSportFilter()!!
+            ).filter { !userVM.listBookedReservations.value!!.contains(it.reservation.reservationId) }
+        }
+        else {
+                listCourtsWithReservations =
+                    db.reservationDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
+                        .filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } }
+                        .filter { !userVM.listBookedReservations.value!!.contains(it.reservation.reservationId) }
+        }
         mapCourtReservations = listCourtsWithReservations
             .groupBy({ it.court }, { it.reservation })
             .mapValues { it.value.toList() }
