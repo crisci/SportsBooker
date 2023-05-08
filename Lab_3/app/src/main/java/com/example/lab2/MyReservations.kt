@@ -65,13 +65,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
     private lateinit var noResults: ConstraintLayout
     private lateinit var findNewGamesButton: Button
 
-    private suspend fun getMyReservations() {
-        list = db.playerDao().loadReservationsByPlayerId(1, vm.selectedDate.value!!)
-        filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
-        showOrHideNoResultImage()
-        vm.list.postValue(filteredList)
-    }
-
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
 
@@ -79,16 +72,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         if(response.resultCode == AppCompatActivity.RESULT_OK) {
             filterVM.setSportFilter(null)
             vm.selectedDate.value = LocalDate.now()
-        }
-    }
-
-    private suspend fun showOrHideNoResultImage() {
-        withContext(Dispatchers.Main) {
-            if (list.isNotEmpty()) {
-                noResults.visibility = View.GONE
-            } else {
-                noResults.visibility = View.VISIBLE
-            }
         }
     }
 
@@ -130,8 +113,17 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
+                list = db.playerDao().loadReservationsByPlayerId(1, it)
+                withContext(Dispatchers.Main) {
+                    if (list.isNotEmpty()) {
+                        noResults.visibility = View.GONE
+                    } else {
+                        noResults.visibility = View.VISIBLE
+                    }
+                }
                 filterVM.sportFilter.postValue(null)
-                getMyReservations()
+                filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
+                vm.list.postValue(filteredList)
             }
         }
 
@@ -141,7 +133,16 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
                 adapterCardFilters.notifyDataSetChanged()
             }
             CoroutineScope(Dispatchers.IO).launch {
-                getMyReservations()
+                list = db.playerDao().loadReservationsByPlayerId(1, vm.selectedDate.value!!)
+                withContext(Dispatchers.Main) {
+                    if (list.isNotEmpty()) {
+                        noResults.visibility = View.GONE
+                    } else {
+                        noResults.visibility = View.VISIBLE
+                    }
+                }
+                filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
+                vm.list.postValue(filteredList)
             }
         }
 

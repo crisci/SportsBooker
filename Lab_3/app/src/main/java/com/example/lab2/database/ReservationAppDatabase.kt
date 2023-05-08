@@ -17,7 +17,7 @@ import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationDAO
 
 @Database(entities = [Player::class, Reservation::class, Court::class, PlayerBadgeRating::class, PlayerReservation::class], version = 1, exportSchema = false)
-@TypeConverters(DateTimeConverter::class, EquipmentConverter::class)
+@TypeConverters(EquipmentConverter::class, DateConverter::class, TimeConverter::class)
 abstract class ReservationAppDatabase : RoomDatabase() {
     abstract fun playerDao() : PlayerDAO
     abstract fun reservationDao() : ReservationDAO

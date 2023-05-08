@@ -14,4 +14,14 @@ class BookingViewModel @Inject constructor(): ViewModel() {
     fun setPersonalPrice(value: Double) {
         personalPrice.value = value
     }
+
+    companion object {
+        private val MY_STATIC_LIST = listOf("item1", "item2", "item3")
+    }
+
+    // ... other ViewModel code ...
+
+    fun getStaticList(): List<String> {
+        return MY_STATIC_LIST
+    }
 }

@@ -62,33 +62,6 @@ class MyReservationsActivity : AppCompatActivity() {
         }
 
         // IGNORE: DB gets created the very first time only if some Dao operations are executed
-        thread{
-            //val courts = db.courtDao().loadAllCourts()
-            db.playerReservationDAO().deletePlayerReservation()
-            db.reservationDao().deleteAllReservations()
-            for (i in 1..3) {
-                db.reservationDao().saveReservation(
-                    Reservation(
-                        reservationId = 0,
-                        courtId = 1,
-                        numOfPlayers = 0,
-                        price = 7.00,
-                        date = LocalDate.now(),
-                        time = LocalTime.of(10 + i,0)
-                    )
-                )
-                db.reservationDao().saveReservation(
-                    Reservation(
-                        reservationId = 0,
-                        courtId = 3,
-                        numOfPlayers = 0,
-                        price = 7.00,
-                        date = LocalDate.now(),
-                        time = LocalTime.of(10 + i,0)
-                    )
-                )
-            }
-        }
 
     }
 }

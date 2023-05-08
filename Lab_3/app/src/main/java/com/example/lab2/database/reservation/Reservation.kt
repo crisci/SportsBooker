@@ -5,7 +5,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import com.example.lab2.database.DateTimeConverter
+import com.example.lab2.database.DateConverter
+import com.example.lab2.database.TimeConverter
 import com.example.lab2.database.court.Court
 import java.time.LocalDate
 import java.time.LocalTime
@@ -18,9 +19,9 @@ data class Reservation (
     val courtId: Int,
     val numOfPlayers: Int,
     val price: Double,
-    @TypeConverters(DateTimeConverter::class)
+    @TypeConverters(DateConverter::class)
     val date: LocalDate,
-    @TypeConverters(DateTimeConverter::class)
+    @TypeConverters(TimeConverter::class)
     var time: LocalTime,
 )
 

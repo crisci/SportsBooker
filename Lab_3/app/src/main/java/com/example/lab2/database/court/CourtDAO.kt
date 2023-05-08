@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import com.example.lab2.database.reservation.ReservationWithCourt
 import java.time.LocalDate
 
 @Dao
@@ -19,7 +20,7 @@ interface CourtDAO {
 
     @Query("SELECT c.*, r.* FROM courts c JOIN reservations r" +
             " ON c.courtId = r.courtId AND r.date = :date AND r.numOfPlayers < c.maxNumOfPlayers " +
-            " GROUP BY c.courtId")
-    fun getAvailableReservationsByDate(date: LocalDate): List<CourtWithReservations>
+            " GROUP BY c.courtId, r.reservationId")
+    fun getAvailableReservationsByDate(date: LocalDate): List<ReservationWithCourt>
 
 }

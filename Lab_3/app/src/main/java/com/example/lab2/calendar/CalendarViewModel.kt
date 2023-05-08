@@ -17,7 +17,7 @@ import javax.inject.Inject
 class CalendarViewModel @Inject constructor(): ViewModel() {
     var selectedDate = MutableLiveData<LocalDate>(LocalDate.now())
     var list = MutableLiveData<List<ReservationWithCourtAndEquipments>>(emptyList())
-    var listAvailableReservations = MutableLiveData<List<CourtWithReservations>>(emptyList())
+    var mapCourtReservations = MutableLiveData<Map<Court,List<Reservation>>>(emptyMap())
     fun setSelectedDate(value: LocalDate) {
         selectedDate.value = value
     }

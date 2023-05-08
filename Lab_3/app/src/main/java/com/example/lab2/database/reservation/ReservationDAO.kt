@@ -20,6 +20,9 @@ interface ReservationDAO {
     @Query("SELECT r.*, c.name, c.sport FROM reservations r LEFT OUTER JOIN courts c ON c.courtId = r.courtId")
     fun loadAllReservations(): List<ReservationWithCourt>
 
+    @Query("SELECT * FROM reservations WHERE date = :date")
+    fun getReservationsByDate(date: LocalDate): List<Reservation>
+
     //Not necessary to define update because of REPLACE strategy
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveReservation(reservation: Reservation)

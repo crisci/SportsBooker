@@ -27,7 +27,9 @@ import com.example.lab2.calendar.FilterViewModel
 import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
+import com.example.lab2.database.court.Court
 import com.example.lab2.database.court.CourtWithReservations
+import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationWithCourt
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -53,7 +55,8 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
     @Inject lateinit var userVM: UserViewModel
 
-    private var listCourtsWithReservations = listOf<CourtWithReservations>()
+    private var listCourtsWithReservations = listOf<ReservationWithCourt>()
+    private var mapCourtReservations = mapOf<Court,List<Reservation>>()
 
     private lateinit var db: ReservationAppDatabase
 
@@ -63,10 +66,13 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
     private lateinit var noResults: ConstraintLayout
 
     private suspend fun getReservations() {
-        listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!).map { CourtWithReservations(it.court, it.reservations.filter { r -> !userVM.listBookedReservations.value!!.any { it == r.reservationId } }) }
+        listCourtsWithReservations = db.courtDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
         listCourtsWithReservations = if(filterVM.getSportFilter() != null) listCourtsWithReservations.filter { it.court.sport == filterVM.getSportFilter() } else listCourtsWithReservations.filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
+        mapCourtReservations = listCourtsWithReservations
+            .groupBy({ it.court }, { it.reservation })
+            .mapValues { it.value.toList() }
         showOrHideNoResultImage()
-        vm.listAvailableReservations.postValue(listCourtsWithReservations)
+        vm.mapCourtReservations.postValue(mapCourtReservations)
     }
 
     private val launcher = registerForActivityResult(
@@ -99,7 +105,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         navController = findNavController()
 
 
-        val adapterCard = AdapterNewGames(listCourtsWithReservations, this)
+        val adapterCard = AdapterNewGames(mapCourtReservations, this)
         val listReservationsRecyclerView = view.findViewById<RecyclerView>(R.id.available_bookings)
         listReservationsRecyclerView.adapter = adapterCard
         listReservationsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -116,8 +122,8 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
             adapterCardFilters.setFilters(listOf(null).plus(userVM.getUser().interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
         }
 
-        vm.listAvailableReservations.observe(requireActivity()){
-            adapterCard.setListCourts(vm.listAvailableReservations.value!!)
+        vm.mapCourtReservations.observe(requireActivity()){
+            adapterCard.setListCourts(vm.mapCourtReservations.value!!)
         }
 
         vm.selectedDate.observe(viewLifecycleOwner) {
@@ -150,7 +156,7 @@ class ViewHolderNewGames(v: View): RecyclerView.ViewHolder(v) {
     val sport_name: TextView = v.findViewById(R.id.sport_name)
 }
 
-class AdapterNewGames(private var listAvailableReservations: List<CourtWithReservations>, var listener: OnClickTimeslot): RecyclerView.Adapter<ViewHolderNewGames>(){
+class AdapterNewGames(private var mapCourtReservations: Map<Court,List<Reservation>>, var listener: OnClickTimeslot): RecyclerView.Adapter<ViewHolderNewGames>(){
 
     interface OnClickTimeslot {
         fun onClickTimeslot(informations: Bundle)
@@ -163,12 +169,13 @@ class AdapterNewGames(private var listAvailableReservations: List<CourtWithReser
     }
 
     override fun getItemCount(): Int {
-        return listAvailableReservations.size
+        return mapCourtReservations.size
     }
 
     override fun onBindViewHolder(holder: ViewHolderNewGames, position: Int) {
-            val court = listAvailableReservations[position].court
-            val timeSlots = listAvailableReservations[position].reservations.map { it.time }
+            val court = mapCourtReservations.entries.elementAt(position).key
+            val reservations = mapCourtReservations.entries.elementAt(position).value
+            val timeSlots = reservations.map { it.time }
 
             holder.timeslots.removeAllViews()
 
@@ -186,20 +193,17 @@ class AdapterNewGames(private var listAvailableReservations: List<CourtWithReser
                 tv.background = holder.itemView.context.getDrawable(R.drawable.timeslot)
                 tv.textAlignment = View.TEXT_ALIGNMENT_CENTER;
                 tv.id = View.generateViewId()
-                tv.setOnClickListener {
-                    Log.d("db", listAvailableReservations[position].reservations[timeSlots.indexOf(t)].toString())
-                    Log.d("db", listAvailableReservations[position].court.toString())
+             tv.setOnClickListener {
                     val currentGameBundle = Bundle().apply {
-                        putInt("reservationId", listAvailableReservations[position].reservations[timeSlots.indexOf(t)].reservationId)
-                        putString("date", listAvailableReservations[position].reservations[timeSlots.indexOf(t)].date.toString())
-                        putString("time", listAvailableReservations[position].reservations[timeSlots.indexOf(t)].time.toString())
-                        putDouble("price", listAvailableReservations[position].reservations[timeSlots.indexOf(t)].price)
-                        putInt("numOfPlayers", listAvailableReservations[position].reservations[timeSlots.indexOf(t)].numOfPlayers)
-                        putInt("courtId", listAvailableReservations[position].reservations[timeSlots.indexOf(t)].courtId)
-                        putString("courtName", listAvailableReservations[position].court.name)
-                        putString("sport", listAvailableReservations[position].court.sport)
+                        putInt("reservationId", reservations[timeSlots.indexOf(t)].reservationId)
+                        putString("date", reservations[timeSlots.indexOf(t)].date.toString())
+                        putString("time", reservations[timeSlots.indexOf(t)].time.toString())
+                        putDouble("price", reservations[timeSlots.indexOf(t)].price)
+                        putInt("numOfPlayers", reservations[timeSlots.indexOf(t)].numOfPlayers)
+                        putInt("courtId", reservations[timeSlots.indexOf(t)].courtId)
+                        putString("courtName", court.name)
+                        putString("sport", court.sport)
                         putInt("maxNumberOfPlayers", court.maxNumOfPlayers)
-
                     }
                     listener.onClickTimeslot(currentGameBundle)
                 }
@@ -210,12 +214,12 @@ class AdapterNewGames(private var listAvailableReservations: List<CourtWithReser
         holder.sport_name.text = "${court.sport}"
     }
 
-    fun setListCourts(newListCourts: List<CourtWithReservations>) {
+    fun setListCourts(newListCourts: Map<Court,List<Reservation>>) {
 
         val diffs = DiffUtil.calculateDiff(
-            CourtTimeslotDiffCallback(listAvailableReservations, newListCourts)
+            CourtTimeslotDiffCallback(mapCourtReservations, newListCourts)
         )
-        listAvailableReservations = newListCourts
+        mapCourtReservations = newListCourts
         diffs.dispatchUpdatesTo(this)
     }
 }
