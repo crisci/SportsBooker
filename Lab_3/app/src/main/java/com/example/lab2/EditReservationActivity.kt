@@ -242,10 +242,7 @@ class EditReservationActivity : AppCompatActivity() {
 
         bookingViewModel.setPersonalPrice(startingPrice)
 
-        val listEquipments = listOf(
-            Equipment("Shoes",1.5),
-            Equipment("Racket",1.5)
-        )
+        val listEquipments = bookingViewModel.getListEquipments(reservation.court.sport)
 
         for (e in listEquipments) {
             val checkbox = CheckBox(this)

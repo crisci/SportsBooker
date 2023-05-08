@@ -49,7 +49,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
     private lateinit var backButton: ImageView
     private lateinit var checkboxContainer : LinearLayout
     @Inject
-    lateinit var vm: BookingViewModel
+    lateinit var bookingViewModel: BookingViewModel
     @Inject
     lateinit var userVM: UserViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -128,7 +128,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
                 // TODO: Check also the if the player has already booked match in the same timeslot
                 if(reservation.numOfPlayers < court.maxNumOfPlayers) {
                     try {
-                        db.playerReservationDAO().confirmReservation(1, reservation.reservationId, listEquipments, vm.personalPrice.value!!)
+                        db.playerReservationDAO().confirmReservation(1, reservation.reservationId, listEquipments, bookingViewModel.personalPrice.value!!)
                         db.reservationDao().updateNumOfPlayers(reservation.reservationId)
                         userVM.listBookedReservations.postValue(userVM.listBookedReservations.value!!.plus(reservation.reservationId) as MutableSet<Int>?)
                         setResult(Activity.RESULT_OK)
@@ -145,29 +145,26 @@ class ConfirmReservationActivity : AppCompatActivity() {
 
     private fun setupCheckboxes(startingPrice: Double) {
 
-        vm.setPersonalPrice(startingPrice)
+        bookingViewModel.setPersonalPrice(startingPrice)
 
-        val equipments = listOf(
-            Equipment("Shoes",1.5),
-            Equipment("Racket",1.5)
-        )
+        val equipments = bookingViewModel.getListEquipments(court.sport)
 
         for (e in equipments) {
             val checkbox = CheckBox(this)
             checkbox.text = "${e.name} - €${e.price}"
             checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
                 if(isChecked) {
-                    vm.setPersonalPrice(vm.personalPrice.value?.plus(e.price)!!)
+                    bookingViewModel.setPersonalPrice(bookingViewModel.personalPrice.value?.plus(e.price)!!)
                 }
                 else {
-                    vm.setPersonalPrice(vm.personalPrice.value?.minus(e.price)!!)
+                    bookingViewModel.setPersonalPrice(bookingViewModel.personalPrice.value?.minus(e.price)!!)
                 }
             }
             checkboxContainer.addView(checkbox)
         }
 
-        vm.personalPrice.observe(this) {
-            priceText.text = "You will pay €${String.format("%.02f", vm.personalPrice.value)} locally."
+        bookingViewModel.personalPrice.observe(this) {
+            priceText.text = "You will pay €${String.format("%.02f", bookingViewModel.personalPrice.value)} locally."
         }
     }
 }
