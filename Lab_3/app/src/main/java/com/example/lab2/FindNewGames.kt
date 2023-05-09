@@ -70,14 +70,18 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         if (filterVM.getSportFilter() != null) {
             listCourtsWithReservations = db.reservationDao().getAvailableReservationsByDateAndSport(
                 vm.selectedDate.value!!,
+                vm.selectedTime.value!!,
                 filterVM.getSportFilter()!!
-            ).filter { !userVM.listBookedReservations.value!!.contains(it.reservation.reservationId) }
+            )
+                .filter { !userVM.listBookedReservations.value!!.contains(it.reservation.reservationId) }
         }
         else {
-                listCourtsWithReservations =
-                    db.reservationDao().getAvailableReservationsByDate(vm.selectedDate.value!!)
-                        .filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } }
-                        .filter { !userVM.listBookedReservations.value!!.contains(it.reservation.reservationId) }
+            listCourtsWithReservations = db.reservationDao().getAvailableReservationsByDate(
+                vm.selectedDate.value!!,
+                vm.selectedTime.value!!
+            )
+                .filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } }
+                .filter { !userVM.listBookedReservations.value!!.contains(it.reservation.reservationId) }
         }
         mapCourtReservations = listCourtsWithReservations
             .groupBy({ it.court }, { it.reservation })
@@ -144,6 +148,12 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         }
 
         filterVM.sportFilter.observe(viewLifecycleOwner) {
+            CoroutineScope(Dispatchers.IO).launch {
+                getReservations()
+            }
+        }
+
+        vm.selectedTime.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
                 getReservations()
             }

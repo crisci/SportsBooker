@@ -11,6 +11,7 @@ import com.example.lab2.database.court.Court
 import com.example.lab2.database.court.CourtWithReservations
 import com.example.lab2.database.player_reservation_join.ReservationWithPlayers
 import java.time.LocalDate
+import java.time.LocalTime
 
 @Dao
 interface ReservationDAO {
@@ -46,15 +47,16 @@ interface ReservationDAO {
             "WHERE reservationId = :reservationId")
     fun updateNumOfPlayers(reservationId: Int)
 
-    @Query("SELECT c.*, r.* FROM courts c JOIN reservations r" +
-            " ON c.courtId = r.courtId AND r.date = :date AND r.numOfPlayers < c.maxNumOfPlayers" +
-            " GROUP BY c.courtId, r.reservationId")
-    fun getAvailableReservationsByDate(date: LocalDate): List<ReservationWithCourt>
 
     @Query("SELECT c.*, r.* FROM courts c JOIN reservations r" +
-            " ON c.courtId = r.courtId AND r.date = :date AND r.numOfPlayers < c.maxNumOfPlayers AND c.sport = :sport" +
+            " ON c.courtId = r.courtId AND r.date = :date AND time >= :time AND r.numOfPlayers < c.maxNumOfPlayers" +
             " GROUP BY c.courtId, r.reservationId")
-    fun getAvailableReservationsByDateAndSport(date: LocalDate, sport: String): List<ReservationWithCourt>
+    fun getAvailableReservationsByDate(date: LocalDate, time: LocalTime): List<ReservationWithCourt>
+
+    @Query("SELECT c.*, r.* FROM courts c JOIN reservations r" +
+            " ON c.courtId = r.courtId AND r.date = :date AND time >= :time AND r.numOfPlayers < c.maxNumOfPlayers AND c.sport = :sport" +
+            " GROUP BY c.courtId, r.reservationId")
+    fun getAvailableReservationsByDateAndSport(date: LocalDate, time: LocalTime, sport: String): List<ReservationWithCourt>
 
 
 }

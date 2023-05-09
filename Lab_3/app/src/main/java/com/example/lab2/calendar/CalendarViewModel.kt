@@ -11,13 +11,20 @@ import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@ActivityRetainedScoped
+@Singleton
 class CalendarViewModel @Inject constructor(): ViewModel() {
     var selectedDate = MutableLiveData<LocalDate>(LocalDate.now())
     var list = MutableLiveData<List<ReservationWithCourtAndEquipments>>(emptyList())
     var mapCourtReservations = MutableLiveData<Map<Court,List<Reservation>>>(emptyMap())
+
+    var selectedTime = MutableLiveData<LocalTime>(LocalTime.of(LocalTime.now().hour,0))
+    fun getSelectedTime() : String {
+        return selectedTime.value!!.format(DateTimeFormatter.ofPattern("HH:mm"))
+    }
     fun setSelectedDate(value: LocalDate) {
         selectedDate.value = value
     }

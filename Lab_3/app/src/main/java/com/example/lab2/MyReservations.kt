@@ -77,6 +77,16 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         }
     }
 
+    private suspend fun showOrHideNoResultImage() {
+        withContext(Dispatchers.Main) {
+            if (filteredList.isNotEmpty()) {
+                noResults.visibility = View.GONE
+            } else {
+                noResults.visibility = View.VISIBLE
+            }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -123,6 +133,16 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
                     LocalTime.of(18, 0)
                 )
             )
+            db.reservationDao().saveReservation(
+                Reservation(
+                    5,
+                    2,
+                    0,
+                    9.0,
+                    LocalDate.now().plusDays(1),
+                    LocalTime.of(18, 0)
+                )
+            )
         }
 
         filteredList = emptyList()
@@ -159,18 +179,11 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         vm.selectedDate.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
-
+                //TODO The query must filter by date, time and sport
                 list = db.playerDao().loadReservationsByPlayerId(1, it)
                 userVM.listBookedReservations.postValue(list.map { it.reservation.reservationId }.toMutableSet())
-                withContext(Dispatchers.Main) {
-                    if (list.isNotEmpty()) {
-                        noResults.visibility = View.GONE
-                    } else {
-                        noResults.visibility = View.VISIBLE
-                    }
-                }
-                filterVM.sportFilter.postValue(null)
-                filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
+                filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
+                showOrHideNoResultImage()
                 vm.list.postValue(filteredList)
             }
         }
@@ -182,14 +195,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             }
             CoroutineScope(Dispatchers.IO).launch {
                 list = db.playerDao().loadReservationsByPlayerId(1, vm.selectedDate.value!!)
-                withContext(Dispatchers.Main) {
-                    if (list.isNotEmpty()) {
-                        noResults.visibility = View.GONE
-                    } else {
-                        noResults.visibility = View.VISIBLE
-                    }
-                }
-                filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
+                filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
+                showOrHideNoResultImage()
                 vm.list.postValue(filteredList)
             }
         }
