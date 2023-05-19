@@ -1,7 +1,5 @@
 package com.example.lab2
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -11,25 +9,24 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.lab2.calendar.CalendarViewModel
-import com.example.lab2.calendar.FilterViewModel
 import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
-import com.google.android.material.chip.Chip
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -40,7 +37,6 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
-import kotlin.math.floor
 
 @AndroidEntryPoint
 class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.OnEditClickListener  {
@@ -49,21 +45,16 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
     val playerId = 1
 
     private lateinit var navController : NavController
-    @Inject
+
     lateinit var vm: CalendarViewModel
 
-    @Inject
-    lateinit var filterVM: FilterViewModel
 
     @Inject
     lateinit var userVM: UserViewModel
 
-    private var list = listOf<ReservationWithCourtAndEquipments>()
-
-    lateinit private var adapterCardFilters: AdapterFilterReservation
+    private lateinit var adapterCardFilters: AdapterFilterReservation
 
     private lateinit var db: ReservationAppDatabase
-    private lateinit var filteredList: List<ReservationWithCourtAndEquipments>
 
     private lateinit var noResults: ConstraintLayout
     private lateinit var findNewGamesButton: Button
@@ -73,17 +64,15 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
     private fun processResponse(response: androidx.activity.result.ActivityResult) {
         if(response.resultCode == AppCompatActivity.RESULT_OK) {
-            filterVM.setSportFilter(null)
+            vm.setSportFilter(null)
         }
     }
 
-    private suspend fun showOrHideNoResultImage() {
-        withContext(Dispatchers.Main) {
-            if (filteredList.isNotEmpty()) {
-                noResults.visibility = View.GONE
-            } else {
-                noResults.visibility = View.VISIBLE
-            }
+    private fun showOrHideNoResultImage() {
+        if (vm.getMyFilteredReservations().value.isNullOrEmpty()) {
+            noResults.visibility = View.VISIBLE
+        } else {
+            noResults.visibility = View.GONE
         }
     }
 
@@ -145,11 +134,14 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             )
         }
 
-        filteredList = emptyList()
+        vm = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
+
+        vm.refreshMyReservations()
+
         navController = findNavController()
         requireActivity().actionBar?.elevation = 0f
 
-        val adapterCard = AdapterCard(filteredList, this )
+        val adapterCard = AdapterCard(emptyList(), this )
         val listReservationsRecyclerView = view.findViewById<RecyclerView>(R.id.your_reservation_recycler_view)
         listReservationsRecyclerView.adapter = adapterCard
         listReservationsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -158,7 +150,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             listOf(null)
                 .plus(userVM.getUser().interests
                 .map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }),
-            filterVM::setSportFilter
+            vm::setSportFilter
         )
         val listOfSportRecyclerView = view.findViewById<RecyclerView>(R.id.my_reservation_filter)
         listOfSportRecyclerView.adapter = adapterCardFilters
@@ -173,32 +165,37 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
                         .map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
         }
 
-        vm.list.observe(requireActivity()){
-            adapterCard.setReservations(vm.list.value!!)
+        vm.getMyFilteredReservations().observe(viewLifecycleOwner){
+            adapterCard.setReservations(it)
+            showOrHideNoResultImage()
         }
 
-        vm.selectedDate.observe(viewLifecycleOwner) {
-            CoroutineScope(Dispatchers.IO).launch {
-                //TODO The query must filter by date, time and sport
-                list = db.playerDao().loadReservationsByPlayerId(1, it)
-                userVM.listBookedReservations.postValue(list.map { it.reservation.reservationId }.toMutableSet())
-                filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
+        vm.getSelectedDate().observe(requireActivity()) {
+            Log.d("dateInsideObserve",it.toString())
+            vm.refreshMyReservations()
+/*            CoroutineScope(Dispatchers.IO).launch {
+                userVM.listBookedReservations.postValue(vm.allMyReservations.value!!.map { it.reservation.reservationId }.toMutableSet())
+                filteredList = if(filterVM.getSportFilter() != null ) vm.allMyReservations.value!!.filter { it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else vm.allMyReservations.value!!.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
                 showOrHideNoResultImage()
-                vm.list.postValue(filteredList)
-            }
+                vm.allMyReservations.postValue(filteredList)
+            }*/
         }
 
-        filterVM.sportFilter.observe(viewLifecycleOwner) {
+        vm.getSportFilter().observe(viewLifecycleOwner) {
             if(it == null) {
                 adapterCardFilters.selectedPosition = 0
                 adapterCardFilters.notifyDataSetChanged()
             }
-            CoroutineScope(Dispatchers.IO).launch {
-                list = db.playerDao().loadReservationsByPlayerId(1, vm.selectedDate.value!!)
+            vm.refreshMyReservations()
+/*            CoroutineScope(Dispatchers.IO).launch {
                 filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
                 showOrHideNoResultImage()
-                vm.list.postValue(filteredList)
-            }
+                vm.allMyReservations.postValue(filteredList)
+            }*/
+        }
+
+        vm.selectedTime.observe(viewLifecycleOwner) {
+            vm.refreshMyReservations()
         }
 
 
@@ -207,13 +204,20 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             val intentBookReservation = Intent(requireContext(), BookReservationActivity::class.java)
             launcher.launch(intentBookReservation)
         }
+
+        val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
+        swipeRefreshLayout.setOnRefreshListener {
+            vm.refreshMyReservations()
+            swipeRefreshLayout.isRefreshing = false
+        }
+
     }
 
     override fun onResume() {
         super.onResume()
         //When the activity become again visible the filter is setted to null
         //So that if onBackPressed the filter is resetted
-        filterVM.setSportFilter(null)
+        vm.setSportFilter(null)
     }
 
 

@@ -1,11 +1,13 @@
 package com.example.lab2.calendar
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.example.lab2.R
@@ -33,7 +35,6 @@ class WeekCalendar : Fragment(R.layout.week_calendar_fragment){
     private val dateFormatter = DateTimeFormatter.ofPattern("dd")
     private lateinit var binding: WeekCalendarFragmentBinding
 
-    @Inject
     lateinit var vm: CalendarViewModel
 
 
@@ -49,14 +50,16 @@ class WeekCalendar : Fragment(R.layout.week_calendar_fragment){
 
         binding = WeekCalendarFragmentBinding.bind(view)
 
-        vm.selectedDate.observe(viewLifecycleOwner){
+        vm = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
+
+        vm.getSelectedDate().observe(viewLifecycleOwner){
             oldDate = selectedDate
             selectedDate = it
             binding.exSevenCalendar.scrollToWeek(selectedDate)
             updateDate()
         }
 
-        selectedDate = vm.selectedDate.value!!
+        selectedDate = vm.getSelectedDate().value!!
 
         roundCalendarButton = binding.roundCalendarButton
         roundCalendarButton.setOnClickListener {
@@ -104,6 +107,7 @@ class WeekCalendar : Fragment(R.layout.week_calendar_fragment){
                 view.setOnClickListener {
                     if (selectedDate != day.date && day.date >= LocalDate.now()) {
                         oldDate = selectedDate
+                        Log.d("dateInsideWeekCalendar",day.date.toString())
                         vm.setSelectedDate(day.date)
                         updateDate()
                     }

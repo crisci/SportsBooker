@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.transition.TransitionInflater
 import androidx.transition.TransitionManager
@@ -35,7 +36,6 @@ class MonthCalendar : Fragment(R.layout.month_calendar_fragment){
     private lateinit var selectedDate: LocalDate
     private val today = LocalDate.now()
 
-    @Inject
     lateinit var vm : CalendarViewModel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -43,7 +43,9 @@ class MonthCalendar : Fragment(R.layout.month_calendar_fragment){
 
         binding = MonthCalendarFragmentBinding.bind(view)
 
-        vm.selectedDate.observe(viewLifecycleOwner){
+        vm = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
+
+        vm.getSelectedDate().observe(viewLifecycleOwner){
             selectedDate = it
             binding.exOneCalendar.scrollToMonth(selectedDate.yearMonth)
         }

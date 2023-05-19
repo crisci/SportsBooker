@@ -15,6 +15,11 @@ import com.example.lab2.database.player_reservation_join.PlayerReservation
 import com.example.lab2.database.player_reservation_join.PlayerReservationDAO
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationDAO
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Database(entities = [Player::class, Reservation::class, Court::class, PlayerBadgeRating::class, PlayerReservation::class], version = 1, exportSchema = false)
 @TypeConverters(EquipmentConverter::class, DateConverter::class, TimeConverter::class)

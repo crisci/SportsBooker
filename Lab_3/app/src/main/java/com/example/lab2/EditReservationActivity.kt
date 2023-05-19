@@ -15,6 +15,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.calendar.BookingViewModel
 import com.example.lab2.calendar.CalendarViewModel
 import com.example.lab2.calendar.UserViewModel
@@ -64,7 +65,6 @@ class EditReservationActivity : AppCompatActivity() {
     private lateinit var equipments: MutableList<Equipment>
     private lateinit var listReservationTimeslot: MutableList<ReservationTimeslot>
 
-    @Inject
     lateinit var vm: CalendarViewModel
 
     @Inject
@@ -91,6 +91,8 @@ class EditReservationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_reservation)
+
+        vm = ViewModelProvider(this)[CalendarViewModel::class.java]
 
         db = ReservationAppDatabase.getDatabase(this)
         sport_name = findViewById(R.id.sport_name_edit_reservation)

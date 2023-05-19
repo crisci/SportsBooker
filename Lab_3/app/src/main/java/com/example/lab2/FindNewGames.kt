@@ -1,34 +1,30 @@
 package com.example.lab2
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.icu.util.BuddhistCalendar
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.lab2.calendar.CalendarViewModel
-import com.example.lab2.calendar.FilterViewModel
 import com.example.lab2.calendar.UserViewModel
-import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
-import com.example.lab2.database.court.CourtWithReservations
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationWithCourt
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,7 +32,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.RuntimeException
 
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -47,11 +42,9 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
 
     private lateinit var navController : NavController
-    @Inject
-    lateinit var vm: CalendarViewModel
 
-    @Inject
-    lateinit var filterVM: FilterViewModel
+
+    lateinit var vm: CalendarViewModel
 
     @Inject lateinit var userVM: UserViewModel
 
@@ -67,17 +60,17 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
     private suspend fun getReservations() {
 
-        if (filterVM.getSportFilter() != null) {
+        if (vm.getSportFilter() != null) {
             listCourtsWithReservations = db.reservationDao().getAvailableReservationsByDateAndSport(
-                vm.selectedDate.value!!,
+                vm.getSelectedDate().value!!,
                 vm.selectedTime.value!!,
-                filterVM.getSportFilter()!!
+                vm.getSportFilter().value!!
             )
                 .filter { !userVM.listBookedReservations.value!!.contains(it.reservation.reservationId) }
         }
         else {
             listCourtsWithReservations = db.reservationDao().getAvailableReservationsByDate(
-                vm.selectedDate.value!!,
+                vm.getSelectedDate().value!!,
                 vm.selectedTime.value!!
             )
                 .filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } }
@@ -119,13 +112,15 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         db = ReservationAppDatabase.getDatabase(requireContext())
         navController = findNavController()
 
+        vm = ViewModelProvider(this)[CalendarViewModel::class.java]
+
 
         val adapterCard = AdapterNewGames(mapCourtReservations, this)
         val listReservationsRecyclerView = view.findViewById<RecyclerView>(R.id.available_bookings)
         listReservationsRecyclerView.adapter = adapterCard
         listReservationsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        val adapterCardFilters = AdapterFilters(listOf(null, "Padel", "Soccer", "Something"), filterVM::setSportFilter)
+        val adapterCardFilters = AdapterFilters(listOf(null, "Padel", "Soccer", "Something"), vm::setSportFilter)
         val listOfSportRecyclerView = view.findViewById<RecyclerView>(R.id.filters_find_game)
         listOfSportRecyclerView.adapter = adapterCardFilters
         listOfSportRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false);
@@ -141,13 +136,13 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
             adapterCard.setListCourts(vm.mapCourtReservations.value!!)
         }
 
-        vm.selectedDate.observe(viewLifecycleOwner) {
+        vm.getSelectedDate().observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
                 getReservations()
             }
         }
 
-        filterVM.sportFilter.observe(viewLifecycleOwner) {
+        vm.getSportFilter().observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
                 getReservations()
             }
@@ -157,6 +152,12 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
             CoroutineScope(Dispatchers.IO).launch {
                 getReservations()
             }
+        }
+
+        val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
+        swipeRefreshLayout.setOnRefreshListener {
+            Toast.makeText(view.context,"Ciao!",Toast.LENGTH_SHORT).show()
+            swipeRefreshLayout.isRefreshing = false
         }
 
     }
