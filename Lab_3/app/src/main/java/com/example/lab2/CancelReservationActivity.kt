@@ -44,7 +44,7 @@ class CancelReservationActivity : AppCompatActivity() {
     private lateinit var backButton: ImageView
 
     @Inject
-    lateinit var userVM: UserViewModel
+    lateinit var vm: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,7 +87,7 @@ class CancelReservationActivity : AppCompatActivity() {
                     db.reservationDao().updateNumOfPlayers(reservationId)
                     val result: Intent = Intent()
                     result.putExtra("result", true)
-                    userVM.listBookedReservations.postValue(userVM.listBookedReservations.value?.minus(reservationId) as MutableSet<Int>?)
+                    vm.listBookedReservations.postValue(vm.listBookedReservations.value?.minus(reservationId) as MutableSet<Int>?)
                     setResult(Activity.RESULT_OK, result)
                     finish()
                 } catch (err: RuntimeException) {

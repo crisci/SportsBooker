@@ -1,7 +1,6 @@
 package com.example.lab2
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 
 class FilterDiffCallback (
     private  val filters: List<String?>,

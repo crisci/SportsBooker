@@ -3,10 +3,13 @@ package com.example.lab2.database.reservation
 import androidx.lifecycle.LiveData
 import androidx.room.Query
 import com.example.lab2.database.player_reservation_join.ReservationWithPlayers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalTime
+import javax.inject.Inject
 
-class ReservationRepository(private val database: ReservationDAO) {
+class ReservationRepository @Inject constructor(private val database: ReservationDAO) {
 
     suspend fun loadAllReservations() = database.getAllReservations()
 
@@ -22,7 +25,9 @@ class ReservationRepository(private val database: ReservationDAO) {
 
     suspend fun updateNumOfPlayers(reservationId: Int) = database.updateNumOfPlayers(reservationId)
 
-    suspend fun getAvailableReservationsByDate(date: LocalDate, time: LocalTime) = database.getAvailableReservationsByDate(date, time)
+    suspend fun getAvailableReservationsByDate(date: LocalDate, time: LocalTime) =
+        withContext(Dispatchers.IO){ database.getAvailableReservationsByDate(date, time) }
 
-    suspend fun getAvailableReservationsByDateAndSport(date: LocalDate, time: LocalTime, sport: String) = database.getAvailableReservationsByDateAndSport(date, time, sport)
+    suspend fun getAvailableReservationsByDateAndSport(date: LocalDate, time: LocalTime, sport: String) =
+        withContext(Dispatchers.IO){database.getAvailableReservationsByDateAndSport(date, time, sport) }
 }

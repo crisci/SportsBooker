@@ -49,7 +49,7 @@ class ShowProfileActivity : AppCompatActivity() {
     private lateinit var db : ReservationAppDatabase
 
     @Inject
-    lateinit var userVM: UserViewModel
+    lateinit var vm: UserViewModel
 
 
     private val launcher = registerForActivityResult(
@@ -60,7 +60,7 @@ class ShowProfileActivity : AppCompatActivity() {
             val data: Intent? = response.data
             val userModified = data?.getStringExtra("user")
             user = User.fromJson(userModified!!)
-            userVM.setUser(user)
+            vm.setUser(user)
             //commit the data in the shared preferences
             with(sharedPref.edit()) {
                 putString("user", user.toJson())
@@ -97,7 +97,7 @@ class ShowProfileActivity : AppCompatActivity() {
         backButton = supportActionBar?.customView?.findViewById<ImageButton>(R.id.edit_profile_back_button)!!
         editProfile = supportActionBar?.customView?.findViewById<ImageButton>(R.id.profile_edit_button)!!
 
-        userVM.user.observe(this) {
+        vm.user.observe(this) {
             updateContent()
         }
 
@@ -120,7 +120,7 @@ class ShowProfileActivity : AppCompatActivity() {
 
         val userPref = sharedPref.getString("user", null) ?: User().toJson()
         user = User.fromJson(userPref)
-        userVM.setUser(user)
+        vm.setUser(user)
 
         db = ReservationAppDatabase.getDatabase(this)
 

@@ -46,42 +46,10 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
     lateinit var vm: CalendarViewModel
 
-    @Inject lateinit var userVM: UserViewModel
-
-    private var listCourtsWithReservations = listOf<ReservationWithCourt>()
-    private var mapCourtReservations = mapOf<Court,List<Reservation>>()
 
     private lateinit var db: ReservationAppDatabase
 
-    private var list = listOf<ReservationWithCourt>()
-    private lateinit var filteredList: List<ReservationWithCourt>
-
     private lateinit var noResults: ConstraintLayout
-
-    private suspend fun getReservations() {
-
-        if (vm.getSportFilter() != null) {
-            listCourtsWithReservations = db.reservationDao().getAvailableReservationsByDateAndSport(
-                vm.getSelectedDate().value!!,
-                vm.selectedTime.value!!,
-                vm.getSportFilter().value!!
-            )
-                .filter { !userVM.listBookedReservations.value!!.contains(it.reservation.reservationId) }
-        }
-        else {
-            listCourtsWithReservations = db.reservationDao().getAvailableReservationsByDate(
-                vm.getSelectedDate().value!!,
-                vm.selectedTime.value!!
-            )
-                .filter { userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } }
-                .filter { !userVM.listBookedReservations.value!!.contains(it.reservation.reservationId) }
-        }
-        mapCourtReservations = listCourtsWithReservations
-            .groupBy({ it.court }, { it.reservation })
-            .mapValues { it.value.toList() }
-        showOrHideNoResultImage()
-        vm.mapCourtReservations.postValue(mapCourtReservations)
-    }
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
@@ -89,21 +57,17 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
     private fun processResponse(response: androidx.activity.result.ActivityResult) {
         if(response.resultCode == AppCompatActivity.RESULT_OK) {
             val data: Intent? = response.data
-            CoroutineScope(Dispatchers.IO).launch {
-                getReservations()
-            }
+            vm.refreshNewMatches()
             requireActivity().setResult(Activity.RESULT_OK)
             requireActivity().finish()
         }
     }
 
-    private suspend fun showOrHideNoResultImage() {
-        withContext(Dispatchers.Main) {
-            if (listCourtsWithReservations.isNotEmpty()) {
-                noResults.visibility = View.GONE
-            } else {
-                noResults.visibility = View.VISIBLE
-            }
+    private fun showOrHideNoResultImage() {
+        if (vm.getMapNewMatches().value.isNullOrEmpty()) {
+            noResults.visibility = View.VISIBLE
+        } else {
+            noResults.visibility = View.GONE
         }
     }
 
@@ -112,10 +76,12 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         db = ReservationAppDatabase.getDatabase(requireContext())
         navController = findNavController()
 
-        vm = ViewModelProvider(this)[CalendarViewModel::class.java]
+        vm = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
+
+        vm.refreshNewMatches()
 
 
-        val adapterCard = AdapterNewGames(mapCourtReservations, this)
+        val adapterCard = AdapterNewGames(emptyMap(), this)
         val listReservationsRecyclerView = view.findViewById<RecyclerView>(R.id.available_bookings)
         listReservationsRecyclerView.adapter = adapterCard
         listReservationsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -127,36 +93,30 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
         noResults = view.findViewById(R.id.no_results)
 
-
-        userVM.user.observe(viewLifecycleOwner) {
-            adapterCardFilters.setFilters(listOf(null).plus(userVM.getUser().interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
+        vm.user.observe(viewLifecycleOwner) {
+            adapterCardFilters.setFilters(listOf(null).plus(vm.getUser().interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
         }
 
-        vm.mapCourtReservations.observe(requireActivity()){
-            adapterCard.setListCourts(vm.mapCourtReservations.value!!)
+        vm.getMapNewMatches().observe(requireActivity()){
+            showOrHideNoResultImage()
+            adapterCard.setListCourts(vm.getMapNewMatches().value!!)
         }
 
         vm.getSelectedDate().observe(viewLifecycleOwner) {
-            CoroutineScope(Dispatchers.IO).launch {
-                getReservations()
-            }
+            vm.refreshNewMatches()
         }
 
         vm.getSportFilter().observe(viewLifecycleOwner) {
-            CoroutineScope(Dispatchers.IO).launch {
-                getReservations()
-            }
+            vm.refreshNewMatches()
         }
 
         vm.selectedTime.observe(viewLifecycleOwner) {
-            CoroutineScope(Dispatchers.IO).launch {
-                getReservations()
-            }
+            vm.refreshNewMatches()
         }
 
         val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
         swipeRefreshLayout.setOnRefreshListener {
-            Toast.makeText(view.context,"Ciao!",Toast.LENGTH_SHORT).show()
+            vm.refreshNewMatches()
             swipeRefreshLayout.isRefreshing = false
         }
 
@@ -178,7 +138,7 @@ class ViewHolderNewGames(v: View): RecyclerView.ViewHolder(v) {
     val sport_name: TextView = v.findViewById(R.id.sport_name)
 }
 
-class AdapterNewGames(private var mapCourtReservations: Map<Court,List<Reservation>>, var listener: OnClickTimeslot): RecyclerView.Adapter<ViewHolderNewGames>(){
+class AdapterNewGames(private var mapNewMatches: Map<Court,List<Reservation>>, var listener: OnClickTimeslot): RecyclerView.Adapter<ViewHolderNewGames>(){
 
     interface OnClickTimeslot {
         fun onClickTimeslot(informations: Bundle)
@@ -191,12 +151,12 @@ class AdapterNewGames(private var mapCourtReservations: Map<Court,List<Reservati
     }
 
     override fun getItemCount(): Int {
-        return mapCourtReservations.size
+        return mapNewMatches.size
     }
 
     override fun onBindViewHolder(holder: ViewHolderNewGames, position: Int) {
-            val court = mapCourtReservations.entries.elementAt(position).key
-            val reservations = mapCourtReservations.entries.elementAt(position).value
+            val court = mapNewMatches.entries.elementAt(position).key
+            val reservations = mapNewMatches.entries.elementAt(position).value
             val timeSlots = reservations.map { it.time }
 
             holder.timeslots.removeAllViews()
@@ -239,9 +199,9 @@ class AdapterNewGames(private var mapCourtReservations: Map<Court,List<Reservati
     fun setListCourts(newListCourts: Map<Court,List<Reservation>>) {
 
         val diffs = DiffUtil.calculateDiff(
-            CourtTimeslotDiffCallback(mapCourtReservations, newListCourts)
+            CourtTimeslotDiffCallback(mapNewMatches, newListCourts)
         )
-        mapCourtReservations = newListCourts
+        mapNewMatches = newListCourts
         diffs.dispatchUpdatesTo(this)
     }
 }

@@ -51,7 +51,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
     @Inject
     lateinit var bookingViewModel: BookingViewModel
     @Inject
-    lateinit var userVM: UserViewModel
+    lateinit var vm: UserViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_confirm_booking)
@@ -130,7 +130,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
                     try {
                         db.playerReservationDAO().confirmReservation(1, reservation.reservationId, listEquipments, bookingViewModel.personalPrice.value!!)
                         db.reservationDao().updateNumOfPlayers(reservation.reservationId)
-                        userVM.listBookedReservations.postValue(userVM.listBookedReservations.value!!.plus(reservation.reservationId) as MutableSet<Int>?)
+                        vm.listBookedReservations.postValue(vm.listBookedReservations.value!!.plus(reservation.reservationId) as MutableSet<Int>?)
                         setResult(Activity.RESULT_OK)
                         finish()
                     } catch (err: RuntimeException) {

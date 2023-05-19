@@ -25,7 +25,6 @@ import com.example.lab2.database.court.CourtWithReservations
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationTimeslot
 import com.example.lab2.database.reservation.ReservationWithCourt
-import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
 import com.example.lab2.entities.Equipment
 import com.google.android.material.chip.Chip
@@ -47,7 +46,7 @@ import kotlin.concurrent.thread
 class EditReservationActivity : AppCompatActivity() {
 
     private lateinit var res : Reservation
-    private lateinit var reservation:ReservationWithCourtAndEquipments
+    private lateinit var reservation: ReservationWithCourt
     private lateinit var court_name_edit_reservation: TextView
     private lateinit var location_edit_reservation: TextView
     private lateinit var cancelButton: Button
@@ -66,9 +65,6 @@ class EditReservationActivity : AppCompatActivity() {
     private lateinit var listReservationTimeslot: MutableList<ReservationTimeslot>
 
     lateinit var vm: CalendarViewModel
-
-    @Inject
-    lateinit var userVM: UserViewModel
 
     @Inject
     lateinit var bookingViewModel: BookingViewModel
@@ -126,11 +122,9 @@ class EditReservationActivity : AppCompatActivity() {
         val courtId = intent.getIntExtra("courtId", 0)
         val courtName = intent.getStringExtra("courtName")
         val sport = intent.getStringExtra("sport")
-        val equipmentsString = intent.getStringExtra("equipments")
         val finalPrice = intent.getDoubleExtra("finalPrice", 0.0)
 
         val listType = object : TypeToken<MutableList<Equipment>>() {}.type
-        equipments = Gson().fromJson(equipmentsString, listType)
 
         thread {
             val list = db.playerReservationDAO().
@@ -140,7 +134,7 @@ class EditReservationActivity : AppCompatActivity() {
 
 
         res = Reservation(reservationId,courtId,numOfPlayers,price,LocalDate.parse(date, DateTimeFormatter.ISO_DATE), LocalTime.parse(time))
-        reservation = ReservationWithCourtAndEquipments(res, Court(courtId, courtName!!, sport!!, 0),equipments,finalPrice)
+        reservation = ReservationWithCourt(res, Court(courtId, courtName!!, sport!!, 0))
         updateContent()
 
         supportActionBar?.elevation = 0f
@@ -177,7 +171,7 @@ class EditReservationActivity : AppCompatActivity() {
 
                     db.reservationDao().updateNumOfPlayers(reservationId)
                     db.reservationDao().updateNumOfPlayers(newReservationId)
-                    userVM.listBookedReservations.postValue(userVM.listBookedReservations.value?.minus(reservationId)?.plus(newReservationId) as MutableSet<Int>)
+                    vm.listBookedReservations.postValue(vm.listBookedReservations.value?.minus(reservationId)?.plus(newReservationId) as MutableSet<Int>)
                     setResult(Activity.RESULT_OK)
                     finish()
                 }catch(err: Exception) {
@@ -202,7 +196,7 @@ class EditReservationActivity : AppCompatActivity() {
         court_name_edit_reservation.text = "${reservation.court.name}"
         location_edit_reservation.text = "Via Giovanni Magni, 32"
 
-        setupCheckboxes(reservation.finalPrice)
+        //setupCheckboxes(reservation.finalPrice)
 
         for (r in listReservationTimeslot) {
             val chip = Chip(this)
@@ -247,8 +241,8 @@ class EditReservationActivity : AppCompatActivity() {
             val checkbox = CheckBox(this)
             checkbox.text = "${e.name} - €${e.price}"
 
-            if(reservation.equipments.any { it.name == e.name })
-                checkbox.isChecked = true
+            /*if(reservation.equipments.any { it.name == e.name })
+                checkbox.isChecked = true*/
 
             checkbox.setOnCheckedChangeListener { _, isChecked ->
                 if(isChecked) {

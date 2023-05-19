@@ -25,7 +25,7 @@ import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.Reservation
-import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
+import com.example.lab2.database.reservation.ReservationWithCourt
 import com.example.lab2.database.reservation.formatPrice
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
@@ -47,10 +47,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
     private lateinit var navController : NavController
 
     lateinit var vm: CalendarViewModel
-
-
-    @Inject
-    lateinit var userVM: UserViewModel
 
     private lateinit var adapterCardFilters: AdapterFilterReservation
 
@@ -148,7 +144,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         adapterCardFilters = AdapterFilterReservation(
             listOf(null)
-                .plus(userVM.getUser().interests
+                .plus(vm.getUser().interests
                 .map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }),
             vm::setSportFilter
         )
@@ -158,10 +154,10 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         noResults = view.findViewById(R.id.no_results)
 
-        userVM.user.observe(viewLifecycleOwner) {
+        vm.user.observe(viewLifecycleOwner) {
             adapterCardFilters.setFilters(
                 listOf(null)
-                    .plus(userVM.getUser().interests
+                    .plus(vm.getUser().interests
                         .map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
         }
 
@@ -173,12 +169,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         vm.getSelectedDate().observe(requireActivity()) {
             Log.d("dateInsideObserve",it.toString())
             vm.refreshMyReservations()
-/*            CoroutineScope(Dispatchers.IO).launch {
-                userVM.listBookedReservations.postValue(vm.allMyReservations.value!!.map { it.reservation.reservationId }.toMutableSet())
-                filteredList = if(filterVM.getSportFilter() != null ) vm.allMyReservations.value!!.filter { it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else vm.allMyReservations.value!!.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
-                showOrHideNoResultImage()
-                vm.allMyReservations.postValue(filteredList)
-            }*/
         }
 
         vm.getSportFilter().observe(viewLifecycleOwner) {
@@ -187,11 +177,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
                 adapterCardFilters.notifyDataSetChanged()
             }
             vm.refreshMyReservations()
-/*            CoroutineScope(Dispatchers.IO).launch {
-                filteredList = if(filterVM.getSportFilter() != null ) list.filter { it.court.sport == filterVM.getSportFilter() && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() } } else list.filter { it.reservation.date.dayOfYear == vm.selectedDate.value?.dayOfYear && userVM.getUser().interests.any { sport -> sport.name == it.court.sport.uppercase() }  }
-                showOrHideNoResultImage()
-                vm.allMyReservations.postValue(filteredList)
-            }*/
         }
 
         vm.selectedTime.observe(viewLifecycleOwner) {
@@ -222,7 +207,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
 
 
-    override fun onEditClick(reservation: ReservationWithCourtAndEquipments) {
+    override fun onEditClick(reservation: ReservationWithCourt) {
 
         val intentEditReservation = Intent(activity, EditReservationActivity::class.java).apply {
             addCategory(Intent.CATEGORY_SELECTED_ALTERNATIVE)
@@ -234,8 +219,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             putExtra("courtId", reservation.court.courtId)
             putExtra("courtName", reservation.court.name)
             putExtra("sport", reservation.court.sport)
-            putExtra("equipments", Gson().toJson(reservation.equipments))
-            putExtra("finalPrice", reservation.finalPrice)
+            //putExtra("equipments", Gson().toJson(reservation.equipments))
+            //putExtra("finalPrice", reservation.finalPrice)
             putExtra("playerId", playerId)
         }
         launcher.launch(intentEditReservation)
@@ -246,7 +231,6 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 class ViewHolderCard(v: View): RecyclerView.ViewHolder(v) {
     val name: TextView = v.findViewById(R.id.court_name_reservation)
     val location: TextView = v.findViewById(R.id.location_reservation)
-    val price: TextView = v.findViewById(R.id.price_reservation)
     val currentNumberOfPlayers: TextView = v.findViewById(R.id.current_number_of_players)
     val maxNumberOfPlayers: TextView = v.findViewById(R.id.max_number_players)
     val time: TextView = v.findViewById(R.id.time_reservation)
@@ -254,10 +238,10 @@ class ViewHolderCard(v: View): RecyclerView.ViewHolder(v) {
     val sport : TextView = v.findViewById(R.id.sport_name)
 }
 
-class AdapterCard(private var list: List<ReservationWithCourtAndEquipments>, private val listener: OnEditClickListener): RecyclerView.Adapter<ViewHolderCard>() {
+class AdapterCard(private var list: List<ReservationWithCourt>, private val listener: OnEditClickListener): RecyclerView.Adapter<ViewHolderCard>() {
 
     interface OnEditClickListener {
-        fun onEditClick(reservation: ReservationWithCourtAndEquipments)
+        fun onEditClick(reservation: ReservationWithCourt)
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderCard {
         val v = LayoutInflater.from(parent.context)
@@ -273,7 +257,6 @@ class AdapterCard(private var list: List<ReservationWithCourtAndEquipments>, pri
         val maxNumPlayers = 7
         holder.name.text = "${list[position].court.name}"
         holder.location.text = "Via Giovanni Magni, 32"
-        holder.price.text = "€ ${list[position].formatPrice()}"
         if(list[position].reservation.numOfPlayers == maxNumPlayers) {
             holder.currentNumberOfPlayers.setTextColorRes(R.color.example_1_bg)
         }
@@ -288,7 +271,7 @@ class AdapterCard(private var list: List<ReservationWithCourtAndEquipments>, pri
         holder.editButton.setOnClickListener { listener.onEditClick(list[holder.bindingAdapterPosition]) }
     }
 
-    fun setReservations(newReservations: List<ReservationWithCourtAndEquipments>) {
+    fun setReservations(newReservations: List<ReservationWithCourt>) {
 
         val diffs = DiffUtil.calculateDiff(
             ReservationDiffCallback(list, newReservations)

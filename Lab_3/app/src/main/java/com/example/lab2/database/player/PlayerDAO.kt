@@ -6,8 +6,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.lab2.database.reservation.ReservationWithCourt
-import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
-import com.google.android.material.circularreveal.CircularRevealHelper.Strategy
 import java.time.LocalDate
 
 @Dao
@@ -16,14 +14,14 @@ interface PlayerDAO {
     @Query("SELECT * FROM players WHERE playerId = (:playerId)")
     fun loadPlayerById(playerId: Int) : LiveData<Player>
 
-    @Query("SELECT r.*, c.*, pr.equipments, pr.finalPrice FROM reservations r" +
+    @Query("SELECT r.*, c.* FROM reservations r" +
             " JOIN courts c" +
             " ON c.courtId = r.courtId" +
             " JOIN players_reservations pr" +
             " ON pr.reservationId = r.reservationId" +
             " WHERE pr.playerId = :playerId AND r.date = :date"
     )
-    fun loadReservationsByPlayerId(playerId: Int, date: LocalDate) : List<ReservationWithCourtAndEquipments>
+    fun loadReservationsByPlayerId(playerId: Int, date: LocalDate) : List<ReservationWithCourt>
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
