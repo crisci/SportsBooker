@@ -4,11 +4,12 @@ import android.util.Log
 import androidx.recyclerview.widget.DiffUtil
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationWithCourt
+import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
 
 class ReservationDiffCallback(
-    private  val reservations: List<ReservationWithCourt>,
-    private val newReservations: List<ReservationWithCourt>): DiffUtil.Callback() {
+    private  val reservations: List<ReservationWithCourtAndEquipments>,
+    private val newReservations: List<ReservationWithCourtAndEquipments>): DiffUtil.Callback() {
 
     override fun getOldListSize(): Int = reservations.size
 
@@ -16,7 +17,7 @@ class ReservationDiffCallback(
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         return reservations[oldItemPosition].reservation.reservationId == newReservations[newItemPosition].reservation.reservationId
-               // && reservations[oldItemPosition].equipments == newReservations[newItemPosition].equipments
+                && reservations[oldItemPosition].equipments == newReservations[newItemPosition].equipments
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {

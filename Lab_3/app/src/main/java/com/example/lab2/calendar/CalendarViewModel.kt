@@ -13,6 +13,7 @@ import com.example.lab2.database.player.PlayerRepository
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationRepository
 import com.example.lab2.database.reservation.ReservationWithCourt
+import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.entities.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.scopes.ActivityRetainedScoped
@@ -66,13 +67,10 @@ class CalendarViewModel @Inject constructor(
         return selectedTime.value!!.format(DateTimeFormatter.ofPattern("HH:mm"))
     }
 
-    private val allMyReservations = MutableLiveData<List<ReservationWithCourt>>()
-    fun getAllMyReservations() : LiveData<List<ReservationWithCourt>> {
-        return allMyReservations
-    }
-    private val myFilteredReservations = MutableLiveData<List<ReservationWithCourt>>()
-    fun getMyFilteredReservations() : LiveData<List<ReservationWithCourt>> {
-        return myFilteredReservations
+
+    private val myReservations = MutableLiveData<List<ReservationWithCourtAndEquipments>>()
+    fun getMyFilteredReservations() : LiveData<List<ReservationWithCourtAndEquipments>> {
+        return myReservations
     }
     var mapNewMatches = MutableLiveData<Map<Court,List<Reservation>>>(emptyMap())
     fun getMapNewMatches() : LiveData<Map<Court,List<Reservation>>> {
@@ -81,13 +79,12 @@ class CalendarViewModel @Inject constructor(
 
     fun refreshMyReservations() {
         viewModelScope.launch {
-            Log.d("dateInsideRefresh",selectedDate.value.toString())
-            allMyReservations.value =
+            myReservations.value =
                 playerRepository.loadReservationsByPlayerId(
                     1,
                     selectedDate.value!!
                 )
-            myFilteredReservations.value = filterBySportAndTimeslot(allMyReservations.value!!)
+            myReservations.value = filterMyReservationsBySportAndTimeslot(myReservations.value!!)
         }
     }
 
@@ -108,19 +105,27 @@ class CalendarViewModel @Inject constructor(
                 )
             }
             tmpList = filterUnbookedReservations(tmpList)
-            tmpList = filterBySportAndTimeslot(tmpList)
+            tmpList = filterMatchesBySportAndTimeslot(tmpList)
             mapNewMatches.value = tmpList
                 .groupBy({ it.court }, { it.reservation })
                 .mapValues { it.value.toList() }
         }
     }
 
-    private fun filterBySportAndTimeslot(allMyReservations: List<ReservationWithCourt>) : List<ReservationWithCourt> {
+    private fun filterMyReservationsBySportAndTimeslot(allMyReservations: List<ReservationWithCourtAndEquipments>) : List<ReservationWithCourtAndEquipments> {
         val sportFilter = getSportFilter().value
         if (sportFilter.isNullOrEmpty()) {
             return allMyReservations.filter { it.reservation.time == selectedTime.value || it.reservation.time.isAfter(selectedTime.value) }
         }
         return allMyReservations.filter { it.court.sport == sportFilter && it.reservation.time.isAfter(selectedTime.value) }
+    }
+
+    private fun filterMatchesBySportAndTimeslot(matches: List<ReservationWithCourt>) : List<ReservationWithCourt> {
+        val sportFilter = getSportFilter().value
+        if (sportFilter.isNullOrEmpty()) {
+            return matches.filter { it.reservation.time == selectedTime.value || it.reservation.time.isAfter(selectedTime.value) }
+        }
+        return matches.filter { it.court.sport == sportFilter && it.reservation.time.isAfter(selectedTime.value) }
     }
     
     private fun filterUnbookedReservations(tmpList: List<ReservationWithCourt>): List<ReservationWithCourt> {

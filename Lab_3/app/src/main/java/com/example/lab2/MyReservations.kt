@@ -25,7 +25,7 @@ import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.Reservation
-import com.example.lab2.database.reservation.ReservationWithCourt
+import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
@@ -207,7 +207,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
 
 
-    override fun onEditClick(reservation: ReservationWithCourt) {
+    override fun onEditClick(reservation: ReservationWithCourtAndEquipments) {
 
         val intentEditReservation = Intent(activity, EditReservationActivity::class.java).apply {
             addCategory(Intent.CATEGORY_SELECTED_ALTERNATIVE)
@@ -219,8 +219,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             putExtra("courtId", reservation.court.courtId)
             putExtra("courtName", reservation.court.name)
             putExtra("sport", reservation.court.sport)
-            //putExtra("equipments", Gson().toJson(reservation.equipments))
-            //putExtra("finalPrice", reservation.finalPrice)
+            putExtra("equipments", Gson().toJson(reservation.equipments))
+            putExtra("finalPrice", reservation.finalPrice)
             putExtra("playerId", playerId)
         }
         launcher.launch(intentEditReservation)
@@ -232,16 +232,17 @@ class ViewHolderCard(v: View): RecyclerView.ViewHolder(v) {
     val name: TextView = v.findViewById(R.id.court_name_reservation)
     val location: TextView = v.findViewById(R.id.location_reservation)
     val currentNumberOfPlayers: TextView = v.findViewById(R.id.current_number_of_players)
+    val price: TextView = v.findViewById(R.id.price_reservation)
     val maxNumberOfPlayers: TextView = v.findViewById(R.id.max_number_players)
     val time: TextView = v.findViewById(R.id.time_reservation)
     val editButton : ImageButton = v.findViewById(R.id.edit_reservation_button)
     val sport : TextView = v.findViewById(R.id.sport_name)
 }
 
-class AdapterCard(private var list: List<ReservationWithCourt>, private val listener: OnEditClickListener): RecyclerView.Adapter<ViewHolderCard>() {
+class AdapterCard(private var list: List<ReservationWithCourtAndEquipments>, private val listener: OnEditClickListener): RecyclerView.Adapter<ViewHolderCard>() {
 
     interface OnEditClickListener {
-        fun onEditClick(reservation: ReservationWithCourt)
+        fun onEditClick(reservation: ReservationWithCourtAndEquipments)
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderCard {
         val v = LayoutInflater.from(parent.context)
@@ -257,6 +258,7 @@ class AdapterCard(private var list: List<ReservationWithCourt>, private val list
         val maxNumPlayers = 7
         holder.name.text = "${list[position].court.name}"
         holder.location.text = "Via Giovanni Magni, 32"
+        holder.price.text = "${list[position].formatPrice()}"
         if(list[position].reservation.numOfPlayers == maxNumPlayers) {
             holder.currentNumberOfPlayers.setTextColorRes(R.color.example_1_bg)
         }
@@ -271,7 +273,7 @@ class AdapterCard(private var list: List<ReservationWithCourt>, private val list
         holder.editButton.setOnClickListener { listener.onEditClick(list[holder.bindingAdapterPosition]) }
     }
 
-    fun setReservations(newReservations: List<ReservationWithCourt>) {
+    fun setReservations(newReservations: List<ReservationWithCourtAndEquipments>) {
 
         val diffs = DiffUtil.calculateDiff(
             ReservationDiffCallback(list, newReservations)
