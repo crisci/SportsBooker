@@ -174,7 +174,6 @@ class EditReservationActivity : AppCompatActivity() {
 
                     db.reservationDao().updateNumOfPlayers(reservationId)
                     db.reservationDao().updateNumOfPlayers(newReservationId)
-                    vm.listBookedReservations.postValue(vm.listBookedReservations.value?.minus(reservationId)?.plus(newReservationId) as MutableSet<Int>)
                     setResult(Activity.RESULT_OK)
                     finish()
                 }catch(err: Exception) {

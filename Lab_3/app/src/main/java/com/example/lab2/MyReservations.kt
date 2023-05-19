@@ -65,7 +65,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
     }
 
     private fun showOrHideNoResultImage() {
-        if (vm.getMyFilteredReservations().value.isNullOrEmpty()) {
+        if (vm.getMyReservations().value.isNullOrEmpty()) {
             noResults.visibility = View.VISIBLE
         } else {
             noResults.visibility = View.GONE
@@ -161,7 +161,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
                         .map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
         }
 
-        vm.getMyFilteredReservations().observe(viewLifecycleOwner){
+        vm.getMyReservations().observe(viewLifecycleOwner){
             adapterCard.setReservations(it)
             showOrHideNoResultImage()
         }

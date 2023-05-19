@@ -31,7 +31,6 @@ class CalendarViewModel @Inject constructor(
     ): ViewModel() {
 
     var user = MutableLiveData<User>(User())
-    var listBookedReservations = MutableLiveData<MutableSet<Int>>(mutableSetOf())
 
     fun setUser(value: User) {
         user.value = value
@@ -69,10 +68,10 @@ class CalendarViewModel @Inject constructor(
 
 
     private val myReservations = MutableLiveData<List<ReservationWithCourtAndEquipments>>()
-    fun getMyFilteredReservations() : LiveData<List<ReservationWithCourtAndEquipments>> {
+    fun getMyReservations() : LiveData<List<ReservationWithCourtAndEquipments>> {
         return myReservations
     }
-    var mapNewMatches = MutableLiveData<Map<Court,List<Reservation>>>(emptyMap())
+    private var mapNewMatches = MutableLiveData<Map<Court,List<Reservation>>>(emptyMap())
     fun getMapNewMatches() : LiveData<Map<Court,List<Reservation>>> {
         return mapNewMatches
     }
@@ -95,16 +94,17 @@ class CalendarViewModel @Inject constructor(
                 tmpList = reservationRepository.getAvailableReservationsByDateAndSport(
                     selectedDate.value!!,
                     selectedTime.value!!,
-                    sportFilter.value!!
+                    sportFilter.value!!,
+                    1
                 )
             }
             else {
                 tmpList = reservationRepository.getAvailableReservationsByDate(
                     selectedDate.value!!,
-                    selectedTime.value!!
+                    selectedTime.value!!,
+                    1
                 )
             }
-            tmpList = filterUnbookedReservations(tmpList)
             tmpList = filterMatchesBySportAndTimeslot(tmpList)
             mapNewMatches.value = tmpList
                 .groupBy({ it.court }, { it.reservation })
@@ -117,7 +117,7 @@ class CalendarViewModel @Inject constructor(
         if (sportFilter.isNullOrEmpty()) {
             return allMyReservations.filter { it.reservation.time == selectedTime.value || it.reservation.time.isAfter(selectedTime.value) }
         }
-        return allMyReservations.filter { it.court.sport == sportFilter && it.reservation.time.isAfter(selectedTime.value) }
+        return allMyReservations.filter { it.court.sport == sportFilter && (it.reservation.time == selectedTime.value || it.reservation.time.isAfter(selectedTime.value)) }
     }
 
     private fun filterMatchesBySportAndTimeslot(matches: List<ReservationWithCourt>) : List<ReservationWithCourt> {
@@ -125,11 +125,6 @@ class CalendarViewModel @Inject constructor(
         if (sportFilter.isNullOrEmpty()) {
             return matches.filter { it.reservation.time == selectedTime.value || it.reservation.time.isAfter(selectedTime.value) }
         }
-        return matches.filter { it.court.sport == sportFilter && it.reservation.time.isAfter(selectedTime.value) }
+        return matches.filter { it.court.sport == sportFilter && (it.reservation.time == selectedTime.value || it.reservation.time.isAfter(selectedTime.value)) }
     }
-    
-    private fun filterUnbookedReservations(tmpList: List<ReservationWithCourt>): List<ReservationWithCourt> {
-        return tmpList.filter { !listBookedReservations.value!!.contains(it.reservation.reservationId) }
-    }
-
 }

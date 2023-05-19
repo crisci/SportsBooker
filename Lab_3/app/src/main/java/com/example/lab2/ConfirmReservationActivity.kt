@@ -130,7 +130,6 @@ class ConfirmReservationActivity : AppCompatActivity() {
                     try {
                         db.playerReservationDAO().confirmReservation(1, reservation.reservationId, listEquipments, bookingViewModel.personalPrice.value!!)
                         db.reservationDao().updateNumOfPlayers(reservation.reservationId)
-                        vm.listBookedReservations.postValue(vm.listBookedReservations.value!!.plus(reservation.reservationId) as MutableSet<Int>?)
                         setResult(Activity.RESULT_OK)
                         finish()
                     } catch (err: RuntimeException) {

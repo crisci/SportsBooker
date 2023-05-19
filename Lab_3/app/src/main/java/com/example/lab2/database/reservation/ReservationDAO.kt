@@ -50,13 +50,17 @@ interface ReservationDAO {
 
     @Query("SELECT c.*, r.* FROM courts c JOIN reservations r" +
             " ON c.courtId = r.courtId AND r.date = :date AND time >= :time AND r.numOfPlayers < c.maxNumOfPlayers" +
+            " LEFT JOIN players_reservations pr ON r.reservationId = pr.reservationId AND pr.playerId = :playerId" +
+            " WHERE pr.reservationId IS NULL" +
             " GROUP BY c.courtId, r.reservationId")
-    fun getAvailableReservationsByDate(date: LocalDate, time: LocalTime): List<ReservationWithCourt>
+    fun getAvailableReservationsByDate(date: LocalDate, time: LocalTime, playerId: Int): List<ReservationWithCourt>
 
     @Query("SELECT c.*, r.* FROM courts c JOIN reservations r" +
             " ON c.courtId = r.courtId AND r.date = :date AND time >= :time AND r.numOfPlayers < c.maxNumOfPlayers AND c.sport = :sport" +
+            " LEFT JOIN players_reservations pr ON r.reservationId = pr.reservationId AND pr.playerId = :playerId" +
+            " WHERE pr.reservationId IS NULL" +
             " GROUP BY c.courtId, r.reservationId")
-    fun getAvailableReservationsByDateAndSport(date: LocalDate, time: LocalTime, sport: String): List<ReservationWithCourt>
+    fun getAvailableReservationsByDateAndSport(date: LocalDate, time: LocalTime, sport: String, playerId: Int): List<ReservationWithCourt>
 
 
 }
