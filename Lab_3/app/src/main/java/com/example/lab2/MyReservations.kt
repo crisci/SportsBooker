@@ -1,5 +1,6 @@
 package com.example.lab2
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -240,6 +241,8 @@ class ViewHolderCard(v: View): RecyclerView.ViewHolder(v) {
     val time: TextView = v.findViewById(R.id.time_reservation)
     val editButton : ImageButton = v.findViewById(R.id.edit_reservation_button)
     val sport : TextView = v.findViewById(R.id.sport_name)
+    val detailsButton: Button = v.findViewById(R.id.detailReservationButton)
+    val context: Context = v.context
 }
 
 class AdapterCard(private var list: List<ReservationWithCourtAndEquipments>, private val listener: OnEditClickListener): RecyclerView.Adapter<ViewHolderCard>() {
@@ -274,6 +277,10 @@ class AdapterCard(private var list: List<ReservationWithCourtAndEquipments>, pri
         holder.sport.text = "${list[position].court.sport}"
 
         holder.editButton.setOnClickListener { listener.onEditClick(list[holder.bindingAdapterPosition]) }
+        holder.detailsButton.setOnClickListener {
+            val intent =  Intent(holder.context, DetailsActivity::class.java)
+            intent.putExtra("reservationId", list[position].reservation.reservationId)
+            holder.context.startActivity(intent) }
     }
 
     fun setReservations(newReservations: List<ReservationWithCourtAndEquipments>) {

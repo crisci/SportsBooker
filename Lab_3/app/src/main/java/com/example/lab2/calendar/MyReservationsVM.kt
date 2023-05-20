@@ -13,6 +13,9 @@ import com.example.lab2.database.reservation.ReservationWithCourt
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.entities.User
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
@@ -22,10 +25,12 @@ import javax.inject.Inject
 @HiltViewModel
 class MyReservationsVM @Inject constructor(
     private val playerRepository: PlayerRepository,
+    private val reservationRepository: ReservationRepository,
     private val vm: CalendarVM
     ): ViewModel() {
 
     var user = MutableLiveData<User>(User())
+
 
     fun setUser(value: User) {
         user.value = value
@@ -72,4 +77,6 @@ class MyReservationsVM @Inject constructor(
         }
         return allMyReservations.filter { it.court.sport == sportFilter && (it.reservation.time == vm.getSelectedTime().value || it.reservation.time.isAfter(vm.getSelectedTime().value)) }
     }
+
+
 }
