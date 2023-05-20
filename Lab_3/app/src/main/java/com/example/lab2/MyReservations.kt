@@ -20,7 +20,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.lab2.calendar.CalendarViewModel
+import com.example.lab2.calendar.CalendarVM
+import com.example.lab2.calendar.MyReservationsVM
 import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
@@ -46,7 +47,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
     private lateinit var navController : NavController
 
-    lateinit var vm: CalendarViewModel
+    lateinit var vm: MyReservationsVM
+    lateinit var calendarVM: CalendarVM
 
     private lateinit var adapterCardFilters: AdapterFilterReservation
 
@@ -130,7 +132,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             )
         }
 
-        vm = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
+        vm = ViewModelProvider(requireActivity())[MyReservationsVM::class.java]
+        calendarVM = ViewModelProvider(requireActivity())[CalendarVM::class.java]
 
         vm.refreshMyReservations()
 
@@ -166,7 +169,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             showOrHideNoResultImage()
         }
 
-        vm.getSelectedDate().observe(requireActivity()) {
+        calendarVM.getSelectedDate().observe(requireActivity()) {
             Log.d("dateInsideObserve",it.toString())
             vm.refreshMyReservations()
         }
@@ -179,7 +182,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             vm.refreshMyReservations()
         }
 
-        vm.selectedTime.observe(viewLifecycleOwner) {
+        calendarVM.getSelectedTime().observe(viewLifecycleOwner) {
             vm.refreshMyReservations()
         }
 

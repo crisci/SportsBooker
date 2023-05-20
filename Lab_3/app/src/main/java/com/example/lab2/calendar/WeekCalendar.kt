@@ -35,7 +35,7 @@ class WeekCalendar : Fragment(R.layout.week_calendar_fragment){
     private val dateFormatter = DateTimeFormatter.ofPattern("dd")
     private lateinit var binding: WeekCalendarFragmentBinding
 
-    lateinit var vm: CalendarViewModel
+    lateinit var vm: CalendarVM
 
 
     private lateinit var roundCalendarButton : ImageButton
@@ -50,7 +50,7 @@ class WeekCalendar : Fragment(R.layout.week_calendar_fragment){
 
         binding = WeekCalendarFragmentBinding.bind(view)
 
-        vm = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
+        vm = ViewModelProvider(requireActivity())[CalendarVM::class.java]
 
         vm.getSelectedDate().observe(viewLifecycleOwner){
             oldDate = selectedDate

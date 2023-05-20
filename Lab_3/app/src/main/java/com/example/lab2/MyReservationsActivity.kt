@@ -19,7 +19,6 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.navigateUp
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.lab2.calendar.CalendarViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.Reservation
 import dagger.hilt.android.AndroidEntryPoint

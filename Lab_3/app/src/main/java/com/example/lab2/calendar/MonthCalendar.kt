@@ -36,14 +36,14 @@ class MonthCalendar : Fragment(R.layout.month_calendar_fragment){
     private lateinit var selectedDate: LocalDate
     private val today = LocalDate.now()
 
-    lateinit var vm : CalendarViewModel
+    lateinit var vm : CalendarVM
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding = MonthCalendarFragmentBinding.bind(view)
 
-        vm = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
+        vm = ViewModelProvider(requireActivity())[CalendarVM::class.java]
 
         vm.getSelectedDate().observe(viewLifecycleOwner){
             selectedDate = it

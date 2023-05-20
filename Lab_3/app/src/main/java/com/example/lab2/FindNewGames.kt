@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.lab2.calendar.CalendarViewModel
+import com.example.lab2.calendar.NewMatchesVM
 import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
@@ -44,7 +44,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
     private lateinit var navController : NavController
 
 
-    lateinit var vm: CalendarViewModel
+    lateinit var vm: NewMatchesVM
 
 
     private lateinit var db: ReservationAppDatabase
@@ -76,7 +76,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         db = ReservationAppDatabase.getDatabase(requireContext())
         navController = findNavController()
 
-        vm = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
+        vm = ViewModelProvider(requireActivity())[NewMatchesVM::class.java]
 
         vm.refreshNewMatches()
 

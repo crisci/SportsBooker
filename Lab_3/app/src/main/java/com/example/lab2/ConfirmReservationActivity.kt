@@ -16,7 +16,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.lifecycle.MutableLiveData
 import com.example.lab2.calendar.BookingViewModel
-import com.example.lab2.calendar.CalendarViewModel
 import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
