@@ -12,6 +12,7 @@ import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationRepository
 import com.example.lab2.database.reservation.ReservationWithCourt
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
+import com.example.lab2.entities.Sport
 import com.example.lab2.entities.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -62,21 +63,21 @@ class MyReservationsVM @Inject constructor(
         return myReservations
     }
 
-    fun refreshMyReservations(date: LocalDate, time: LocalTime) {
+    fun refreshMyReservations(date: LocalDate, time: LocalTime, interests: List<Sport>) {
         viewModelScope.launch {
             myReservations.value =
                 playerRepository.loadReservationsByPlayerId(
                     1,
                     date
                 )
-            myReservations.value = filterMyReservationsBySportAndTimeslot(myReservations.value!!, time)
+            myReservations.value = filterMyReservationsBySportAndTimeslot(myReservations.value!!, time, interests)
         }
     }
 
-    private fun filterMyReservationsBySportAndTimeslot(allMyReservations: List<ReservationWithCourtAndEquipments>, time: LocalTime) : List<ReservationWithCourtAndEquipments> {
+    private fun filterMyReservationsBySportAndTimeslot(allMyReservations: List<ReservationWithCourtAndEquipments>, time: LocalTime, interests: List<Sport>) : List<ReservationWithCourtAndEquipments> {
         val sportFilter = getSportFilter().value
         if (sportFilter.isNullOrEmpty()) {
-            return allMyReservations.filter { it.reservation.time == time || it.reservation.time.isAfter(time) }
+            return allMyReservations.filter { r -> ( r.reservation.time == time || r.reservation.time.isAfter(time) ) && interests.any { it.toString().lowercase() == r.court.sport.lowercase() } }
         }
         return allMyReservations.filter { it.court.sport == sportFilter && (it.reservation.time == time || it.reservation.time.isAfter(time)) }
     }

@@ -1,5 +1,6 @@
 package com.example.lab2.calendar
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.lab2.entities.User
@@ -16,8 +17,8 @@ class UserViewModel @Inject constructor(): ViewModel() {
     }
 
 
-    fun getUser(): User {
-        return user.value!!
+    fun getUser(): LiveData<User> {
+        return user
     }
 
 }

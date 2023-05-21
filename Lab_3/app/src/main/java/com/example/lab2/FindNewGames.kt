@@ -47,6 +47,8 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
     lateinit var vm: NewMatchesVM
     lateinit var calendarVM: CalendarVM
+    @Inject
+    lateinit var userVM: UserViewModel
 
 
     private lateinit var db: ReservationAppDatabase
@@ -59,7 +61,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
     private fun processResponse(response: androidx.activity.result.ActivityResult) {
         if(response.resultCode == AppCompatActivity.RESULT_OK) {
             val data: Intent? = response.data
-            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
+            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
             requireActivity().setResult(Activity.RESULT_OK)
             requireActivity().finish()
         }
@@ -81,7 +83,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         vm = ViewModelProvider(requireActivity())[NewMatchesVM::class.java]
         calendarVM = ViewModelProvider(requireActivity())[CalendarVM::class.java]
 
-        vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
+        vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
 
 
         val adapterCard = AdapterNewGames(emptyMap(), this)
@@ -96,9 +98,9 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
         noResults = view.findViewById(R.id.no_results)
 
-        //vm.user.observe(viewLifecycleOwner) {
-        //    adapterCardFilters.setFilters(listOf(null).plus(vm.getUser().interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
-        //}
+        userVM.getUser().observe(viewLifecycleOwner) {
+            adapterCardFilters.setFilters(listOf(null).plus(userVM.getUser().value!!.interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
+        }
 
         vm.getMapNewMatches().observe(requireActivity()){
             showOrHideNoResultImage()
@@ -106,20 +108,20 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         }
 
         calendarVM.getSelectedDate().observe(viewLifecycleOwner) {
-            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
+            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
         }
 
         vm.getSportFilter().observe(viewLifecycleOwner) {
-            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
+            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
         }
 
         calendarVM.getSelectedTime().observe(viewLifecycleOwner) {
-            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
+            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
         }
 
         val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
         swipeRefreshLayout.setOnRefreshListener {
-            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
+            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
             swipeRefreshLayout.isRefreshing = false
         }
 

@@ -2,6 +2,7 @@ package com.example.lab2
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -30,6 +31,7 @@ import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
+import com.example.lab2.entities.User
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -49,6 +51,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
     private lateinit var navController : NavController
 
+    @Inject
+    lateinit var userVM: UserViewModel
     lateinit var vm: MyReservationsVM
     lateinit var calendarVM: CalendarVM
     lateinit var ratingModalVM: RatingModalVM
@@ -59,6 +63,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
     private lateinit var noResults: ConstraintLayout
     private lateinit var findNewGamesButton: Button
+
+
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
@@ -139,7 +145,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         calendarVM = ViewModelProvider(requireActivity())[CalendarVM::class.java]
         ratingModalVM = ViewModelProvider(requireActivity())[RatingModalVM::class.java]
 
-        vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
+        vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
         ratingModalVM.checkIfPlayerHasAlreadyReviewed(playerId)
 
         ratingModalVM.getCourtToReview().observe(viewLifecycleOwner) {
@@ -155,9 +161,10 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         listReservationsRecyclerView.adapter = adapterCard
         listReservationsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
+        //TODO: Initialize with user interests
         adapterCardFilters = AdapterFilterReservation(
             listOf(null)
-                .plus(vm.getUser().interests
+                .plus(userVM.getUser().value!!.interests
                 .map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }),
             vm::setSportFilter
         )
@@ -167,10 +174,10 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         noResults = view.findViewById(R.id.no_results)
 
-        vm.user.observe(viewLifecycleOwner) {
+        userVM.getUser().observe(viewLifecycleOwner) {
             adapterCardFilters.setFilters(
                 listOf(null)
-                    .plus(vm.getUser().interests
+                    .plus(userVM.getUser().value!!.interests
                         .map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
         }
 
@@ -181,7 +188,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         calendarVM.getSelectedDate().observe(requireActivity()) {
             Log.d("dateInsideObserve",it.toString())
-            vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
+            vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
         }
 
         vm.getSportFilter().observe(viewLifecycleOwner) {
@@ -190,11 +197,11 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
                 adapterCardFilters.selectedPosition = 0
                 adapterCardFilters.notifyDataSetChanged()
             }
-            vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
+            vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
         }
 
         calendarVM.getSelectedTime().observe(viewLifecycleOwner) {
-            vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
+            vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
         }
 
 
@@ -206,7 +213,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
         swipeRefreshLayout.setOnRefreshListener {
-            vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
+            vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
             swipeRefreshLayout.isRefreshing = false
         }
 

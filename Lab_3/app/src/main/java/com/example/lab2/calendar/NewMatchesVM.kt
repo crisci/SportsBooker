@@ -11,6 +11,7 @@ import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationRepository
 import com.example.lab2.database.reservation.ReservationWithCourt
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
+import com.example.lab2.entities.Sport
 import com.example.lab2.entities.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -21,8 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewMatchesVM @Inject constructor(
-    private val reservationRepository: ReservationRepository,
-    private val calendarVM: CalendarVM
+    private val reservationRepository: ReservationRepository
 ): ViewModel() {
 
     private var sportFilter = MutableLiveData<String?>(null)
@@ -43,24 +43,22 @@ class NewMatchesVM @Inject constructor(
         return mapNewMatches
     }
 
-    fun refreshNewMatches(date: LocalDate, time: LocalTime) {
+    fun refreshNewMatches(date: LocalDate, time: LocalTime, interests: List<Sport>) {
         var tmpList: List<ReservationWithCourt>
         viewModelScope.launch {
-            if (sportFilter.value != null) {
-                Log.d("calendarDate",calendarVM.getSelectedDate().value!!.toString())
-                tmpList = reservationRepository.getAvailableReservationsByDateAndSport(
+            tmpList = if (sportFilter.value != null) {
+                reservationRepository.getAvailableReservationsByDateAndSport(
                     date,
                     time,
                     sportFilter.value!!,
                     1
                 )
-            }
-            else {
-                tmpList = reservationRepository.getAvailableReservationsByDate(
+            } else {
+                reservationRepository.getAvailableReservationsByDate(
                     date,
                     time,
                     1
-                )
+                ).filter { r -> interests.any { it.toString().lowercase() == r.court.sport.lowercase() } }
             }
             mapNewMatches.value = tmpList
                 .groupBy({ it.court }, { it.reservation })
