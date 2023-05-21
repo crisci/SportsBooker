@@ -47,6 +47,14 @@ public class SkillAdapter(private val context: Context, private val badges: Map<
                 skillImage.setImageResource(R.drawable.badge_team)
                 skillText.text = "Team Work"
             }
+            BadgeType.STRATEGY -> {
+                skillImage.setImageResource(R.drawable.badge_strategy)
+                skillText.text = "Strategy"
+            }
+            BadgeType.ENDURANCE -> {
+                skillImage.setImageResource(R.drawable.badge_endurance)
+                skillText.text = "Endurance"
+            }
         }
         skillRating.rating = getItem(i).value.toFloat()
 

@@ -21,7 +21,9 @@ data class User(
     var badges: Map<BadgeType, Int> = mapOf(
         BadgeType.SPEED to 2,
         BadgeType.PRECISION to 3,
-        BadgeType.TEAM_WORK to 1
+        BadgeType.TEAM_WORK to 1,
+        BadgeType.STRATEGY to 2,
+        BadgeType.ENDURANCE to 0,
     ),
     var interests : MutableList<Sport> = mutableListOf(Sport.TENNIS, Sport.SOCCER, Sport.GOLF),
     var statistics : MutableMap<Sport, Statistic> = mutableMapOf(

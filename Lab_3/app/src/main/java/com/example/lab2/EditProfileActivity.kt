@@ -27,12 +27,19 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.cunoraz.tagview.*
+import com.example.lab2.calendar.setTextColorRes
+import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
+import com.example.lab2.database.reservation.formatPrice
 import com.example.lab2.entities.*
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.*
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -53,6 +60,7 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var address_m: EditText
     private lateinit var email_m: EditText
     private lateinit var birthday_m: EditText
+    private lateinit var skills_m: MutableMap<BadgeType, Int>
     private lateinit var tagGroup: TagView
     private lateinit var confirmButton: Button
     private lateinit var backButton: ImageButton
@@ -86,6 +94,12 @@ class EditProfileActivity : AppCompatActivity() {
 
         initDatePicker()
         updateContent()
+
+        val adapterCard = EditSkillsAdapter(skills_m)
+        val listReservationsRecyclerView = findViewById<RecyclerView>(R.id.edit_your_skills_recycler_view)
+        listReservationsRecyclerView.adapter = adapterCard
+        listReservationsRecyclerView.layoutManager = LinearLayoutManager(this)
+
 
         var valid = true
 
@@ -238,6 +252,7 @@ class EditProfileActivity : AppCompatActivity() {
         address_m.setText(savedInstanceState.getString("address"))
         email_m.setText(savedInstanceState.getString("email"))
         birthday_m.setText(savedInstanceState.getString("birthday"))
+        skills_m = Gson().fromJson(savedInstanceState.getString("skills"), MutableMap::class.java) as MutableMap<BadgeType, Int>
 
         // Open and load the photo
         file_name = savedInstanceState.getString("image")
@@ -266,6 +281,10 @@ class EditProfileActivity : AppCompatActivity() {
         val jsonInterests = gsonInterests.toJson(user.interests)
         outState.putString("interests", jsonInterests)
 
+        val gsonSkills = Gson()
+        val jsonSkills = gsonSkills.toJson(skills_m)
+        outState.putString("skills", jsonSkills)
+
         val gsonStatistics = Gson()
         val jsonStatistics = gsonStatistics.toJson(user.statistics)
         outState.putString("statistics", jsonStatistics)
@@ -279,6 +298,7 @@ class EditProfileActivity : AppCompatActivity() {
         description_m.setText(user.description)
         address_m.setText(user.address)
         email_m.setText(user.email)
+        skills_m = user.badges as MutableMap<BadgeType, Int>
 
         if (user.image == null) {
             profileImage.setBackgroundResource(R.drawable.profile_picture)
@@ -450,6 +470,10 @@ class EditProfileActivity : AppCompatActivity() {
         val jsonInterests = gsonInterests.toJson(user.interests)
         editor.putString("interests", jsonInterests)
 
+        val gsonSkills = Gson()
+        val jsonSkills = gsonSkills.toJson(skills_m)
+        editor.putString("skills", jsonInterests)
+
         val gsonStatistics = Gson()
         val jsonStatistics = gsonStatistics.toJson(user.statistics)
         editor.putString("statistics", jsonStatistics)
@@ -465,7 +489,8 @@ class EditProfileActivity : AppCompatActivity() {
             image = file_name,
             birthday = user.birthday,
             interests = user.interests,
-            statistics = user.statistics
+            statistics = user.statistics,
+            badges = skills_m
         )
         result.putExtra("user", editedUser.toJson())
         setResult(Activity.RESULT_OK, result)
@@ -497,4 +522,56 @@ class EditProfileActivity : AppCompatActivity() {
             datePickerDialog.show()
         }
     }
+}
+
+class EditSkillViewHolder(v: View): RecyclerView.ViewHolder(v) {
+    val skillImage: ImageView = v.findViewById(R.id.edit_skill_image)
+    val skillName: TextView = v.findViewById(R.id.edit_skill_label)
+    val skillRating: RatingBar = v.findViewById(R.id.edit_skill_rating)
+}
+
+class EditSkillsAdapter(private var list: MutableMap<BadgeType, Int>): RecyclerView.Adapter<EditSkillViewHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EditSkillViewHolder {
+        val v = LayoutInflater.from(parent.context)
+            .inflate(R.layout.edit_skill_card, parent, false)
+        return EditSkillViewHolder(v)
+    }
+
+    override fun getItemCount(): Int {
+        return list.size
+    }
+
+    override fun onBindViewHolder(holder: EditSkillViewHolder, position: Int) {
+
+        val key = list.toList()[position].first
+
+        when (key) {
+            BadgeType.SPEED -> {
+                holder.skillImage.setImageResource(R.drawable.badge_speed)
+                 holder.skillName.text = "Speed"
+            }
+            BadgeType.PRECISION -> {
+                holder.skillImage.setImageResource(R.drawable.badge_precision)
+                holder.skillName.text = "Precision"
+            }
+            BadgeType.TEAM_WORK -> {
+                holder.skillImage.setImageResource(R.drawable.badge_team)
+                holder.skillName.text = "Team Work"
+            }
+            BadgeType.STRATEGY -> {
+                holder.skillImage.setImageResource(R.drawable.badge_strategy)
+                holder.skillName.text = "Strategy"
+            }
+            BadgeType.ENDURANCE -> {
+                holder.skillImage.setImageResource(R.drawable.badge_endurance)
+                holder.skillName.text = "Endurance"
+            }
+        }
+        holder.skillRating.stepSize = 1f
+        holder.skillRating.rating = list[key]!!.toFloat()
+
+        holder.skillRating.setOnRatingBarChangeListener {_, value, _ ->  list[key] = value.toInt() }
+    }
+
 }

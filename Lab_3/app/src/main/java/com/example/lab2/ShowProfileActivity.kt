@@ -22,6 +22,7 @@ import androidx.appcompat.app.ActionBar
 import androidx.lifecycle.lifecycleScope
 import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.database.ReservationAppDatabase
+import com.example.lab2.entities.BadgeType
 import com.example.lab2.entities.User
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -186,7 +187,8 @@ class ShowProfileActivity : AppCompatActivity() {
         interestsLayout.removeAllViews()
         statisticsLayout.removeAllViews()
 
-        val badges = user.badges.map {  BadgeView(this, badge = it) }
+        // Show only 3 small badges, that's why "drop 2"
+        val badges = user.badges.toList().dropLast(2).toMap<BadgeType, Int>().map {  BadgeView(this, badge = it) }
         badges.forEach { badgesLayout.addView(it) }
 
         val interests = user.interests.map {  InterestView(this, sport = it) }

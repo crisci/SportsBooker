@@ -16,6 +16,7 @@ class BadgeView(
     private val badgeImage: ImageView
 
     init {
+
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = inflater.inflate(
             R.layout.badge_layout, this, true)
@@ -25,6 +26,8 @@ class BadgeView(
             BadgeType.SPEED ->  badgeImage.setImageResource(R.drawable.badge_speed)
             BadgeType.PRECISION ->  badgeImage.setImageResource( R.drawable.badge_precision)
             BadgeType.TEAM_WORK ->  badgeImage.setImageResource(R.drawable.badge_team)
+            BadgeType.STRATEGY ->  badgeImage.setImageResource(R.drawable.badge_speed) // TODO change
+            BadgeType.ENDURANCE -> badgeImage.setImageResource(R.drawable.badge_precision) // TODO change
         }
     }
 

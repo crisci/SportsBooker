@@ -3,6 +3,7 @@
     <string name="nameSurname">Achille Mago</string>
     <string name="statistics">Statistics</string>
     <string name="your_interests">Your interests</string>
+    <string name="your_skills">Set your skills</string>
     <string name="descriptionValue">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam ullamcorper lorem nec orci condimentum...</string>
     <string name="age">24yo</string>
     <string name="mastery">Skills</string>
