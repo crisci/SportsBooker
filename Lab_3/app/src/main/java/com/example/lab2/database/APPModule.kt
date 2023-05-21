@@ -60,5 +60,4 @@ object APPModule {
         return appDB.courtReviewDao()
     }
 
-
 }
