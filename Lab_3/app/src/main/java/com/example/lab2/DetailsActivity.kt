@@ -17,9 +17,11 @@ import androidx.appcompat.app.ActionBar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.marginTop
 import androidx.core.view.setPadding
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.lab2.calendar.MyReservationsVM
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.entities.Equipment
@@ -30,9 +32,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class DetailsActivity : AppCompatActivity() {
+
+
+    lateinit var reservationVM: MyReservationsVM
 
     private lateinit var backButton: ImageView
 
@@ -48,6 +54,8 @@ class DetailsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_details)
+
+        reservationVM = ViewModelProvider(this)[MyReservationsVM::class.java]
 
         db = ReservationAppDatabase.getDatabase(this)
         sport = findViewById(R.id.sport_name_detail_reservation)
@@ -74,7 +82,7 @@ class DetailsActivity : AppCompatActivity() {
         val reservationId = intent.getIntExtra("reservationId", 0)
 
         CoroutineScope(Dispatchers.IO).launch {
-            val reservation = db.reservationDao().loadReservationsByReservationId(reservationId)
+            val reservation = reservationVM.getReservationDetails(reservationId)
             MainScope().launch {
                 updateView(reservation)
             }

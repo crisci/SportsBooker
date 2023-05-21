@@ -83,5 +83,10 @@ class MyReservationsVM @Inject constructor(
         return allMyReservations.filter { it.court.sport == sportFilter && (it.reservation.time == time || it.reservation.time.isAfter(time)) }
     }
 
+    suspend fun getReservationDetails(reservationId: Int): ReservationWithCourtAndEquipments {
+        return reservationRepository.getReservationDetails(reservationId)
+
+    }
+
 
 }
