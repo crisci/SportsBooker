@@ -7,6 +7,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.court.CourtDAO
+import com.example.lab2.database.court_review.CourtReview
+import com.example.lab2.database.court_review.CourtReviewDAO
 import com.example.lab2.database.player.Player
 import com.example.lab2.database.player.PlayerDAO
 import com.example.lab2.database.player_badge_rating.PlayerBadgeRating
@@ -21,7 +23,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-@Database(entities = [Player::class, Reservation::class, Court::class, PlayerBadgeRating::class, PlayerReservation::class], version = 1, exportSchema = false)
+@Database(entities = [Player::class, Reservation::class, Court::class, PlayerBadgeRating::class, PlayerReservation::class, CourtReview::class], version = 1, exportSchema = false)
 @TypeConverters(EquipmentConverter::class, DateConverter::class, TimeConverter::class)
 abstract class ReservationAppDatabase : RoomDatabase() {
     abstract fun playerDao() : PlayerDAO
@@ -29,6 +31,8 @@ abstract class ReservationAppDatabase : RoomDatabase() {
     abstract fun courtDao() : CourtDAO
     abstract fun playerBadgeRatingDAO() : PlayerBadgeRatingDAO
     abstract fun playerReservationDAO() : PlayerReservationDAO
+
+    abstract fun courtReviewDao() : CourtReviewDAO
 
 
     companion object {

@@ -26,4 +26,8 @@
     <style name="MonthLightTextAppearance">
         <item name="android:fontFamily">@font/montserrat_regular</item>
     </style>
+
+    <style name="RoundedDialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowBackground">@drawable/dialog_background_rounded</item>
+    </style>
 </resources>
