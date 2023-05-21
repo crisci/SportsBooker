@@ -5,7 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lab2.database.player_reservation_join.PlayerReservationRepository
+import com.example.lab2.database.reservation.ReservationRepository
 import com.example.lab2.database.reservation.ReservationTimeslot
+import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
+import com.example.lab2.entities.Equipment
 import com.example.lab2.entities.Sport
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -16,31 +19,68 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EditReservationViewModel @Inject constructor(
-   private val playerReservationRepository: PlayerReservationRepository
+   private val playerReservationRepository: PlayerReservationRepository,
+   private val reservationRepository: ReservationRepository
 ) : ViewModel() {
 
-    private var listReservationTimeslot = MutableLiveData<List<ReservationTimeslot>>(
+    private var availableTimeslots = MutableLiveData<MutableList<ReservationTimeslot>>(
         mutableListOf()
     )
-
-    fun getListReservationTimeslot() : LiveData<List<ReservationTimeslot>> {
-        return listReservationTimeslot
+    fun getAvailableTimeslot() : LiveData<MutableList<ReservationTimeslot>> {
+        return availableTimeslots
     }
 
-    fun getReservationTimeslot(date: LocalDate, playerId: Int, reservationId: Int, sport: String, existingTimeslot: LocalTime) {
+    private var currentReservation = MutableLiveData<ReservationWithCourtAndEquipments>()
+    fun getCurrentReservation() : LiveData<ReservationWithCourtAndEquipments> {
+        return currentReservation
+    }
+    fun setCurrentReservation(reservation: ReservationWithCourtAndEquipments) {
+        currentReservation.value = reservation
+    }
+
+    private var newReservation = MutableLiveData<ReservationTimeslot>()
+    fun getSelectedReservation() : LiveData<ReservationTimeslot> {
+        return newReservation
+    }
+    fun setNewReservation(reservation: ReservationTimeslot) {
+        newReservation.value = reservation
+    }
+
+    fun fetchAvailableReservations(
+        date: LocalDate,
+        playerId: Int,
+        reservationId: Int,
+        sport: String,
+        existingTimeslot: LocalTime
+    ) {
         viewModelScope.launch {
+            val otherReservations =
+                playerReservationRepository.getPlayerAvailableReservationsByDate(date, playerId, sport)
 
-           var list = playerReservationRepository.getPlayerAvailableReservationsByDate(
-               date, playerId, sport)
+            // Include the timeslot that is already reserved and add it as the first element of the list
+            val existingReservationTime = ReservationTimeslot(reservationId, existingTimeslot)
+            val availableReservations = mutableListOf(existingReservationTime)
+            availableReservations.addAll(otherReservations)
 
-           var firstTimeslot : MutableList<ReservationTimeslot> = mutableListOf(ReservationTimeslot(reservationId,existingTimeslot))
-           listReservationTimeslot.value = listReservationTimeslot.value!!.plus(firstTimeslot as MutableList<ReservationTimeslot>).sortedBy { it.time } as MutableList<ReservationTimeslot>
+            availableTimeslots.value = availableReservations.sortedBy { it.time }.toMutableList()
         }
     }
 
-
-    fun addList (list: List<ReservationTimeslot>) {
-        listReservationTimeslot.value?.plus(list)
+    fun updateReservation(playerId: Int, newReservationId: Int, newFinalPrice: Double, newEquipments: List<Equipment>) {
+        val oldReservationId = currentReservation.value!!.reservation.reservationId
+        viewModelScope.launch {
+            playerReservationRepository
+                .updateReservation(
+                    playerId,
+                    oldReservationId,
+                    newReservationId,
+                    newEquipments,
+                    newFinalPrice
+                )
+            reservationRepository
+                .updateNumOfPlayers(oldReservationId)
+            reservationRepository
+                .updateNumOfPlayers(newReservationId)
+        }
     }
-
 }

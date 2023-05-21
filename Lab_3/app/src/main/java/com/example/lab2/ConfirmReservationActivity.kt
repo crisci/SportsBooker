@@ -15,7 +15,9 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.calendar.BookingViewModel
+import com.example.lab2.calendar.EquipmentsVM
 import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
@@ -47,8 +49,9 @@ class ConfirmReservationActivity : AppCompatActivity() {
     private lateinit var priceText: TextView
     private lateinit var backButton: ImageView
     private lateinit var checkboxContainer : LinearLayout
-    @Inject
-    lateinit var bookingViewModel: BookingViewModel
+
+
+    lateinit var equipmentsVM: EquipmentsVM
     @Inject
     lateinit var vm: UserViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +59,9 @@ class ConfirmReservationActivity : AppCompatActivity() {
         setContentView(R.layout.activity_confirm_booking)
 
         db = ReservationAppDatabase.getDatabase(this)
+
+        equipmentsVM = ViewModelProvider(this)[EquipmentsVM::class.java]
+
         sport_name = findViewById(R.id.sport_name_confirm_reservation)
         court_name_confirm_reservation = findViewById(R.id.court_name_confirm_reservation)
         location_confirm_reservation = findViewById(R.id.location_confirm_reservation)
@@ -127,7 +133,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
                 // TODO: Check also the if the player has already booked match in the same timeslot
                 if(reservation.numOfPlayers < court.maxNumOfPlayers) {
                     try {
-                        db.playerReservationDAO().confirmReservation(1, reservation.reservationId, listEquipments, bookingViewModel.personalPrice.value!!)
+                        db.playerReservationDAO().confirmReservation(1, reservation.reservationId, listEquipments, equipmentsVM.getPersonalPrice().value!!)
                         db.reservationDao().updateNumOfPlayers(reservation.reservationId)
                         setResult(Activity.RESULT_OK)
                         finish()
@@ -143,26 +149,26 @@ class ConfirmReservationActivity : AppCompatActivity() {
 
     private fun setupCheckboxes(startingPrice: Double) {
 
-        bookingViewModel.setPersonalPrice(startingPrice)
+        equipmentsVM.setPersonalPrice(startingPrice)
 
-        val equipments = bookingViewModel.getListEquipments(court.sport)
+        val equipments = equipmentsVM.getListEquipments(court.sport)
 
         for (e in equipments) {
             val checkbox = CheckBox(this)
             checkbox.text = "${e.name} - €${e.price}"
             checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
                 if(isChecked) {
-                    bookingViewModel.setPersonalPrice(bookingViewModel.personalPrice.value?.plus(e.price)!!)
+                    equipmentsVM.setPersonalPrice(equipmentsVM.getPersonalPrice().value?.plus(e.price)!!)
                 }
                 else {
-                    bookingViewModel.setPersonalPrice(bookingViewModel.personalPrice.value?.minus(e.price)!!)
+                    equipmentsVM.setPersonalPrice(equipmentsVM.getPersonalPrice().value?.minus(e.price)!!)
                 }
             }
             checkboxContainer.addView(checkbox)
         }
 
-        bookingViewModel.personalPrice.observe(this) {
-            priceText.text = "You will pay €${String.format("%.02f", bookingViewModel.personalPrice.value)} locally."
+        equipmentsVM.getPersonalPrice().observe(this) {
+            priceText.text = "You will pay €${String.format("%.02f", equipmentsVM.getPersonalPrice().value)} locally."
         }
     }
 }

@@ -68,6 +68,7 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/my_reservation_filter"
+                android:layout_marginTop="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="45dp" />
 
@@ -91,6 +92,41 @@
             app:layout_constraintStart_toStartOf="parent"
             android:gravity="center"
             android:background="@drawable/gradient_white_to_transparent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/leave_rating_banner"
+                android:visibility="invisible"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:elevation="20dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/example_1_bg"
+                app:layout_constraintBottom_toTopOf="@id/find_new_games_button">
+
+                <ImageView
+                    android:id="@+id/imageView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/baseline_star_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/leave_rating_tv"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/leave_rating_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/montserrat_semibold"
+                    android:paddingVertical="7dp"
+                    android:text="@string/leave_a_rating"
+                    android:textColor="@color/white"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/imageView4"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <Button
                 android:id="@+id/find_new_games_button"

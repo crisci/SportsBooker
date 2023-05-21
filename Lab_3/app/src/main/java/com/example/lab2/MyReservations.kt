@@ -33,6 +33,7 @@ import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
 import com.example.lab2.entities.User
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
@@ -66,6 +67,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
     private lateinit var noResults: ConstraintLayout
     private lateinit var findNewGamesButton: Button
+
+    private lateinit var appPreferences: AppPreferences
 
 
 
@@ -138,8 +141,18 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
                     2,
                     0,
                     9.0,
-                    LocalDate.now().plusDays(1),
+                    LocalDate.now(),
                     LocalTime.of(22, 0)
+                )
+            )
+            db.reservationDao().saveReservation(
+                Reservation(
+                    6,
+                    2,
+                    0,
+                    9.0,
+                    LocalDate.now(),
+                    LocalTime.of(23, 0)
                 )
             )
             /* Prev day reservation to show court rating popup
@@ -158,14 +171,27 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests)
 
+
+        appPreferences = AppPreferences(requireContext())
+
         CoroutineScope(Dispatchers.IO).launch {
-            delay(2000) // Delay for 3 seconds
-            ratingModalVM.checkIfPlayerHasAlreadyReviewed(playerId)
+            // Check if the rating dialog should be shown
+            if (appPreferences.shouldShowRatingDialog) {
+                // Show the rating dialog
+                delay(5000) // Delay for 5 seconds
+                ratingModalVM.checkIfPlayerHasAlreadyReviewed(playerId)
+            }
         }
 
         ratingModalVM.getCourtToReview().observe(viewLifecycleOwner) {
             val modalBottomSheet = RatingModalBottomSheet()
             modalBottomSheet.show(childFragmentManager, RatingModalBottomSheet.TAG)
+            val leaveRatingBanner = view.findViewById<ConstraintLayout>(R.id.leave_rating_banner)
+            leaveRatingBanner.visibility = View.VISIBLE
+            leaveRatingBanner.setOnClickListener {
+                modalBottomSheet.show(childFragmentManager, RatingModalBottomSheet.TAG)
+            }
+
         }
 
         navController = findNavController()

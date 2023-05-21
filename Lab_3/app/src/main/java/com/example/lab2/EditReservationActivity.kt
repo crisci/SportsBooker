@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.calendar.BookingViewModel
 import com.example.lab2.calendar.EditReservationViewModel
+import com.example.lab2.calendar.EquipmentsVM
 import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
@@ -47,12 +48,11 @@ import kotlin.concurrent.thread
 class EditReservationActivity : AppCompatActivity() {
 
     private lateinit var res : Reservation
-    private lateinit var reservation: ReservationWithCourtAndEquipments
+    private lateinit var oldReservation: ReservationWithCourtAndEquipments
     private lateinit var court_name_edit_reservation: TextView
     private lateinit var location_edit_reservation: TextView
     private lateinit var cancelButton: Button
     private lateinit var saveButton: Button
-    //private lateinit var db: ReservationAppDatabase
     private lateinit var backButton: ImageView
     private lateinit var priceText: TextView
     private lateinit var sport_name: TextView
@@ -62,10 +62,9 @@ class EditReservationActivity : AppCompatActivity() {
     var time: String? = ""
     private var noTimeslotSelected = false
 
-    private lateinit var equipments: MutableList<Equipment>
     private lateinit var listReservationTimeslot: MutableList<ReservationTimeslot>
 
-    lateinit var bookingVM: BookingViewModel
+    lateinit var equipmentsVM: EquipmentsVM
     lateinit var editReservationVM: EditReservationViewModel
 
     private val launcher = registerForActivityResult(
@@ -87,7 +86,7 @@ class EditReservationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_reservation)
 
-        bookingVM = ViewModelProvider(this)[BookingViewModel::class.java]
+        equipmentsVM = ViewModelProvider(this)[EquipmentsVM::class.java]
         editReservationVM = ViewModelProvider(this)[EditReservationViewModel::class.java]
 
         //db = ReservationAppDatabase.getDatabase(this)
@@ -100,14 +99,14 @@ class EditReservationActivity : AppCompatActivity() {
         cancelButton = findViewById(R.id.cancel_button_edit_reservation)
         cancelButton.setOnClickListener {
             val intent = Intent(this, CancelReservationActivity::class.java).apply {
-                putExtra("reservationId", reservation.reservation.reservationId)
-                putExtra("date", reservation.reservation.date.toString())
-                putExtra("time", reservation.reservation.time.toString())
-                putExtra("price", reservation.reservation.price)
-                putExtra("numOfPlayers", reservation.reservation.numOfPlayers)
-                putExtra("courtId", reservation.court.courtId)
-                putExtra("courtName", reservation.court.name)
-                putExtra("sport", reservation.court.sport)
+                putExtra("reservationId", editReservationVM.getCurrentReservation().value!!.reservation.reservationId)
+                putExtra("date", editReservationVM.getCurrentReservation().value!!.reservation.date.toString())
+                putExtra("time", editReservationVM.getCurrentReservation().value!!.reservation.time.toString())
+                putExtra("price", editReservationVM.getCurrentReservation().value!!.reservation.price)
+                putExtra("numOfPlayers", editReservationVM.getCurrentReservation().value!!.reservation.numOfPlayers)
+                putExtra("courtId", editReservationVM.getCurrentReservation().value!!.court.courtId)
+                putExtra("courtName", editReservationVM.getCurrentReservation().value!!.court.name)
+                putExtra("sport", editReservationVM.getCurrentReservation().value!!.court.sport)
             }
             launcher.launch(intent)
         }
@@ -125,80 +124,87 @@ class EditReservationActivity : AppCompatActivity() {
         val finalPrice = intent.getDoubleExtra("finalPrice", 0.0)
 
         val listType = object : TypeToken<MutableList<Equipment>>() {}.type
-        equipments = Gson().fromJson(equipmentsString, listType)
+        val equipments: MutableList<Equipment> = Gson().fromJson(equipmentsString, listType)
+        equipmentsVM.setEquipments(equipments)
 
+        sport_name.text = sport
+        court_name_edit_reservation.text = courtName
+        location_edit_reservation.text = "Via Giovanni Magni, 32"
 
-        editReservationVM.getReservationTimeslot(LocalDate.parse(date, DateTimeFormatter.ISO_DATE), 1, reservationId, sport!!, LocalTime.parse(time))
-        //listReservationTimeslot = listReservationTimeslot.plus(list).sortedBy { it.time } as MutableList<ReservationTimeslot>
+        // Fetch from the db the other reservations for the same court
+        editReservationVM.fetchAvailableReservations(
+            LocalDate.parse(date, DateTimeFormatter.ISO_DATE),
+            1,
+            reservationId,
+            sport!!,
+            LocalTime.parse(time)
+        )
 
-        res = Reservation(reservationId,courtId,numOfPlayers,price,LocalDate.parse(date, DateTimeFormatter.ISO_DATE), LocalTime.parse(time))
-        reservation = ReservationWithCourtAndEquipments(res, Court(courtId, courtName!!, sport!!, 0),equipments,finalPrice)
-        updateContent()
+        editReservationVM.setCurrentReservation(
+            ReservationWithCourtAndEquipments(
+                Reservation(reservationId,courtId,numOfPlayers,price,LocalDate.parse(date, DateTimeFormatter.ISO_DATE), LocalTime.parse(time)),
+                Court(courtId, courtName!!, sport!!, 0),
+                equipments,
+                finalPrice
+            )
+        )
+
+        editReservationVM.getAvailableTimeslot().observe(this) {
+            updateContent()
+        }
 
         supportActionBar?.elevation = 0f
-
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
         supportActionBar?.setCustomView(R.layout.toolbar)
         val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
         titleTextView?.text = "Edit Reservations"
+
 
         backButton = supportActionBar?.customView?.findViewById<ImageView>(R.id.custom_back_icon)!!
         backButton.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        saveButton.setOnClickListener {
 
+        saveButton.setOnClickListener {
             if (noTimeslotSelected) {
                 Toast.makeText(applicationContext, "Please, select a timeslot", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            
-            editReservationVM
-
-            CoroutineScope(Dispatchers.IO).launch {
-                try{
-
-                    val newReservationId = listReservationTimeslot.find { it.time.format(
-                        DateTimeFormatter.ofPattern("HH:mm")).toString()  == selectedText }?.reservationId ?: reservationId
-
-                
-                    db.playerReservationDAO().updateReservation(
-                        playerId = playerId,
-                        reservationId = reservationId,
-                        newReservationId = newReservationId,
-                        newEquipments = equipments,
-                        newFinalPrice = bookingVM.personalPrice.value!!)
-
-                    db.reservationDao().updateNumOfPlayers(reservationId)
-                    db.reservationDao().updateNumOfPlayers(newReservationId)
-                    setResult(Activity.RESULT_OK)
-                    finish()
-                }catch(err: Exception) {
-                    when(err) {
-                        is SQLiteConstraintException -> withContext(Dispatchers.Main) {
-                            Toast.makeText(applicationContext, "This timeslot is already booked.", Toast.LENGTH_SHORT).show()
-                        }
-                        else -> withContext(Dispatchers.Main) {
-                            Toast.makeText(applicationContext, "Unable to update your reservation.", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            }
-
-
+            submitChanges()
         }
 
     }
 
+    private fun submitChanges() {
+        try{
+            val newReservationId = editReservationVM.getAvailableTimeslot().value!!
+                .find {
+                    it.time.format(DateTimeFormatter.ofPattern("HH:mm")).toString()  == selectedText
+                }?.reservationId ?: editReservationVM.getCurrentReservation().value!!.reservation.reservationId
+
+            editReservationVM.updateReservation(
+                playerId = 1,
+                newReservationId = newReservationId,
+                newFinalPrice = equipmentsVM.getPersonalPrice().value!!,
+                newEquipments = equipmentsVM.getEquipments().value!!,
+            )
+            setResult(Activity.RESULT_OK)
+            finish()
+        }catch(err: Exception) {
+            when(err) {
+                is SQLiteConstraintException ->
+                    Toast.makeText(applicationContext, "This timeslot is already booked.", Toast.LENGTH_SHORT).show()
+                else ->
+                    Toast.makeText(applicationContext, "Unable to update your reservation.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     private fun updateContent() {
-        sport_name.text = "${reservation.court.sport}"
-        court_name_edit_reservation.text = "${reservation.court.name}"
-        location_edit_reservation.text = "Via Giovanni Magni, 32"
 
-        setupCheckboxes(reservation.finalPrice)
-
-        for (r in listReservationTimeslot) {
+        setupCheckboxes(editReservationVM.getCurrentReservation().value!!.finalPrice)
+        for (r in editReservationVM.getAvailableTimeslot().value!!) {
             val chip = Chip(this)
             chip.isClickable = true
             chip.isCheckable = true
@@ -233,32 +239,34 @@ class EditReservationActivity : AppCompatActivity() {
 
         val checkboxContainer = findViewById<LinearLayout>(R.id.checkbox_container)
 
-        bookingVM.setPersonalPrice(startingPrice)
+        checkboxContainer.removeAllViews()
 
-        val listEquipments = bookingVM.getListEquipments(reservation.court.sport)
+        equipmentsVM.setPersonalPrice(startingPrice)
+
+        val listEquipments = equipmentsVM.getListEquipments(editReservationVM.getCurrentReservation().value!!.court.sport)
 
         for (e in listEquipments) {
             val checkbox = CheckBox(this)
             checkbox.text = "${e.name} - €${e.price}"
 
-            if(reservation.equipments.any { it.name == e.name })
+            if(editReservationVM.getCurrentReservation().value!!.equipments.any { it.name == e.name })
                 checkbox.isChecked = true
 
             checkbox.setOnCheckedChangeListener { _, isChecked ->
                 if(isChecked) {
-                    bookingVM.setPersonalPrice(bookingVM.personalPrice.value?.plus(e.price)!!)
-                    equipments.add(e)
+                    equipmentsVM.setPersonalPrice(equipmentsVM.getPersonalPrice().value?.plus(e.price)!!)
+                    equipmentsVM.addEquipment(e)
                 }
                 else {
-                    bookingVM.setPersonalPrice(bookingVM.personalPrice.value?.minus(e.price)!!)
-                    equipments.remove(e)
+                    equipmentsVM.setPersonalPrice(equipmentsVM.getPersonalPrice().value?.minus(e.price)!!)
+                    equipmentsVM.removeEquipment(e)
                 }
             }
             checkboxContainer.addView(checkbox)
         }
 
-        bookingVM.personalPrice.observe(this) {
-            priceText.text = "You will pay €${String.format("%.02f", bookingVM.personalPrice.value)} locally."
+        equipmentsVM.getPersonalPrice().observe(this) {
+            priceText.text = "You will pay €${String.format("%.02f", it)} locally."
         }
     }
 

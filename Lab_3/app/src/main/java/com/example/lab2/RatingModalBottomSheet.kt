@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
@@ -29,6 +30,8 @@ class RatingModalBottomSheet : BottomSheetDialogFragment() {
     private lateinit var textReview: TextInputEditText
     private lateinit var courtName: TextView
     private lateinit var courtImageView: ImageView
+
+    private lateinit var appPreferences: AppPreferences
 
 
     private fun submitReview() {
@@ -57,6 +60,15 @@ class RatingModalBottomSheet : BottomSheetDialogFragment() {
         playingSurfaceQualityRatingBar = view.findViewById(R.id.playingSurfaceQualityRatingBar)
         lightingRatingBar = view.findViewById(R.id.lightingRatingBar)
         textReview = view.findViewById(R.id.textReview)
+
+        appPreferences = AppPreferences(requireContext())
+
+        // Example "Don't show again" checkbox behavior
+        val dontShowAgainCheckbox: CheckBox = view.findViewById(R.id.checkbox_dont_show_again)
+        dontShowAgainCheckbox.setOnCheckedChangeListener { _, isChecked ->
+            // Update the preference when the checkbox state changes
+            appPreferences.shouldShowRatingDialog = !isChecked
+        }
 
         courtName = view.findViewById(R.id.courtName)
         courtName.text = "${ratingModalVM.getCourtToReview().value!!.name}"
