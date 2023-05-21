@@ -37,4 +37,7 @@
     <string name="no_results">You have no reservations</string>
     <string name="no_matches">There are no matches</string>
     <string name="join_match">Join a match</string>
+    <string name="cleanliness_court">Cleanliness of the court</string>
+    <string name="playing_surface_quality">Playing surface quality</string>
+    <string name="lighting_court">Lighting of the court</string>
 </resources>

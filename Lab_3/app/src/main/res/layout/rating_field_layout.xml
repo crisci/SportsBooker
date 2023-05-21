@@ -3,11 +3,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/CustomCardViewStyle"
+    style="@style/ThemeOverlay.App.BottomSheetDialog"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="0dp"
-    app:cardPreventCornerOverlap="false"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
@@ -71,18 +70,18 @@
 
         </androidx.cardview.widget.CardView>
 
-    <!-- Cleanliness Rating -->
-        <TextView
+        <!-- Cleanliness Rating -->
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cleanliness"
+        android:text="@string/cleanliness_court"
         android:fontFamily="@font/montserrat_regular"
         android:layout_gravity="center_horizontal"
         android:textSize="16sp"
         android:layout_marginBottom="3dp"/>
 
     <RatingBar
-        android:id="@+id/cleanlinessRatingBar"
+        android:id="@+id/cleanlinessCourtRatingBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -96,14 +95,14 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Maintenance"
+        android:text="@string/playing_surface_quality"
         android:fontFamily="@font/montserrat_regular"
         android:layout_gravity="center_horizontal"
         android:textSize="16sp"
         android:layout_marginBottom="3dp"/>
 
     <RatingBar
-        android:id="@+id/maintenanceRatingBar"
+        android:id="@+id/playingSurfaceQualityRatingBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -117,7 +116,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Lighting"
+        android:text="@string/lighting_court"
         android:fontFamily="@font/montserrat_regular"
         android:layout_gravity="center_horizontal"
         android:textSize="16sp"
@@ -129,91 +128,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:numStars="5"
-        android:stepSize="1"
-        android:rating="0"
-        android:scaleX="0.75"
-        android:scaleY="0.75"/>
-
-    <!-- Amenities Rating -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Amenities"
-        android:fontFamily="@font/montserrat_regular"
-        android:layout_gravity="center_horizontal"
-        android:textSize="16sp"
-        android:layout_marginBottom="3dp"/>
-
-    <RatingBar
-        android:id="@+id/amenitiesRatingBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:fontFamily="@font/montserrat_regular"
-        android:numStars="5"
-        android:stepSize="1"
-        android:rating="0"
-        android:scaleX="0.75"
-        android:scaleY="0.75"/>
-
-    <!-- Accessibility Rating -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Accessibility"
-        android:fontFamily="@font/montserrat_regular"
-        android:layout_gravity="center_horizontal"
-        android:textSize="16sp"
-        android:layout_marginBottom="3dp"/>
-
-    <RatingBar
-        android:id="@+id/accessibilityRatingBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:numStars="5"
-        android:stepSize="1"
-        android:rating="0"
-        android:scaleX="0.75"
-        android:scaleY="0.75"/>
-
-    <!-- Safety Rating -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Safety"
-        android:fontFamily="@font/montserrat_regular"
-        android:layout_gravity="center_horizontal"
-        android:textSize="16sp"
-        android:layout_marginBottom="3dp"/>
-
-    <RatingBar
-        android:id="@+id/safetyRatingBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:numStars="5"
-        android:stepSize="1"
-        android:rating="0"
-        android:scaleX="0.75"
-        android:scaleY="0.75"/>
-
-    <!-- Comfort Rating -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Comfort"
-        android:fontFamily="@font/montserrat_regular"
-        android:layout_gravity="center_horizontal"
-        android:textSize="16sp"
-        android:layout_marginBottom="3dp"/>
-
-    <RatingBar
-        android:id="@+id/comfortRatingBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:numStars="5"
-        android:layout_gravity="center_horizontal"
         android:stepSize="1"
         android:rating="0"
         android:scaleX="0.75"
@@ -262,7 +176,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
-
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

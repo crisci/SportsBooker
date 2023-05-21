@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
@@ -22,15 +23,12 @@ class RatingModalBottomSheet : BottomSheetDialogFragment() {
 
     lateinit var ratingModalVM: RatingModalVM
 
-    private lateinit var cleanlinessRating: RatingBar
-    private lateinit var maintenanceRating: RatingBar
-    private lateinit var lightingRating: RatingBar
-    private lateinit var amenitiesRating: RatingBar
-    private lateinit var accessibilityRating: RatingBar
-    private lateinit var safetyRating: RatingBar
-    private lateinit var comfortRating: RatingBar
+    private lateinit var cleanlinessCourtRatingBar: RatingBar
+    private lateinit var playingSurfaceQualityRatingBar: RatingBar
+    private lateinit var lightingRatingBar: RatingBar
     private lateinit var textReview: TextInputEditText
     private lateinit var courtName: TextView
+    private lateinit var courtImageView: ImageView
 
 
     private fun submitReview() {
@@ -38,13 +36,9 @@ class RatingModalBottomSheet : BottomSheetDialogFragment() {
             1,
             ratingModalVM.getCourtToReview().value!!.courtId,
             textReview.text.toString(),
-            cleanlinessRating.rating,
-            maintenanceRating.rating,
-            lightingRating.rating,
-            amenitiesRating.rating,
-            accessibilityRating.rating,
-            safetyRating.rating,
-            comfortRating.rating
+            cleanlinessCourtRatingBar.rating,
+            playingSurfaceQualityRatingBar.rating,
+            lightingRatingBar.rating
         )
         ratingModalVM.submitReview(courtReview)
     }
@@ -59,16 +53,15 @@ class RatingModalBottomSheet : BottomSheetDialogFragment() {
 
         ratingModalVM = ViewModelProvider(requireActivity())[RatingModalVM::class.java]
 
-        cleanlinessRating = view.findViewById(R.id.cleanlinessRatingBar)
-        maintenanceRating = view.findViewById(R.id.maintenanceRatingBar)
-        lightingRating = view.findViewById(R.id.lightingRatingBar)
-        amenitiesRating = view.findViewById(R.id.amenitiesRatingBar)
-        accessibilityRating = view.findViewById(R.id.accessibilityRatingBar)
-        safetyRating = view.findViewById(R.id.safetyRatingBar)
-        comfortRating = view.findViewById(R.id.comfortRatingBar)
+        cleanlinessCourtRatingBar = view.findViewById(R.id.cleanlinessCourtRatingBar)
+        playingSurfaceQualityRatingBar = view.findViewById(R.id.playingSurfaceQualityRatingBar)
+        lightingRatingBar = view.findViewById(R.id.lightingRatingBar)
         textReview = view.findViewById(R.id.textReview)
+
         courtName = view.findViewById(R.id.courtName)
         courtName.text = "${ratingModalVM.getCourtToReview().value!!.name}"
+        courtImageView = view.findViewById(R.id.courtImageView)
+        courtImageView.setImageBitmap(ratingModalVM.getCourtToReview().value!!.courtPhoto)
 
         val sendReviewButton = view.findViewById<Button>(R.id.send_review)
         sendReviewButton.setOnClickListener {

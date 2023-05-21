@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.example.lab2.BitmapConverter
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.court.CourtDAO
 import com.example.lab2.database.court_review.CourtReview
@@ -24,7 +25,7 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Database(entities = [Player::class, Reservation::class, Court::class, PlayerBadgeRating::class, PlayerReservation::class, CourtReview::class], version = 1, exportSchema = false)
-@TypeConverters(EquipmentConverter::class, DateConverter::class, TimeConverter::class)
+@TypeConverters(EquipmentConverter::class, DateConverter::class, TimeConverter::class, BitmapConverter::class)
 abstract class ReservationAppDatabase : RoomDatabase() {
     abstract fun playerDao() : PlayerDAO
     abstract fun reservationDao() : ReservationDAO
