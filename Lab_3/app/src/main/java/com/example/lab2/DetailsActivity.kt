@@ -3,6 +3,7 @@ package com.example.lab2
 import android.graphics.Picture
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
+import android.media.Image
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.TypedValue
@@ -104,19 +105,19 @@ class DetailsActivity : AppCompatActivity() {
     }
 
     private fun setupEquipments(equipmets: List<Equipment>) {
-       if(equipmets.isNotEmpty()) {
-           val equipmentDetails = findViewById<LinearLayout>(R.id.equipments_container_detail)
-           for(e in equipmets) {
-               val equipmentView = MaterialTextView(this)
-               equipmentView.text = e.name
-               equipmentView.textSize = 16f
-               equipmentView.setPadding(0,16, 0, 0)
-               equipmentDetails.addView(equipmentView)
-           }
-       } else {
-           yourEquipments.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
-           yourEquipments.text = "You don't have any equipment booked"
-       }
+        if(equipmets.isNotEmpty()) {
+            val equipmentDetails = findViewById<LinearLayout>(R.id.equipments_container_detail)
+            for(e in equipmets) {
+                val equipmentView = MaterialTextView(this)
+                equipmentView.text = e.name
+                equipmentView.textSize = 16f
+                equipmentView.setPadding(0,16, 0, 0)
+                equipmentDetails.addView(equipmentView)
+            }
+        } else {
+            yourEquipments.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
+            yourEquipments.text = "You don't have any equipment booked"
+        }
     }
 }
 

@@ -253,6 +253,32 @@
                     app:textPaddingTop="5dp" />
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
+
+                <TextView
+                    android:id="@+id/edit_skills_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/your_skills" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/edit_your_skills_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:paddingTop="10dp"
+                    android:nestedScrollingEnabled="false"
+                    android:paddingBottom="30dp"
+                    android:clipToPadding="false"
+                    />
+
+
+            </LinearLayout>
+
             <Button
                 android:id="@+id/confirm_button"
                 android:layout_width="match_parent"

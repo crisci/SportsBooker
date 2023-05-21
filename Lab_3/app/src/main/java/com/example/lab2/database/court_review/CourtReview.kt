@@ -29,8 +29,4 @@ data class CourtReview(
     val cleanlinessRating: Float,
     val maintenanceRating: Float,
     val lightingRating: Float,
-    val amenitiesRating: Float,
-    val accessibilityRating: Float,
-    val safetyRating: Float,
-    val comfortRating: Float,
 )

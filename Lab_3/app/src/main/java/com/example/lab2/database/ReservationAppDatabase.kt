@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.example.lab2.BitmapConverter
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.court.CourtDAO
 import com.example.lab2.database.court_review.CourtReview

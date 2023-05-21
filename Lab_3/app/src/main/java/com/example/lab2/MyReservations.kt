@@ -28,14 +28,17 @@ import com.example.lab2.calendar.RatingModalVM
 import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
+import com.example.lab2.database.player_reservation_join.PlayerReservation
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
 import com.example.lab2.entities.User
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -95,7 +98,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
                     1,
                     0,
                     7.0,
-                    LocalDate.now(),
+                    LocalDate.now().minusDays(1),
                     LocalTime.of(20, 0)
                 )
             )
@@ -139,14 +142,26 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
                     LocalTime.of(22, 0)
                 )
             )
+            /* Prev day reservation to show court rating popup
+            db.playerReservationDAO().confirmReservation(
+                1,
+                1,
+                emptyList(),
+                7.0
+            )
+             */
         }
 
         vm = ViewModelProvider(requireActivity())[MyReservationsVM::class.java]
         calendarVM = ViewModelProvider(requireActivity())[CalendarVM::class.java]
         ratingModalVM = ViewModelProvider(requireActivity())[RatingModalVM::class.java]
 
-        vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
-        ratingModalVM.checkIfPlayerHasAlreadyReviewed(playerId)
+        vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            delay(2000) // Delay for 3 seconds
+            ratingModalVM.checkIfPlayerHasAlreadyReviewed(playerId)
+        }
 
         ratingModalVM.getCourtToReview().observe(viewLifecycleOwner) {
             val modalBottomSheet = RatingModalBottomSheet()
