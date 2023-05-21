@@ -128,7 +128,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
                     0,
                     9.0,
                     LocalDate.now().plusDays(1),
-                    LocalTime.of(18, 0)
+                    LocalTime.of(22, 0)
                 )
             )
         }

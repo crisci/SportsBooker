@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.lab2.calendar.CalendarVM
 import com.example.lab2.calendar.NewMatchesVM
 import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.database.ReservationAppDatabase
@@ -45,6 +46,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
 
     lateinit var vm: NewMatchesVM
+    lateinit var calendarVM: CalendarVM
 
 
     private lateinit var db: ReservationAppDatabase
@@ -77,6 +79,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         navController = findNavController()
 
         vm = ViewModelProvider(requireActivity())[NewMatchesVM::class.java]
+        calendarVM = ViewModelProvider(requireActivity())[CalendarVM::class.java]
 
         vm.refreshNewMatches()
 
@@ -93,16 +96,16 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
         noResults = view.findViewById(R.id.no_results)
 
-        vm.user.observe(viewLifecycleOwner) {
-            adapterCardFilters.setFilters(listOf(null).plus(vm.getUser().interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
-        }
+        //vm.user.observe(viewLifecycleOwner) {
+        //    adapterCardFilters.setFilters(listOf(null).plus(vm.getUser().interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
+        //}
 
         vm.getMapNewMatches().observe(requireActivity()){
             showOrHideNoResultImage()
             adapterCard.setListCourts(vm.getMapNewMatches().value!!)
         }
 
-        vm.getSelectedDate().observe(viewLifecycleOwner) {
+        calendarVM.getSelectedDate().observe(viewLifecycleOwner) {
             vm.refreshNewMatches()
         }
 
@@ -110,7 +113,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
             vm.refreshNewMatches()
         }
 
-        vm.selectedTime.observe(viewLifecycleOwner) {
+        calendarVM.getSelectedTime().observe(viewLifecycleOwner) {
             vm.refreshNewMatches()
         }
 

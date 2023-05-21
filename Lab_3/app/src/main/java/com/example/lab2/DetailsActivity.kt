@@ -45,8 +45,6 @@ class DetailsActivity : AppCompatActivity() {
     private lateinit var yourEquipments: TextView
     private lateinit var description: TextView
 
-    private lateinit var drawables: List<Int>
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_details)
@@ -67,14 +65,6 @@ class DetailsActivity : AppCompatActivity() {
         val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
         titleTextView?.text = "Details"
 
-
-        //TODO: take the court pictures from the DB
-        drawables = listOf<Int>(R.drawable.profile_picture, R.drawable.profile_picture, R.drawable.profile_picture)
-
-        val adapterPictures = AdapterPictures(drawables)
-        val listPicturesRecyclerView = findViewById<RecyclerView>(R.id.court_pictures)
-        listPicturesRecyclerView.adapter = adapterPictures
-        listPicturesRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
         backButton = supportActionBar?.customView?.findViewById<ImageView>(R.id.custom_back_icon)!!
         backButton.setOnClickListener {
@@ -120,22 +110,3 @@ class DetailsActivity : AppCompatActivity() {
 }
 
 
-class ViewHolderPictures(v: View): RecyclerView.ViewHolder(v) {
-    val picture: ImageView = v.findViewById(R.id.picture)
-}
-
-class AdapterPictures(private var listOfPictures: List<Int>): RecyclerView.Adapter<ViewHolderPictures>(){
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderPictures {
-        val v = LayoutInflater.from(parent.context)
-            .inflate(R.layout.picture_layout, parent, false)
-        return ViewHolderPictures(v)
-    }
-
-    override fun getItemCount(): Int = listOfPictures.size
-
-    override fun onBindViewHolder(holder: ViewHolderPictures, position: Int) {
-        holder.picture.setImageResource(listOfPictures[position])
-    }
-
-
-}
