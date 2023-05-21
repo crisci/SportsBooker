@@ -62,5 +62,13 @@ interface ReservationDAO {
             " GROUP BY c.courtId, r.reservationId")
     fun getAvailableReservationsByDateAndSport(date: LocalDate, time: LocalTime, sport: String, playerId: Int): List<ReservationWithCourt>
 
+    @Query("SELECT r.*, c.*, pr.equipments, pr.finalPrice FROM reservations r" +
+            " JOIN courts c" +
+            " ON c.courtId = r.courtId" +
+            " JOIN players_reservations pr" +
+            " ON pr.reservationId = r.reservationId" +
+            " WHERE r.reservationId = :reservationId"
+    )
+    fun loadReservationsByReservationId(reservationId: Int) : ReservationWithCourtAndEquipments
 
 }

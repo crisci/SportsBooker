@@ -25,6 +25,9 @@ class ReservationRepository @Inject constructor(private val database: Reservatio
 
     suspend fun updateNumOfPlayers(reservationId: Int) = database.updateNumOfPlayers(reservationId)
 
+    suspend fun getReservationDetails(reservationId: Int): ReservationWithCourtAndEquipments =
+        withContext(Dispatchers.IO) { database.loadReservationsByReservationId(reservationId) }
+
     suspend fun getAvailableReservationsByDate(date: LocalDate, time: LocalTime, playerId: Int) =
         withContext(Dispatchers.IO){ database.getAvailableReservationsByDate(date, time, playerId) }
 

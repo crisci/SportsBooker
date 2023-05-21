@@ -4,8 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.example.lab2.database.reservation.ReservationWithCourt
-import java.time.LocalDate
 
 @Dao
 interface CourtDAO {

@@ -1,7 +1,9 @@
 package com.example.lab2
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Layout
 import android.text.Spannable
@@ -19,8 +21,10 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.navigateUp
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.Reservation
+import com.example.lab2.entities.User
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
 import java.time.LocalTime
@@ -33,6 +37,11 @@ class MyReservationsActivity : AppCompatActivity() {
     private lateinit var navController : NavController
     private lateinit var myProfileButton: ImageView
     private lateinit var db: ReservationAppDatabase
+    private lateinit var sharedPref: SharedPreferences
+
+    @Inject
+    lateinit var userVM: UserViewModel
+
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {}
@@ -40,6 +49,16 @@ class MyReservationsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_reservations)
+
+        if(savedInstanceState == null) {
+            sharedPref = this.getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+
+            val userPref = sharedPref.getString("user", null) ?: User().toJson()
+            val user = User.fromJson(userPref)
+            userVM.setUser(user)
+        }
+
         supportActionBar?.elevation = 0f
 
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
