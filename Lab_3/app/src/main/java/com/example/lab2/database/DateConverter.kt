@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter
 
 class DateConverter {
 
-    private val formatterDate: DateTimeFormatter = DateTimeFormatter.ISO_DATE
+    private val formatterDate: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
     @TypeConverter
     fun fromDate(localDate: LocalDate?): String? {

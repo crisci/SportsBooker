@@ -3,7 +3,6 @@ package com.example.lab2
 import android.graphics.Picture
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
-import android.media.Image
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.TypedValue
