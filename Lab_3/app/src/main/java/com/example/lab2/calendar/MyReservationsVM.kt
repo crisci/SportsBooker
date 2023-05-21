@@ -1,5 +1,6 @@
 package com.example.lab2.calendar
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -28,6 +29,8 @@ class MyReservationsVM @Inject constructor(
     private val reservationRepository: ReservationRepository,
     private val vm: CalendarVM
     ): ViewModel() {
+
+
 
     var user = MutableLiveData<User>(User())
 
@@ -59,23 +62,25 @@ class MyReservationsVM @Inject constructor(
         return myReservations
     }
 
-    fun refreshMyReservations() {
+    fun refreshMyReservations(date: LocalDate, time: LocalTime) {
         viewModelScope.launch {
+            Log.e("calendar", "${vm.getSelectedTime().value.toString()} - ${vm.getSelectedDate().value.toString() }")
+
             myReservations.value =
                 playerRepository.loadReservationsByPlayerId(
                     1,
-                    vm.getSelectedDate().value!!
+                    date
                 )
-            myReservations.value = filterMyReservationsBySportAndTimeslot(myReservations.value!!)
+            myReservations.value = filterMyReservationsBySportAndTimeslot(myReservations.value!!, time)
         }
     }
 
-    private fun filterMyReservationsBySportAndTimeslot(allMyReservations: List<ReservationWithCourtAndEquipments>) : List<ReservationWithCourtAndEquipments> {
+    private fun filterMyReservationsBySportAndTimeslot(allMyReservations: List<ReservationWithCourtAndEquipments>, time: LocalTime) : List<ReservationWithCourtAndEquipments> {
         val sportFilter = getSportFilter().value
         if (sportFilter.isNullOrEmpty()) {
-            return allMyReservations.filter { it.reservation.time == vm.getSelectedTime().value || it.reservation.time.isAfter(vm.getSelectedTime().value) }
+            return allMyReservations.filter { it.reservation.time == time || it.reservation.time.isAfter(time) }
         }
-        return allMyReservations.filter { it.court.sport == sportFilter && (it.reservation.time == vm.getSelectedTime().value || it.reservation.time.isAfter(vm.getSelectedTime().value)) }
+        return allMyReservations.filter { it.court.sport == sportFilter && (it.reservation.time == time || it.reservation.time.isAfter(time)) }
     }
 
 

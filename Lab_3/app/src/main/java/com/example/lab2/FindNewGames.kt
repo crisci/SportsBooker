@@ -59,7 +59,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
     private fun processResponse(response: androidx.activity.result.ActivityResult) {
         if(response.resultCode == AppCompatActivity.RESULT_OK) {
             val data: Intent? = response.data
-            vm.refreshNewMatches()
+            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
             requireActivity().setResult(Activity.RESULT_OK)
             requireActivity().finish()
         }
@@ -81,7 +81,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         vm = ViewModelProvider(requireActivity())[NewMatchesVM::class.java]
         calendarVM = ViewModelProvider(requireActivity())[CalendarVM::class.java]
 
-        vm.refreshNewMatches()
+        vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
 
 
         val adapterCard = AdapterNewGames(emptyMap(), this)
@@ -106,20 +106,20 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         }
 
         calendarVM.getSelectedDate().observe(viewLifecycleOwner) {
-            vm.refreshNewMatches()
+            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
         }
 
         vm.getSportFilter().observe(viewLifecycleOwner) {
-            vm.refreshNewMatches()
+            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
         }
 
         calendarVM.getSelectedTime().observe(viewLifecycleOwner) {
-            vm.refreshNewMatches()
+            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
         }
 
         val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
         swipeRefreshLayout.setOnRefreshListener {
-            vm.refreshNewMatches()
+            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
             swipeRefreshLayout.isRefreshing = false
         }
 

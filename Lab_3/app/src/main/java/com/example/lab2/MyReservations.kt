@@ -136,7 +136,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         vm = ViewModelProvider(requireActivity())[MyReservationsVM::class.java]
         calendarVM = ViewModelProvider(requireActivity())[CalendarVM::class.java]
 
-        vm.refreshMyReservations()
+        vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
 
         navController = findNavController()
         requireActivity().actionBar?.elevation = 0f
@@ -172,19 +172,20 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         calendarVM.getSelectedDate().observe(requireActivity()) {
             Log.d("dateInsideObserve",it.toString())
-            vm.refreshMyReservations()
+            vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
         }
 
         vm.getSportFilter().observe(viewLifecycleOwner) {
             if(it == null) {
+                Log.e("calendar", "${calendarVM.getSelectedTime().value.toString()} - ${calendarVM.getSelectedDate().toString() }")
                 adapterCardFilters.selectedPosition = 0
                 adapterCardFilters.notifyDataSetChanged()
             }
-            vm.refreshMyReservations()
+            vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
         }
 
         calendarVM.getSelectedTime().observe(viewLifecycleOwner) {
-            vm.refreshMyReservations()
+            vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
         }
 
 
@@ -196,7 +197,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
         swipeRefreshLayout.setOnRefreshListener {
-            vm.refreshMyReservations()
+            vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!)
             swipeRefreshLayout.isRefreshing = false
         }
 

@@ -43,22 +43,22 @@ class NewMatchesVM @Inject constructor(
         return mapNewMatches
     }
 
-    fun refreshNewMatches() {
+    fun refreshNewMatches(date: LocalDate, time: LocalTime) {
         var tmpList: List<ReservationWithCourt>
         viewModelScope.launch {
             if (sportFilter.value != null) {
                 Log.d("calendarDate",calendarVM.getSelectedDate().value!!.toString())
                 tmpList = reservationRepository.getAvailableReservationsByDateAndSport(
-                    calendarVM.getSelectedDate().value!!,
-                    calendarVM.getSelectedTime().value!!,
+                    date,
+                    time,
                     sportFilter.value!!,
                     1
                 )
             }
             else {
                 tmpList = reservationRepository.getAvailableReservationsByDate(
-                    calendarVM.getSelectedDate().value!!,
-                    calendarVM.getSelectedTime().value!!,
+                    date,
+                    time,
                     1
                 )
             }
