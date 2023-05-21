@@ -22,7 +22,7 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Database(entities = [Player::class, Reservation::class, Court::class, PlayerBadgeRating::class, PlayerReservation::class], version = 1, exportSchema = false)
-@TypeConverters(EquipmentConverter::class, DateConverter::class, TimeConverter::class)
+@TypeConverters(EquipmentConverter::class, DateConverter::class, TimeConverter::class, BitmapConverter::class)
 abstract class ReservationAppDatabase : RoomDatabase() {
     abstract fun playerDao() : PlayerDAO
     abstract fun reservationDao() : ReservationDAO

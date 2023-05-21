@@ -3,6 +3,7 @@ package com.example.lab2
 import android.graphics.Picture
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
+import android.media.Image
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.TypedValue
@@ -50,6 +51,7 @@ class DetailsActivity : AppCompatActivity() {
     private lateinit var price: TextView
     private lateinit var yourEquipments: TextView
     private lateinit var description: TextView
+    private lateinit var courtPhoto: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +67,7 @@ class DetailsActivity : AppCompatActivity() {
         price = findViewById(R.id.price_detail)
         yourEquipments = findViewById(R.id.your_equipments_detail)
         description = findViewById(R.id.court_description_detail)
+        courtPhoto = findViewById(R.id.court_image)
 
         supportActionBar?.elevation = 0f
 
@@ -96,7 +99,8 @@ class DetailsActivity : AppCompatActivity() {
         location.text = "Via Giovanni Magni, 32"
         hour.text = reservation.reservation.time.format(DateTimeFormatter.ofPattern("HH:mm"))
         price.text = "€${String.format("%.02f", reservation.finalPrice)}"
-        //description.text = reservation.court.description
+        description.text = reservation.court.description
+        courtPhoto.setImageBitmap(reservation.court.courtPhoto)
         setupEquipments(reservation.equipments)
     }
 

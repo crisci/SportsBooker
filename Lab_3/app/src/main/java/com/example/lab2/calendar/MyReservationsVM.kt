@@ -64,8 +64,6 @@ class MyReservationsVM @Inject constructor(
 
     fun refreshMyReservations(date: LocalDate, time: LocalTime) {
         viewModelScope.launch {
-            Log.e("calendar", "${vm.getSelectedTime().value.toString()} - ${vm.getSelectedDate().value.toString() }")
-
             myReservations.value =
                 playerRepository.loadReservationsByPlayerId(
                     1,
