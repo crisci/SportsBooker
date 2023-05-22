@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lab2.calendar.MyReservationsVM
+import com.example.lab2.calendar.displayText
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.entities.Equipment
@@ -34,6 +35,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -55,6 +57,7 @@ class DetailsActivity : AppCompatActivity() {
     private lateinit var description: TextView
     private lateinit var courtPhoto: ImageView
     private lateinit var rating: RatingBar
+    private lateinit var date: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +75,7 @@ class DetailsActivity : AppCompatActivity() {
         description = findViewById(R.id.court_description_detail)
         courtPhoto = findViewById(R.id.court_image)
         rating = findViewById(R.id.detail_rating)
+        date = findViewById(R.id.date_detail)
 
         supportActionBar?.elevation = 0f
 
@@ -103,6 +107,7 @@ class DetailsActivity : AppCompatActivity() {
         court.text = reservation.court.name
         location.text = "Via Giovanni Magni, 32"
         hour.text = reservation.reservation.time.format(DateTimeFormatter.ofPattern("HH:mm"))
+        date.text = setupDate(reservation.reservation.date)
         price.text = "€${String.format("%.02f", reservation.finalPrice)}"
         description.text = reservation.court.description
         courtPhoto.setImageBitmap(reservation.court.courtPhoto)
@@ -124,6 +129,10 @@ class DetailsActivity : AppCompatActivity() {
             yourEquipments.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
             yourEquipments.text = "You don't have any equipment booked"
         }
+    }
+
+    private fun setupDate(date: LocalDate): String {
+        return "${date.dayOfWeek.displayText()} ${date.format(DateTimeFormatter.ofPattern("dd"))} ${date.month.displayText()}"
     }
 }
 

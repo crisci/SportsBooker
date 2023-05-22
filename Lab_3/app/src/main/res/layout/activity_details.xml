@@ -59,7 +59,7 @@
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
-                            android:layout_height="141dp"
+                            android:layout_height="156dp"
                             android:backgroundTint="@color/white">
 
                             <TextView
@@ -87,17 +87,41 @@
                                 android:id="@+id/imageView"
                                 android:layout_width="21dp"
                                 android:layout_height="22dp"
-                                android:layout_marginTop="2dp"
+                                android:layout_marginTop="4dp"
                                 app:layout_constraintEnd_toStartOf="@+id/location_detail_reservation"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toBottomOf="@+id/court_name_detail_reservation"
                                 app:srcCompat="@drawable/baseline_location_on_24" />
 
                             <ImageView
+                                android:id="@+id/imageView5"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="2dp"
+                                app:layout_constraintEnd_toStartOf="@+id/date_detail"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:srcCompat="@drawable/baseline_calendar_month_24_black" />
+
+                            <TextView
+                                android:id="@+id/date_detail"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="TextView"
+                                android:textColor="@color/black"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                app:layout_constraintBottom_toBottomOf="@+id/imageView5"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="@+id/imageView5" />
+
+                            <ImageView
                                 android:id="@+id/imageView6"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:layout_marginEnd="2dp"
                                 app:layout_constraintEnd_toStartOf="@+id/hour_detail"
+                                app:layout_constraintTop_toBottomOf="@+id/date_detail"
                                 app:srcCompat="@drawable/baseline_access_time_24" />
 
                             <TextView
@@ -110,7 +134,7 @@
                                 android:textStyle="bold"
                                 app:layout_constraintBottom_toBottomOf="@+id/imageView6"
                                 app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
+                                app:layout_constraintTop_toTopOf="@+id/imageView6" />
 
                             <TextView
                                 android:id="@+id/price_detail"
@@ -128,13 +152,12 @@
                                 android:id="@+id/other_players_detail"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
                                 android:text="Other players"
                                 android:textStyle="bold"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintHorizontal_bias="0.497"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@+id/location_detail_reservation" />
+                                app:layout_constraintTop_toBottomOf="@+id/price_detail" />
 
                             <androidx.cardview.widget.CardView
                                 android:id="@+id/cardView4"
