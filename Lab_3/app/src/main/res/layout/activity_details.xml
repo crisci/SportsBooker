@@ -140,9 +140,12 @@
                                 android:id="@+id/cardView4"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:paddingHorizontal="2dp"
                                 app:cardBackgroundColor="@android:color/holo_blue_light"
                                 app:cardCornerRadius="300dp"
                                 app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintHorizontal_bias="0.1"
                                 app:layout_constraintStart_toEndOf="@+id/cardView5"
                                 app:layout_constraintTop_toBottomOf="@+id/other_players_detail">
 
@@ -185,6 +188,8 @@
                                 app:cardCornerRadius="300dp"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toStartOf="@+id/cardView5"
+                                app:layout_constraintHorizontal_bias="0.9"
+                                app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toBottomOf="@+id/other_players_detail">
 
                                 <ImageView
@@ -271,6 +276,18 @@
                             android:paddingHorizontal="20dp"
                             android:paddingVertical="20dp">
 
+                            <RatingBar
+                                android:id="@+id/detail_rating"
+                                style="@style/Widget.AppCompat.RatingBar.Small"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:isIndicator="true"
+                                android:scaleX="1"
+                                android:scaleY="1"
+                                app:layout_constraintBottom_toBottomOf="@+id/court_detail_title"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="@+id/court_detail_title" />
+
                             <TextView
                                 android:id="@+id/court_detail_title"
                                 android:layout_width="wrap_content"
@@ -279,15 +296,6 @@
                                 android:text="Court description"
                                 android:textSize="18sp"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                            <TextView
-                                android:id="@+id/score_detail_court_detail"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:text="Score"
-                                app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintTop_toTopOf="parent" />
 
                             <TextView

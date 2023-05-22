@@ -28,4 +28,12 @@ interface CourtReviewDAO {
 
     @Insert
     fun saveReview(review: CourtReview)
+
+    @Query("SELECT *, AVG(cleanlinessRating) as cleaningRating, " +
+            "AVG(lightingRating) as lightingRating, " +
+            "AVG(maintenanceRating) as maintenanceRating " +
+            "FROM courts_reviews " +
+            "WHERE courtId = :courtId " +
+            "GROUP BY courtId")
+    fun getAvgReviewByCourtId(courtId: Int): CourtReview?
 }

@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.lab2.database.court.Court
+import com.example.lab2.database.court_review.CourtReviewRepository
 import com.example.lab2.database.player.PlayerRepository
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationRepository
@@ -29,7 +30,7 @@ import javax.inject.Inject
 class MyReservationsVM @Inject constructor(
     private val playerRepository: PlayerRepository,
     private val reservationRepository: ReservationRepository,
-    private val vm: CalendarVM
+    private val courtReviewRepository: CourtReviewRepository,
     ): ViewModel() {
 
 
@@ -85,7 +86,11 @@ class MyReservationsVM @Inject constructor(
 
     suspend fun getReservationDetails(reservationId: Int): ReservationWithCourtAndEquipments {
         return reservationRepository.getReservationDetails(reservationId)
+    }
 
+    suspend fun getCourtAvgReviews(courtId: Int): Float {
+        val review = courtReviewRepository.getAvgReviewByCourtId(courtId)
+        return if(review != null) (review.cleanlinessRating + review.lightingRating + review.maintenanceRating)/3 else 0.toFloat()
     }
 
 

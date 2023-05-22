@@ -14,4 +14,7 @@ class CourtReviewRepository @Inject constructor(private val courtReviewDAO: Cour
 
     suspend fun saveReview(review: CourtReview) =
         withContext(Dispatchers.IO) { courtReviewDAO.saveReview(review) }
+
+    suspend fun getAvgReviewByCourtId(courtId: Int) =
+        withContext(Dispatchers.IO) { courtReviewDAO.getAvgReviewByCourtId(courtId)}
 }

@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import android.media.Image
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.RatingBar
 import android.widget.TextView
 import androidx.appcompat.app.ActionBar
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -52,6 +54,7 @@ class DetailsActivity : AppCompatActivity() {
     private lateinit var yourEquipments: TextView
     private lateinit var description: TextView
     private lateinit var courtPhoto: ImageView
+    private lateinit var rating: RatingBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,6 +71,7 @@ class DetailsActivity : AppCompatActivity() {
         yourEquipments = findViewById(R.id.your_equipments_detail)
         description = findViewById(R.id.court_description_detail)
         courtPhoto = findViewById(R.id.court_image)
+        rating = findViewById(R.id.detail_rating)
 
         supportActionBar?.elevation = 0f
 
@@ -86,14 +90,15 @@ class DetailsActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             val reservation = reservationVM.getReservationDetails(reservationId)
+            val avg = reservationVM.getCourtAvgReviews(reservation.court.courtId)
             MainScope().launch {
-                updateView(reservation)
+                updateView(reservation, avg)
             }
         }
 
     }
 
-    private fun updateView(reservation: ReservationWithCourtAndEquipments) {
+    private fun updateView(reservation: ReservationWithCourtAndEquipments, avg: Float) {
         sport.text = reservation.court.sport
         court.text = reservation.court.name
         location.text = "Via Giovanni Magni, 32"
@@ -101,6 +106,7 @@ class DetailsActivity : AppCompatActivity() {
         price.text = "€${String.format("%.02f", reservation.finalPrice)}"
         description.text = reservation.court.description
         courtPhoto.setImageBitmap(reservation.court.courtPhoto)
+        rating.rating = avg
         setupEquipments(reservation.equipments)
     }
 
