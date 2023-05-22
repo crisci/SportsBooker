@@ -162,7 +162,7 @@ class AdapterNewGames(private var mapNewMatches: Map<Court,List<Reservation>>, v
     override fun onBindViewHolder(holder: ViewHolderNewGames, position: Int) {
             val court = mapNewMatches.entries.elementAt(position).key
             val reservations = mapNewMatches.entries.elementAt(position).value
-            val timeSlots = reservations.map { it.time }
+            val timeSlots = reservations.map { it.time }.sortedBy { it }
 
             holder.timeslots.removeAllViews()
 
