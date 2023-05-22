@@ -61,15 +61,6 @@ class RatingModalBottomSheet : BottomSheetDialogFragment() {
         lightingRatingBar = view.findViewById(R.id.lightingRatingBar)
         textReview = view.findViewById(R.id.textReview)
 
-        appPreferences = AppPreferences(requireContext())
-
-        // Example "Don't show again" checkbox behavior
-        val dontShowAgainCheckbox: CheckBox = view.findViewById(R.id.checkbox_dont_show_again)
-        dontShowAgainCheckbox.setOnCheckedChangeListener { _, isChecked ->
-            // Update the preference when the checkbox state changes
-            appPreferences.shouldShowRatingDialog = !isChecked
-        }
-
         courtName = view.findViewById(R.id.courtName)
         courtName.text = "${ratingModalVM.getCourtToReview().value!!.name}"
         courtImageView = view.findViewById(R.id.courtImageView)

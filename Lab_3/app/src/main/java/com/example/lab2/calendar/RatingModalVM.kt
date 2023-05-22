@@ -23,11 +23,20 @@ class RatingModalVM @Inject constructor(
         return courtToReview
     }
 
+    private val showBanner = MutableLiveData<Boolean>()
+    fun getShowBanner() : LiveData<Boolean> {
+        return showBanner
+    }
+
     fun checkIfPlayerHasAlreadyReviewed(playerId: Int) {
         viewModelScope.launch {
             val court = courtReviewRepository.hasReviewedMostRecentCourt(playerId)
             if (court != null) {
                 _courtToReview.value = court
+                showBanner.value = true
+            }
+            else {
+                showBanner.value = false
             }
         }
     }
@@ -35,6 +44,7 @@ class RatingModalVM @Inject constructor(
     fun submitReview(review: CourtReview) {
         viewModelScope.launch {
             courtReviewRepository.saveReview(review)
+            showBanner.value = false
         }
     }
 }

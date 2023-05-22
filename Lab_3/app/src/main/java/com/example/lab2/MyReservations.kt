@@ -67,10 +67,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
     private lateinit var noResults: ConstraintLayout
     private lateinit var findNewGamesButton: Button
-
-    private lateinit var appPreferences: AppPreferences
-
-
+    private lateinit var leaveRatingLayout: ConstraintLayout
+    var showBanner = false
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
@@ -171,27 +169,28 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests)
 
-
-        appPreferences = AppPreferences(requireContext())
+        leaveRatingLayout = view.findViewById(R.id.leave_rating_banner)
 
         CoroutineScope(Dispatchers.IO).launch {
             // Check if the rating dialog should be shown
-            if (appPreferences.shouldShowRatingDialog) {
-                // Show the rating dialog
-                delay(5000) // Delay for 5 seconds
+            // doing a GET every minute
+            while(true) {
                 ratingModalVM.checkIfPlayerHasAlreadyReviewed(playerId)
+                delay(60000) // 60 seconds
             }
         }
 
+        ratingModalVM.getShowBanner().observe(viewLifecycleOwner) {
+            if (it == true) leaveRatingLayout.visibility = View.VISIBLE
+            else leaveRatingLayout.visibility = View.GONE
+        }
+
         ratingModalVM.getCourtToReview().observe(viewLifecycleOwner) {
-            val modalBottomSheet = RatingModalBottomSheet()
-            modalBottomSheet.show(childFragmentManager, RatingModalBottomSheet.TAG)
-            val leaveRatingBanner = view.findViewById<ConstraintLayout>(R.id.leave_rating_banner)
-            leaveRatingBanner.visibility = View.VISIBLE
-            leaveRatingBanner.setOnClickListener {
+            leaveRatingLayout.visibility = View.VISIBLE
+            leaveRatingLayout.setOnClickListener {
+                val modalBottomSheet = RatingModalBottomSheet()
                 modalBottomSheet.show(childFragmentManager, RatingModalBottomSheet.TAG)
             }
-
         }
 
         navController = findNavController()
@@ -228,13 +227,11 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         }
 
         calendarVM.getSelectedDate().observe(requireActivity()) {
-            Log.d("dateInsideObserve",it.toString())
             vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
         }
 
         vm.getSportFilter().observe(viewLifecycleOwner) {
             if(it == null) {
-                Log.e("calendar", "${calendarVM.getSelectedTime().value.toString()} - ${calendarVM.getSelectedDate().toString() }")
                 adapterCardFilters.selectedPosition = 0
                 adapterCardFilters.notifyDataSetChanged()
             }
