@@ -61,6 +61,7 @@ class NewMatchesVM @Inject constructor(
                 ).filter { r -> interests.any { it.toString().lowercase() == r.court.sport.lowercase() } }
             }
             mapNewMatches.value = tmpList
+                .filter { it.reservation.time >= LocalTime.now() || it.reservation.date > LocalDate.now() }
                 .groupBy({ it.court }, { it.reservation })
                 .mapValues { it.value.toList() }
         }

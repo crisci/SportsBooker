@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -22,6 +23,7 @@ import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.view.ViewContainer
 import com.kizitonwose.calendar.view.WeekDayBinder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
@@ -83,6 +85,10 @@ class WeekCalendar : Fragment(R.layout.week_calendar_fragment){
                 val pickedHour: Int = materialTimePicker.hour
                 val pickedMinute: Int = materialTimePicker.minute
 
+                if(vm.getSelectedDate().value == LocalDate.now() && pickedHour < LocalTime.now().hour) {
+                    Toast.makeText(activity, "Cannot select past time!", Toast.LENGTH_SHORT).show()
+                    return@addOnPositiveButtonClickListener
+                }
                 vm.selectedTime.value = LocalTime.of(pickedHour,pickedMinute)
 
             }
@@ -156,7 +162,8 @@ class WeekCalendar : Fragment(R.layout.week_calendar_fragment){
     }
 
     fun updateDate(){
+        vm.selectedTime.value = if(vm.getSelectedDate().value == LocalDate.now()) LocalTime.now() else LocalTime.of(8, 0)
         binding.exSevenCalendar.notifyDateChanged(selectedDate)
-        oldDate?.let { binding.exSevenCalendar.notifyDateChanged(it) }
+        oldDate.let { binding.exSevenCalendar.notifyDateChanged(it) }
     }
 }
