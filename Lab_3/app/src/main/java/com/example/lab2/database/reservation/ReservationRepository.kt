@@ -2,6 +2,7 @@ package com.example.lab2.database.reservation
 
 import androidx.lifecycle.LiveData
 import androidx.room.Query
+import com.example.lab2.database.court.CourtWithReservations
 import com.example.lab2.database.player_reservation_join.ReservationWithPlayers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -15,7 +16,10 @@ class ReservationRepository @Inject constructor(private val database: Reservatio
 
     suspend fun getReservationsByDate(date: LocalDate) = database.getReservationsByDate(date)
 
-    suspend fun saveReservation(reservation: Reservation) = database.saveReservation(reservation)
+    suspend fun saveReservation(reservation: Reservation) =
+        withContext(Dispatchers.IO) {
+            database.saveReservation(reservation)
+        }
 
     suspend fun cancelReservationById(reservationId: Int) = database.cancelReservationById(reservationId)
 
@@ -29,9 +33,17 @@ class ReservationRepository @Inject constructor(private val database: Reservatio
     suspend fun getReservationDetails(reservationId: Int): ReservationWithCourtAndEquipments =
         withContext(Dispatchers.IO) { database.loadReservationsByReservationId(reservationId) }
 
-    suspend fun getAvailableReservationsByDate(date: LocalDate, time: LocalTime, playerId: Int) =
+    suspend fun getAvailableReservationsByDate(date: LocalDate, time: LocalTime, playerId: Int): List<ReservationWithCourt> =
         withContext(Dispatchers.IO){ database.getAvailableReservationsByDate(date, time, playerId) }
 
-    suspend fun getAvailableReservationsByDateAndSport(date: LocalDate, time: LocalTime, sport: String, playerId: Int) =
-        withContext(Dispatchers.IO){database.getAvailableReservationsByDateAndSport(date, time, sport, playerId) }
+    suspend fun getAvailableReservationsByDateAndSport(date: LocalDate, time: LocalTime, sport: String, playerId: Int): List<ReservationWithCourt> {
+        return withContext(Dispatchers.IO) {
+            database.getAvailableReservationsByDateAndSport(
+                date,
+                time,
+                sport,
+                playerId
+            )
+        }
+    }
 }

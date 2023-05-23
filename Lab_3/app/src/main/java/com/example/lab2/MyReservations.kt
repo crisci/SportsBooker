@@ -92,7 +92,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         db = ReservationAppDatabase.getDatabase(requireContext())
 
-        CoroutineScope(Dispatchers.IO).launch {
+   /*     CoroutineScope(Dispatchers.IO).launch {
             db.reservationDao().saveReservation(
                 Reservation(
                     1,
@@ -153,15 +153,15 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
                     LocalTime.of(23, 0)
                 )
             )
-            /* Prev day reservation to show court rating popup
+            *//* Prev day reservation to show court rating popup
             db.playerReservationDAO().confirmReservation(
                 1,
                 1,
                 emptyList(),
                 7.0
             )
-             */
-        }
+             *//*
+        }*/
 
         vm = ViewModelProvider(requireActivity())[MyReservationsVM::class.java]
         calendarVM = ViewModelProvider(requireActivity())[CalendarVM::class.java]
@@ -321,10 +321,10 @@ class AdapterCard(private var list: List<ReservationWithCourtAndEquipments>, pri
         holder.location.text = "Via Giovanni Magni, 32"
         holder.price.text = "${list[position].formatPrice()}"
         if(list[position].reservation.numOfPlayers == maxNumPlayers) {
-            holder.currentNumberOfPlayers.setTextColorRes(R.color.example_1_bg)
+            holder.currentNumberOfPlayers.setTextColorRes(R.color.darker_blue)
         }
         else {
-            holder.currentNumberOfPlayers.setTextColorRes(R.color.bright_red)
+            holder.currentNumberOfPlayers.setTextColorRes(R.color.example_1_bg)
         }
         holder.currentNumberOfPlayers.text = "${list[position].reservation.numOfPlayers}"
         holder.maxNumberOfPlayers.text = "/7"

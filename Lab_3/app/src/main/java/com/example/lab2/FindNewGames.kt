@@ -13,6 +13,8 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.marginRight
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -26,20 +28,24 @@ import com.example.lab2.calendar.NewMatchesVM
 import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
+import com.example.lab2.database.court.CourtWithReservations
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationWithCourt
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalTime
 
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickTimeslot {
+class NewGames : Fragment(R.layout.fragment_new_games) {
 
 
     private lateinit var navController : NavController
@@ -54,6 +60,7 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
     private lateinit var db: ReservationAppDatabase
 
     private lateinit var noResults: ConstraintLayout
+    private lateinit var addMatchButton: FloatingActionButton
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
@@ -85,8 +92,20 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
 
         vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
 
+        addMatchButton = view.findViewById(R.id.add_match)
+        addMatchButton.setOnClickListener {
+            val intent = Intent(requireContext(), CreateMatchActivity::class.java)
+            launcher.launch(intent)
+        }
 
-        val adapterCard = AdapterNewGames(emptyMap(), this)
+        val adapterCard = AdapterNewGames(emptyMap())
+        adapterCard.setOnClickReservationListener(object : AdapterNewGames.OnClickReservation {
+            override fun onClickReservation(bundle: Bundle) {
+                val intent = Intent(requireContext(), ConfirmReservationActivity::class.java)
+                intent.putExtras(bundle)
+                launcher.launch(intent)
+            }
+        })
         val listReservationsRecyclerView = view.findViewById<RecyclerView>(R.id.available_bookings)
         listReservationsRecyclerView.adapter = adapterCard
         listReservationsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -126,12 +145,6 @@ class NewGames : Fragment(R.layout.fragment_new_games), AdapterNewGames.OnClickT
         }
 
     }
-
-    override fun onClickTimeslot(informations: Bundle) {
-        val intentConfirmReservationActivity = Intent(activity, ConfirmReservationActivity::class.java).putExtras(informations)
-        launcher.launch(intentConfirmReservationActivity)
-    }
-
 }
 
 
@@ -139,14 +152,17 @@ class ViewHolderNewGames(v: View): RecyclerView.ViewHolder(v) {
 
     val name: TextView = v.findViewById(R.id.court_name_reservation)
     val location: TextView = v.findViewById(R.id.location_reservation)
-    val timeslots: GridLayout = v.findViewById(R.id.timeslots)
+    val timeslots: RecyclerView = v.findViewById(R.id.timeslotsRecyclerView)
     val sport_name: TextView = v.findViewById(R.id.sport_name)
+
 }
 
-class AdapterNewGames(private var mapNewMatches: Map<Court,List<Reservation>>, var listener: OnClickTimeslot): RecyclerView.Adapter<ViewHolderNewGames>(){
+class AdapterNewGames(private var mapNewMatches: Map<Court,List<Reservation>>): RecyclerView.Adapter<ViewHolderNewGames>(){
 
-    interface OnClickTimeslot {
-        fun onClickTimeslot(informations: Bundle)
+    private lateinit var listener: OnClickReservation
+
+    interface OnClickReservation {
+        fun onClickReservation(bundle: Bundle)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderNewGames {
@@ -160,45 +176,35 @@ class AdapterNewGames(private var mapNewMatches: Map<Court,List<Reservation>>, v
     }
 
     override fun onBindViewHolder(holder: ViewHolderNewGames, position: Int) {
-            val court = mapNewMatches.entries.elementAt(position).key
-            val reservations = mapNewMatches.entries.elementAt(position).value
-            val timeSlots = reservations.map { it.time }.sortedBy { it }
-
-            holder.timeslots.removeAllViews()
-
-            for (t in timeSlots) {
-                val tv = TextView(holder.itemView.context)
-                tv.text = "${t.format(DateTimeFormatter.ofPattern("HH:mm"))}"
-                val layoutParams = LinearLayout.LayoutParams(
-                    220,
-                    100
-                )
-                layoutParams.setMargins(10, 0, 20, 20)
-                tv.setPadding(20,25,20,25)
-                tv.setTextAppearance(R.style.TimeslotTextAppearance)
-                tv.elevation = 10F
-                tv.background = holder.itemView.context.getDrawable(R.drawable.timeslot)
-                tv.textAlignment = View.TEXT_ALIGNMENT_CENTER;
-                tv.id = View.generateViewId()
-             tv.setOnClickListener {
-                    val currentGameBundle = Bundle().apply {
-                        putInt("reservationId", reservations[timeSlots.indexOf(t)].reservationId)
-                        putString("date", reservations[timeSlots.indexOf(t)].date.toString())
-                        putString("time", reservations[timeSlots.indexOf(t)].time.toString())
-                        putDouble("price", reservations[timeSlots.indexOf(t)].price)
-                        putInt("numOfPlayers", reservations[timeSlots.indexOf(t)].numOfPlayers)
-                        putInt("courtId", reservations[timeSlots.indexOf(t)].courtId)
-                        putString("courtName", court.name)
-                        putString("sport", court.sport)
-                        putInt("maxNumberOfPlayers", court.maxNumOfPlayers)
-                    }
-                    listener.onClickTimeslot(currentGameBundle)
+        val court = mapNewMatches.entries.elementAt(position).key
+        val reservations = mapNewMatches.entries.elementAt(position).value
+        holder.timeslots.layoutManager = LinearLayoutManager(holder.itemView.context, LinearLayoutManager.HORIZONTAL, false)
+        holder.timeslots.adapter = TimeslotAdapter(court, reservations, object : TimeslotAdapter.OnClickTimeslot {
+            override fun onClickTimeslot(timeslot: LocalTime) {
+                val reservation = reservations.find { it.time == timeslot }
+                val currentGameBundle = Bundle().apply {
+                    putInt("reservationId", reservation!!.reservationId)
+                    putString("date", reservation.date.toString())
+                    putString("time", reservation.time.toString())
+                    putDouble("price", reservation.price)
+                    putInt("numOfPlayers", reservation.numOfPlayers)
+                    putInt("courtId", reservation.courtId)
+                    putString("courtName", court.name)
+                    putString("sport", court.sport)
+                    putInt("maxNumberOfPlayers", court.maxNumOfPlayers)
                 }
-                holder.timeslots.addView(tv, layoutParams)
+
+                listener.onClickReservation(currentGameBundle)
             }
+        })
+
         holder.name.text = "${court.name}"
         holder.location.text = "Via Giovanni Magni, 32"
         holder.sport_name.text = "${court.sport}"
+    }
+
+    fun setOnClickReservationListener(listener: OnClickReservation) {
+        this.listener = listener
     }
 
     fun setListCourts(newListCourts: Map<Court,List<Reservation>>) {
@@ -210,6 +216,39 @@ class AdapterNewGames(private var mapNewMatches: Map<Court,List<Reservation>>, v
         diffs.dispatchUpdatesTo(this)
     }
 }
+
+class TimeslotAdapter(private val court: Court, private val listReservations: List<Reservation>, private val listener: OnClickTimeslot) :
+    RecyclerView.Adapter<TimeslotAdapter.ViewHolder>() {
+
+    interface OnClickTimeslot {
+        fun onClickTimeslot(timeslot: LocalTime)
+    }
+
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val timeslotTextView: TextView = view.findViewById(R.id.tvTimeslot)
+        val numPlayersLeftTV: TextView = view.findViewById(R.id.tvPlayersLeft)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.timeslot_layout, parent, false)
+        return ViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val list = listReservations[position]
+        holder.timeslotTextView.text = list.time.format(DateTimeFormatter.ofPattern("HH:mm"))
+        holder.numPlayersLeftTV.text = "${court.maxNumOfPlayers-list.numOfPlayers} left"
+        holder.itemView.setOnClickListener {
+            listener.onClickTimeslot(list.time)
+        }
+    }
+
+    override fun getItemCount(): Int = listReservations.size
+}
+
+
+
 
 class ViewHolderFilter(v: View): RecyclerView.ViewHolder(v) {
     val name: TextView = v.findViewById(R.id.filter_name)

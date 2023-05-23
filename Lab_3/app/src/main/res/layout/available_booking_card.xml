@@ -66,30 +66,21 @@
                 app:layout_constraintStart_toEndOf="@+id/imageView" />
         </LinearLayout>
 
-        <HorizontalScrollView
-            android:layout_marginTop="20dp"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="9dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
-            android:scrollbars="none"
-            android:fillViewport="true">
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
-            <LinearLayout
-                android:id="@+id/timeslots_wrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/timeslotsRecyclerView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"/>
 
-                <GridLayout
-                    android:id="@+id/timeslots"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:columnCount="5">
-                </GridLayout>
-
-            </LinearLayout>
-        </HorizontalScrollView>
+        </LinearLayout>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

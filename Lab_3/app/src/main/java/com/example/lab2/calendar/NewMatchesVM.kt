@@ -6,24 +6,23 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lab2.database.court.Court
-import com.example.lab2.database.player.PlayerRepository
+import com.example.lab2.database.court.CourtWithReservations
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationRepository
 import com.example.lab2.database.reservation.ReservationWithCourt
-import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.entities.Sport
-import com.example.lab2.entities.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
 class NewMatchesVM @Inject constructor(
     private val reservationRepository: ReservationRepository
 ): ViewModel() {
+
+    private lateinit var tmpList: List<ReservationWithCourt>
 
     private var sportFilter = MutableLiveData<String?>(null)
     fun getSportFilter(): LiveData<String?> {
@@ -44,7 +43,6 @@ class NewMatchesVM @Inject constructor(
     }
 
     fun refreshNewMatches(date: LocalDate, time: LocalTime, interests: List<Sport>) {
-        var tmpList: List<ReservationWithCourt>
         viewModelScope.launch {
             tmpList = if (sportFilter.value != null) {
                 reservationRepository.getAvailableReservationsByDateAndSport(
@@ -60,10 +58,12 @@ class NewMatchesVM @Inject constructor(
                     1
                 ).filter { r -> interests.any { it.toString().lowercase() == r.court.sport.lowercase() } }
             }
+
             mapNewMatches.value = tmpList
                 .filter { it.reservation.time >= LocalTime.now() || it.reservation.date > LocalDate.now() }
                 .groupBy({ it.court }, { it.reservation })
                 .mapValues { it.value.toList() }
+
         }
     }
 }

@@ -25,8 +25,8 @@ interface ReservationDAO {
     fun getReservationsByDate(date: LocalDate): LiveData<List<Reservation>>
 
     //Not necessary to define update because of REPLACE strategy
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveReservation(reservation: Reservation)
+    @Insert
+    fun saveReservation(reservation: Reservation): Long
 
     @Query("DELETE FROM reservations WHERE reservationId = (:reservationId)")
     fun cancelReservationById(reservationId: Int)
