@@ -19,6 +19,7 @@ class InterestView(
         val view = inflater.inflate(R.layout.interest_layout, this, true)
 
         name = view.findViewById(R.id.interest_text)
+
         when (sport) {
             Sport.SOCCER ->  name.text = "Soccer"
             Sport.GOLF ->  name.text = "Golf"
@@ -27,6 +28,8 @@ class InterestView(
             Sport.BASKETBALL ->  name.text = "Basketball"
             Sport.PADEL ->  name.text = "Padel"
         }
+
+
 
     }
 

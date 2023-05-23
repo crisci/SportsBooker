@@ -10,6 +10,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.view.Window
 import android.widget.Button
 import android.widget.GridView
@@ -19,7 +20,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.lab2.calendar.MyReservationsVM
 import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.entities.BadgeType
@@ -51,6 +54,7 @@ class ShowProfileActivity : AppCompatActivity() {
 
     @Inject
     lateinit var vm: UserViewModel
+    lateinit var reservationVm: MyReservationsVM
 
 
     private val launcher = registerForActivityResult(
@@ -75,6 +79,8 @@ class ShowProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        reservationVm = ViewModelProvider(this)[MyReservationsVM::class.java]
+
         full_name = findViewById(R.id.nameSurname)
         nickname = findViewById(R.id.nickname)
         location = findViewById(R.id.location)
@@ -98,7 +104,13 @@ class ShowProfileActivity : AppCompatActivity() {
         backButton = supportActionBar?.customView?.findViewById<ImageButton>(R.id.edit_profile_back_button)!!
         editProfile = supportActionBar?.customView?.findViewById<ImageButton>(R.id.profile_edit_button)!!
 
+        reservationVm.refreshMyStatistics(playerId = 1)
+
         vm.user.observe(this) {
+            updateContent()
+        }
+
+        reservationVm.getMyStatistics().observe(this){
             updateContent()
         }
 
@@ -191,11 +203,17 @@ class ShowProfileActivity : AppCompatActivity() {
         val badges = user.badges.toList().dropLast(2).toMap<BadgeType, Int>().map {  BadgeView(this, badge = it) }
         badges.forEach { badgesLayout.addView(it) }
 
-        val interests = user.interests.map {  InterestView(this, sport = it) }
+        val interests = user.interests.sortedBy { it.name }.map {  InterestView(this, sport = it) }
         interests.forEach { interestsLayout.addView(it) }
 
-        val statistics = user.statistics.map {  StatisticView(this, statistic = it.value) }
-        statistics.forEach { statisticsLayout.addView(it) }
+        val statistics = reservationVm.getMyStatistics().value?.sortedBy { it.sport.name }?.map {  StatisticView(this, statistic = it) }
+
+        if (statistics.isNullOrEmpty()) {
+            findViewById<TextView>(R.id.no_stats).visibility = View.VISIBLE
+        }else{
+            findViewById<TextView>(R.id.no_stats).visibility = View.GONE
+            statistics.forEach { statisticsLayout.addView(it) }
+        }
     }
 
     private fun showCustomDialog() {

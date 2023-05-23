@@ -29,23 +29,23 @@ data class User(
     var statistics : MutableMap<Sport, Statistic> = mutableMapOf(
         Sport.TENNIS to Statistic(
             sport = Sport.TENNIS,
-            gamesPlayed = 50,
-            gamesWon = 30,
-            gamesLost = 18,
-            gamesDrawn = 2
+            gamesPlayed = 0,
+            //gamesWon = 30,
+            //gamesLost = 18,
+            //gamesDrawn = 2
         ),
         Sport.SOCCER to Statistic(
             sport = Sport.SOCCER,
-            gamesPlayed = 40,
-            gamesWon = 20,
-            gamesLost = 15,
-            gamesDrawn = 5
+            gamesPlayed = 0,
+            //gamesWon = 20,
+            //gamesLost = 15,
+            //gamesDrawn = 5
         ),
         Sport.GOLF to Statistic(
             sport = Sport.GOLF,
-            gamesPlayed = 10,
-            gamesWon = 5,
-            gamesLost = 5
+            gamesPlayed = 0,
+            //gamesWon = 5,
+            //gamesLost = 5
         )
     )
 ) {

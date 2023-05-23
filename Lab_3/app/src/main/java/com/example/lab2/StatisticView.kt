@@ -16,9 +16,9 @@ class StatisticView(
     private val statistic: Statistic,
 ) : LinearLayout(context, attrs, defStyleAttr) {
     private val playedCount: TextView
-    private val victoriesCount: TextView
-    private val drawCount: TextView
-    private val drawLayout: LinearLayout
+    //private val victoriesCount: TextView
+    //private val drawCount: TextView
+    //private val drawLayout: LinearLayout
     private val image:ImageView
 
 
@@ -27,20 +27,23 @@ class StatisticView(
         val view = inflater.inflate(R.layout.statistic_layout, this, true)
 
         playedCount = view.findViewById(R.id.statistic_played_count)
-        victoriesCount = view.findViewById(R.id.statistic_victories_count)
-        drawCount = view.findViewById(R.id.statistic_draws_count)
-        drawLayout = view.findViewById(R.id.statistic_draw_layout)
+        //victoriesCount = view.findViewById(R.id.statistic_victories_count)
+        //drawCount = view.findViewById(R.id.statistic_draws_count)
+        //drawLayout = view.findViewById(R.id.statistic_draw_layout)
         image = view.findViewById(R.id.statistic_image)
 
         playedCount.text = "${statistic.gamesPlayed}"
-        victoriesCount.text = "${statistic.gamesWon}"
+        //victoriesCount.text = "${statistic.gamesWon}"
 
+        /*
         if (statistic.gamesDrawn == null){
             val parent: LinearLayout = view.findViewById(R.id.statistic_layout_parent)
             parent.removeView(drawLayout)
         } else {
             drawCount.text = "${statistic.gamesDrawn}"
         }
+
+         */
 
         when (statistic.sport) {
             Sport.SOCCER -> image.setImageResource(R.drawable.sport_soccer)

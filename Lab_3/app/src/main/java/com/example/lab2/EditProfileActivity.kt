@@ -135,19 +135,19 @@ class EditProfileActivity : AppCompatActivity() {
             var uppercaseTagName = tag.text.uppercase(Locale.getDefault()) // i.e. from "Soccer" to "SOCCER", which is the constant in the enum
             if (user.interests.any { it.name == uppercaseTagName }) {
                 user.interests = user.interests.filterNot{it.name == uppercaseTagName}.toMutableList()
-                user.statistics.remove(Sport.valueOf(uppercaseTagName))
+                //user.statistics.remove(Sport.valueOf(uppercaseTagName))
                 setupTags()
             }
             else {
                 if(user.interests.size < 3) {
                     user.interests.add(Sport.valueOf(uppercaseTagName))
-                    user.statistics.put(Sport.valueOf(uppercaseTagName), Statistic(
-                        sport = Sport.valueOf(uppercaseTagName),
-                        gamesPlayed = 0,
-                        gamesWon = 0,
-                        gamesLost = 0,
-                        gamesDrawn = 0
-                    ))
+                    //user.statistics.put(Sport.valueOf(uppercaseTagName), Statistic(
+                    //    sport = Sport.valueOf(uppercaseTagName),
+                    //    gamesPlayed = 0,
+                        //gamesWon = 0,
+                        //gamesLost = 0,
+                        //gamesDrawn = 0
+                    //) )
                     setupTags()
                 }
                 else {
@@ -173,13 +173,14 @@ class EditProfileActivity : AppCompatActivity() {
             * The following code is equivalent to inputString.toLowerCase().capitalize(),
             * however these functions are deprecated. The IDE suggested the code below instead.
             * */
+
             var tag = Tag(currentInterest.name.lowercase(Locale.getDefault())
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() })
             tag.tagTextSize = 18F
 
             // If the list of the user's interests contains the current interest, it should be green
             if (user.interests.contains(currentInterest)) {
-                tag.layoutColor = ContextCompat.getColor(this, R.color.bright_green)
+                tag.layoutColor = ContextCompat.getColor(this, R.color.example_1_bg)
                 tag.tagTextColor = Color.WHITE
             }
             else {
@@ -285,9 +286,9 @@ class EditProfileActivity : AppCompatActivity() {
         val jsonSkills = gsonSkills.toJson(skills_m)
         outState.putString("skills", jsonSkills)
 
-        val gsonStatistics = Gson()
-        val jsonStatistics = gsonStatistics.toJson(user.statistics)
-        outState.putString("statistics", jsonStatistics)
+        //val gsonStatistics = Gson()
+        //val jsonStatistics = gsonStatistics.toJson(user.statistics)
+        //outState.putString("statistics", jsonStatistics)
     }
 
 

@@ -24,6 +24,15 @@ interface PlayerDAO {
     )
     fun loadReservationsByPlayerId(playerId: Int, date: LocalDate) : List<ReservationWithCourtAndEquipments>
 
+    @Query("SELECT r.*, c.*, pr.equipments, pr.finalPrice FROM reservations r" +
+            " JOIN courts c" +
+            " ON c.courtId = r.courtId" +
+            " JOIN players_reservations pr" +
+            " ON pr.reservationId = r.reservationId" +
+            " WHERE pr.playerId = :playerId and r.date < :date"
+    )
+    fun loadAllReservationsByPlayerId(playerId: Int, date: LocalDate = LocalDate.now()) : List<ReservationWithCourtAndEquipments>
+
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertPlayer(player: Player)

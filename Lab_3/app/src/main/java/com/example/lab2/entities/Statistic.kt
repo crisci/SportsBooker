@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class Statistic(
     val sport: Sport,
     val gamesPlayed: Int,
-    val gamesWon: Int,
-    val gamesLost: Int,
-    val gamesDrawn: Int? = null
+    //val gamesWon: Int,
+    //val gamesLost: Int,
+    //val gamesDrawn: Int? = null
 ) {}

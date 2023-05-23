@@ -31,6 +31,9 @@ class PlayerRepository @Inject constructor(private val playerDAO: PlayerDAO) {
     suspend fun loadReservationsByPlayerId(playerId: Int, date: LocalDate) =
         withContext(Dispatchers.IO) { playerDAO.loadReservationsByPlayerId(playerId, date) }
 
+    suspend fun loadAllReservationsByPlayerId(playerId: Int) =
+        withContext(Dispatchers.IO) { playerDAO.loadAllReservationsByPlayerId(playerId) }
+
     suspend fun insertPlayer(player: Player) = playerDAO.insertPlayer(player)
 
     suspend fun deletePlayers() = playerDAO.deletePlayers()
