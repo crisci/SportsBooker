@@ -96,4 +96,15 @@ class CreateMatchVM @Inject constructor(
                 exceptionMessage.value = "Match created successfully"
             }
         }
+
+    fun filterTimeslots(date: LocalDate) {
+        listTimeslots.value = listTimeslots.value!!.filter {
+            val time = LocalTime.parse(it, DateTimeFormatter.ofPattern("HH:mm"))
+            if(date == LocalDate.now()) {
+                time.isAfter(LocalTime.now())
+            } else {
+                true
+            }
+        }
+    }
 }

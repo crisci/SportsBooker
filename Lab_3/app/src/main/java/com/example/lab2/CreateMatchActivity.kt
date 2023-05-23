@@ -65,16 +65,12 @@ class CreateMatchActivity : AppCompatActivity() {
         val arrayAdapter = ArrayAdapter(applicationContext, R.layout.dropdown_item, userVM.getUser().value!!.interests)
         sportAutoCompleteTV.setAdapter(arrayAdapter)
 
+        val arrayAdapter2 = ArrayAdapter(applicationContext, R.layout.dropdown_item, createMatchVM.getListTimeslots().value!!)
+        timeAutoCompleteTextView.setAdapter(arrayAdapter2)
+
         calendarVM.getSelectedDate().observe(this) {
-            val timeslotsToShow = createMatchVM.getListTimeslots().value!!.filter {
-                val time = LocalTime.parse(it, DateTimeFormatter.ofPattern("HH:mm"))
-                if(calendarVM.getSelectedDate().value == LocalDate.now()) {
-                    time.isAfter(LocalTime.now())
-                } else {
-                    true
-                }
-            }
-            val arrayAdapter = ArrayAdapter(applicationContext, R.layout.dropdown_item, timeslotsToShow)
+            createMatchVM.filterTimeslots(it)
+            val arrayAdapter = ArrayAdapter(applicationContext, R.layout.dropdown_item, createMatchVM.getListTimeslots().value!!)
             timeAutoCompleteTextView.setAdapter(arrayAdapter)
         }
 
@@ -96,4 +92,13 @@ class CreateMatchActivity : AppCompatActivity() {
             Toast.makeText(this, it, Toast.LENGTH_LONG).show()
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        val arrayAdapter = ArrayAdapter(applicationContext, R.layout.dropdown_item, userVM.getUser().value!!.interests)
+        sportAutoCompleteTV.setAdapter(arrayAdapter)
+        val arrayAdapter2 = ArrayAdapter(applicationContext, R.layout.dropdown_item, createMatchVM.getListTimeslots().value!!)
+        timeAutoCompleteTextView.setAdapter(arrayAdapter2)
+    }
+
 }
