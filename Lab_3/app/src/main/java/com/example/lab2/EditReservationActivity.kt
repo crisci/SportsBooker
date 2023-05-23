@@ -5,6 +5,7 @@ import android.content.Intent
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ImageView
@@ -31,6 +32,7 @@ import com.example.lab2.database.reservation.formatPrice
 import com.example.lab2.entities.Equipment
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.shape.ShapeAppearanceModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.AndroidEntryPoint
@@ -205,13 +207,10 @@ class EditReservationActivity : AppCompatActivity() {
 
         setupCheckboxes(editReservationVM.getCurrentReservation().value!!.finalPrice)
         for (r in editReservationVM.getAvailableTimeslot().value!!) {
-            val chip = Chip(this)
+            val inflater = LayoutInflater.from(chipGroup.context)
+            val chip = inflater.inflate(R.layout.timeslot_chip, chipGroup, false) as Chip
             chip.isClickable = true
             chip.isCheckable = true
-            chip.setChipBackgroundColorResource(androidx.appcompat.R.color.material_blue_grey_800)
-            chip.setTextColor(ContextCompat.getColor(this, R.color.white))
-            chip.setChipStrokeColorResource(R.color.white)
-            chip.chipStrokeWidth = 2F
             chip.text = "${r.time.format(DateTimeFormatter.ofPattern("HH:mm"))}"
             if (chip.text == time) chip.isChecked = true
             chip.setOnCheckedChangeListener { _, isChecked ->

@@ -20,6 +20,7 @@
 
     <style name="TimeslotTextAppearance">
         <item name="android:fontFamily">@font/montserrat_bold</item>
+        <item name="android:textColor">@color/timeslot</item>
         <item name="android:textSize">18sp</item>
     </style>
 

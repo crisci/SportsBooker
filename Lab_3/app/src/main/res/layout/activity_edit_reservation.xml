@@ -46,7 +46,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/reservation_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -55,14 +55,9 @@
                 android:background="@drawable/card_reservation"
                 android:elevation="10dp"
                 android:orientation="vertical"
-                android:padding="15dp"
+                android:paddingVertical="15dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/sport_name_edit_reservation">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="110dp"
-                    android:backgroundTint="@color/white">
 
                     <TextView
                         android:id="@+id/court_name_edit_reservation"
@@ -72,6 +67,7 @@
                         android:textColor="@color/black"
                         android:textSize="20sp"
                         android:textStyle="bold"
+                        android:layout_marginLeft="20dp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
@@ -87,23 +83,33 @@
                         android:id="@+id/imageView"
                         android:layout_width="19dp"
                         android:layout_height="20dp"
+                        android:layout_marginLeft="20dp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/court_name_edit_reservation"
                         app:srcCompat="@drawable/baseline_location_on_24" />
+
+                <HorizontalScrollView
+                    android:layout_marginLeft="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_constraintTop_toBottomOf="@+id/location_edit_reservation"
+                    tools:layout_editor_absoluteX="15dp"
+                    android:scrollbars="none">
 
                     <com.google.android.material.chip.ChipGroup
                         android:id="@+id/time_slots_chip_group_edit_reservation"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        app:singleSelection="true"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/location_edit_reservation" />
+                        app:layout_constraintTop_toBottomOf="@+id/location_edit_reservation"
+                        app:singleLine="true"
+                        app:singleSelection="true" />
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </LinearLayout>
+                </HorizontalScrollView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
                 android:id="@+id/checkbox_wrapper"

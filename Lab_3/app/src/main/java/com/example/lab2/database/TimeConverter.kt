@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter
 
 class TimeConverter {
 
-    private val formatterTime: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_TIME
+    private val formatterTime: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
     @TypeConverter
     fun fromTime(localTime: LocalTime?): String? {
@@ -17,6 +17,6 @@ class TimeConverter {
 
     @TypeConverter
     fun toLocalTime(sqlTime: String?): LocalTime? {
-        return sqlTime.let { LocalTime.parse(it,formatterTime)}
+        return sqlTime?.let { LocalTime.parse(it,formatterTime)}
     }
 }
