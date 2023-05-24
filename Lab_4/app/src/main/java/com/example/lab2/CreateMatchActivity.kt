@@ -3,6 +3,7 @@ package com.example.lab2
 import android.app.Activity
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
@@ -16,6 +17,7 @@ import com.example.lab2.calendar.CalendarVM
 import com.example.lab2.calendar.CreateMatchVM
 import com.example.lab2.calendar.UserViewModel
 import com.example.lab2.database.ReservationAppDatabase
+import com.example.lab2.entities.Sport
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,7 +29,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class CreateMatchActivity : AppCompatActivity() {
 
-    var invalidTime = false
+    var invalidData = false
 
     private lateinit var timeAutoCompleteTextView: AutoCompleteTextView
     private lateinit var sportAutoCompleteTV: AutoCompleteTextView
@@ -68,6 +70,7 @@ class CreateMatchActivity : AppCompatActivity() {
         val arrayAdapter2 = ArrayAdapter(applicationContext, R.layout.dropdown_item, createMatchVM.getListTimeslots().value!!)
         timeAutoCompleteTextView.setAdapter(arrayAdapter2)
 
+
         calendarVM.getSelectedDate().observe(this) {
             createMatchVM.filterTimeslots(it)
             val arrayAdapter = ArrayAdapter(applicationContext, R.layout.dropdown_item, createMatchVM.getListTimeslots().value!!)
@@ -75,6 +78,13 @@ class CreateMatchActivity : AppCompatActivity() {
         }
 
         confirmButton.setOnClickListener {
+            if (userVM.getUser().value!!.interests
+                    .find { it.name == sportAutoCompleteTV.text.toString()} == null
+                || createMatchVM.getListTimeslots().value!!.find { it == timeAutoCompleteTextView.text.toString()} == null
+            ) {
+                Toast.makeText(this, "Please, fill in all the fields", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
             val formattedSport = sportAutoCompleteTV.text.toString().lowercase().replaceFirstChar { it.uppercase() }
             val time = LocalTime.parse(timeAutoCompleteTextView.text.toString(), DateTimeFormatter.ofPattern("HH:mm"))
             createMatchVM.createMatch(
