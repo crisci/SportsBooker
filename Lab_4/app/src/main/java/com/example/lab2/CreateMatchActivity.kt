@@ -29,8 +29,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class CreateMatchActivity : AppCompatActivity() {
 
-    var invalidData = false
-
     private lateinit var timeAutoCompleteTextView: AutoCompleteTextView
     private lateinit var sportAutoCompleteTV: AutoCompleteTextView
     private lateinit var confirmButton: Button
