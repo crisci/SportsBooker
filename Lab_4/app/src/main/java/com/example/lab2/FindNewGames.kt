@@ -177,7 +177,7 @@ class AdapterNewGames(private var mapNewMatches: Map<Court,List<Reservation>>): 
 
     override fun onBindViewHolder(holder: ViewHolderNewGames, position: Int) {
         val court = mapNewMatches.entries.elementAt(position).key
-        val reservations = mapNewMatches.entries.elementAt(position).value
+        val reservations = mapNewMatches.entries.elementAt(position).value.sortedBy { it.time }
         holder.timeslots.layoutManager = LinearLayoutManager(holder.itemView.context, LinearLayoutManager.HORIZONTAL, false)
         holder.timeslots.adapter = TimeslotAdapter(court, reservations, object : TimeslotAdapter.OnClickTimeslot {
             override fun onClickTimeslot(timeslot: LocalTime) {
