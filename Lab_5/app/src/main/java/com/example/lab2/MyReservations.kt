@@ -246,6 +246,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             swipeRefreshLayout.isRefreshing = false
         }
 
+        //TODO this tutorial must show after the user has registered theirselves, so at first login
        /* calendarVM.getShowTutorial().observe(viewLifecycleOwner) {
             val builder = AlertDialog.Builder(requireContext())
             val view = layoutInflater.inflate(R.layout.modal_tutorial, null)
