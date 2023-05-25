@@ -2,6 +2,7 @@ package com.example.lab2.calendar
 
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -33,6 +34,7 @@ class MainVM @Inject constructor(): ViewModel() {
         db.collection("players").document(userId).addSnapshotListener{ value, error ->
             if(value!=null){
                 user.value = User.fromFirebase(value)
+                Log.d("MainVM", "User set to: ${user.value}")
                 currentUserId.value = userId
                 this.error.value = null
             }

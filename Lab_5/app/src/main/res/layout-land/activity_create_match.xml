@@ -17,23 +17,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.core.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <androidx.constraintlayout.widget.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/weekCalendarFragment"
-                android:name="com.example.lab2.calendar.WeekCalendarCreateMatch"
+                android:name="com.example.lab2.calendar.DynamicCalendarCreateMatch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="15dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:layout="@layout/calendar_create_match" />
+                tools:layout="@layout/dynamic_calendar_create_match_fragment" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/reservation_card_detail"
@@ -47,24 +44,6 @@
                 app:layout_constraintBottom_toTopOf="@+id/reservation_card_time"
                 app:layout_constraintTop_toBottomOf="@id/weekCalendarFragment"
                 tools:layout_editor_absoluteX="10dp">
-
-                <ImageView
-                    android:id="@+id/imageView"
-                    android:layout_width="19dp"
-                    android:layout_height="20dp"
-                    android:layout_marginTop="5dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
-                    app:srcCompat="@drawable/baseline_location_on_24" />
-
-                <TextView
-                    android:id="@+id/location_confirm_reservation"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:text="@string/locationValue"
-                    app:layout_constraintStart_toEndOf="@+id/imageView"
-                    app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/textInputLayout"
@@ -147,6 +126,5 @@
                 app:layout_constraintTop_toBottomOf="@+id/reservation_card_time" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.core.widget.NestedScrollView>
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
