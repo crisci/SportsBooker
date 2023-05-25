@@ -1,33 +1,24 @@
 package com.example.lab2
 
 import android.app.Activity
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.MenuItem
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
-import com.example.lab2.calendar.BookingViewModel
 import com.example.lab2.calendar.EquipmentsVM
-import com.example.lab2.calendar.UserViewModel
+import com.example.lab2.calendar.MainVM
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.reservation.Reservation
-import com.example.lab2.database.reservation.ReservationWithCourt
-import com.example.lab2.database.reservation.formatPrice
 import com.example.lab2.entities.Equipment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -53,7 +44,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
 
     lateinit var equipmentsVM: EquipmentsVM
     @Inject
-    lateinit var vm: UserViewModel
+    lateinit var vm: MainVM
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_confirm_booking)

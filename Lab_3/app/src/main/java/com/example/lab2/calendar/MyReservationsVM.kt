@@ -34,19 +34,6 @@ class MyReservationsVM @Inject constructor(
     private val courtReviewRepository: CourtReviewRepository,
     ): ViewModel() {
 
-
-
-    var user = MutableLiveData<User>(User())
-
-
-    fun setUser(value: User) {
-        user.value = value
-    }
-
-    fun getUser(): User {
-        return user.value!!
-    }
-
     private var sportFilter = MutableLiveData<String?>(null)
     fun getSportFilter(): LiveData<String?> {
         return sportFilter

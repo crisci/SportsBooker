@@ -1,15 +1,14 @@
 package com.example.lab2
 
+import android.app.Activity
 import android.app.Dialog
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.Window
 import android.widget.Button
@@ -21,18 +20,15 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.example.lab2.calendar.MyReservationsVM
-import com.example.lab2.calendar.UserViewModel
-import com.example.lab2.database.ReservationAppDatabase
+import com.example.lab2.calendar.MainVM
 import com.example.lab2.entities.BadgeType
-import com.example.lab2.entities.User
+import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class ShowProfileActivity : AppCompatActivity() {
-    private var user: User = User()
 
     private lateinit var full_name: TextView
     private lateinit var nickname: TextView
@@ -46,14 +42,9 @@ class ShowProfileActivity : AppCompatActivity() {
     private lateinit var skills: LinearLayout
     private lateinit var backButton: ImageButton
     private lateinit var editProfile: ImageButton
-    var image_uri: Uri? = null
-
-    private lateinit var sharedPref: SharedPreferences
-
-    private lateinit var db : ReservationAppDatabase
 
     @Inject
-    lateinit var vm: UserViewModel
+    lateinit var vm: MainVM
     lateinit var reservationVm: MyReservationsVM
 
 
@@ -62,25 +53,22 @@ class ShowProfileActivity : AppCompatActivity() {
 
     private fun processResponse(response: androidx.activity.result.ActivityResult) {
         if(response.resultCode == RESULT_OK) {
-            val data: Intent? = response.data
-            val userModified = data?.getStringExtra("user")
-            user = User.fromJson(userModified!!)
-            vm.setUser(user)
-            //commit the data in the shared preferences
-            with(sharedPref.edit()) {
-                putString("user", user.toJson())
-                apply()
-            }
-
+            updateContent()
         }
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setSupportActionBar()
 
+        // Set ViewModels & Current User Data
         reservationVm = ViewModelProvider(this)[MyReservationsVM::class.java]
 
+        vm.setUser()
+
+        // Find views
         full_name = findViewById(R.id.nameSurname)
         nickname = findViewById(R.id.nickname)
         location = findViewById(R.id.location)
@@ -95,14 +83,6 @@ class ShowProfileActivity : AppCompatActivity() {
 
         skills.setOnClickListener { showCustomDialog() }
 
-        supportActionBar?.elevation = 0f
-
-        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
-        supportActionBar?.setCustomView(R.layout.toolbar_show_profile)
-        val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title_show_profile)
-        titleTextView?.text = "Profile"
-        backButton = supportActionBar?.customView?.findViewById<ImageButton>(R.id.edit_profile_back_button)!!
-        editProfile = supportActionBar?.customView?.findViewById<ImageButton>(R.id.profile_edit_button)!!
 
         reservationVm.refreshMyStatistics(playerId = 1)
 
@@ -121,78 +101,26 @@ class ShowProfileActivity : AppCompatActivity() {
         editProfile.setOnClickListener {
             val intentEditProfile = Intent(this, EditProfileActivity::class.java).apply {
                 addCategory(Intent.CATEGORY_SELECTED_ALTERNATIVE)
-                putExtra("user", user.toJson())
+                putExtra("user", vm.user.value?.toJson())
             }
             launcher.launch(intentEditProfile)
         }
 
-
-        //load the shared preferences and update the views
-        sharedPref = this.getSharedPreferences(
-            getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-
-        val userPref = sharedPref.getString("user", null) ?: User().toJson()
-        user = User.fromJson(userPref)
-        vm.setUser(user)
-
-        db = ReservationAppDatabase.getDatabase(this)
-
     }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("user", user.toJson())
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        user = User.fromJson(savedInstanceState.getString("user")!!)
-        updateContent()
-    }
-
-    /*    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-            super.onCreateOptionsMenu(menu)
-            val inflater: MenuInflater = menuInflater
-            inflater.inflate(R.menu.editmenu, menu)
-            return true
-        }
-
-        override fun onOptionsItemSelected(item: MenuItem): Boolean {
-            val intentEditProfile = Intent(this, EditProfileActivity::class.java).apply {
-                addCategory(Intent.CATEGORY_SELECTED_ALTERNATIVE)
-                putExtra("user", user.toJson())
-            }
-            val intentMyReservations = Intent(this, MyReservationsActivity::class.java)
-
-            return when (item.itemId) {
-                R.id.edit -> {
-                    launcher.launch(intentEditProfile)
-                    true
-                }
-                else -> super.onContextItemSelected(item)
-            }
-        }*/
-
 
     private fun updateContent() {
-        full_name.text = user.full_name
-        nickname.text = "@${user.nickname}"
-        description.text = user.description
-        location.text = user.address
-        age.text = "${user.getAge()}yo"
+        full_name.text = vm.user.value?.full_name
+        nickname.text = "@${vm.user.value?.nickname}"
+        description.text = vm.user.value?.description
+        location.text = vm.user.value?.address
+        age.text = "${vm.user.value?.getAge()}yo"
 
-        if (user.image == null) {
+        if (vm.user.value?.image == "") {
             profileImage.setBackgroundResource(R.drawable.profile_picture)
         }
         else {
-            val inputStream = applicationContext.openFileInput(user.image)
-            val rotated = BitmapFactory.decodeStream(inputStream)
-            inputStream.close()
-            //val rotated = rotateBitmap(inputImageBitmap!!)
-            rotated?.let {
-                // Set the new image to the ImageView
-                profileImage.setImageBitmap(it)
-            }
+            val profileImageUrl = vm.user.value?.image
+            Picasso.get().load(profileImageUrl).into(profileImage)
         }
 
         badgesLayout.removeAllViews()
@@ -200,11 +128,11 @@ class ShowProfileActivity : AppCompatActivity() {
         statisticsLayout.removeAllViews()
 
         // Show only 3 small badges, that's why "drop 2"
-        val badges = user.badges.toList().dropLast(2).toMap<BadgeType, Int>().map {  BadgeView(this, badge = it) }
-        badges.forEach { badgesLayout.addView(it) }
+        val badges = vm.user.value?.badges?.toList()?.dropLast(2)?.toMap<BadgeType, Int>()?.map {  BadgeView(this, badge = it) }
+        badges?.forEach { badgesLayout.addView(it) }
 
-        val interests = user.interests.sortedBy { it.name }.map {  InterestView(this, sport = it) }
-        interests.forEach { interestsLayout.addView(it) }
+        val interests = vm.user.value?.interests?.sortedBy { it.name }?.map {  InterestView(this, sport = it) }
+        interests?.forEach { interestsLayout.addView(it) }
 
         val statistics = reservationVm.getMyStatistics().value?.sortedBy { it.sport.name }?.map {  StatisticView(this, statistic = it) }
 
@@ -214,6 +142,19 @@ class ShowProfileActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.no_stats).visibility = View.GONE
             statistics.forEach { statisticsLayout.addView(it) }
         }
+    }
+
+    private fun setSupportActionBar(){
+
+        supportActionBar?.elevation = 0f
+
+        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
+        supportActionBar?.setCustomView(R.layout.toolbar_show_profile)
+        val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title_show_profile)
+        titleTextView?.text = "Profile"
+        backButton = supportActionBar?.customView?.findViewById<ImageButton>(R.id.edit_profile_back_button)!!
+        editProfile = supportActionBar?.customView?.findViewById<ImageButton>(R.id.profile_edit_button)!!
+
     }
 
     private fun showCustomDialog() {
@@ -226,7 +167,7 @@ class ShowProfileActivity : AppCompatActivity() {
 
         val exitButton = skillsDialog.findViewById<Button>(R.id.close_skills_dialog)
         val skillsContainer = skillsDialog.findViewById<GridView>(R.id.skills_container)
-        skillsContainer.adapter = SkillAdapter(this, user.badges)
+        skillsContainer.adapter = SkillAdapter(this, vm.user.value?.badges!!)
 
 
         exitButton.setOnClickListener {

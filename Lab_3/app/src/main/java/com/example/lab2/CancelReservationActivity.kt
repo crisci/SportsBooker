@@ -13,8 +13,7 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
-import com.example.lab2.calendar.UserViewModel
+import com.example.lab2.calendar.MainVM
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.reservation.Reservation
@@ -44,7 +43,7 @@ class CancelReservationActivity : AppCompatActivity() {
     private lateinit var backButton: ImageView
 
     @Inject
-    lateinit var vm: UserViewModel
+    lateinit var vm: MainVM
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

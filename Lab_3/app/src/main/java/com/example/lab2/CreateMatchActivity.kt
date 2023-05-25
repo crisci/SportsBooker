@@ -1,7 +1,6 @@
 package com.example.lab2
 
 import android.app.Activity
-import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -10,16 +9,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.calendar.CalendarVM
 import com.example.lab2.calendar.CreateMatchVM
-import com.example.lab2.calendar.UserViewModel
+import com.example.lab2.calendar.MainVM
 import com.example.lab2.database.ReservationAppDatabase
-import com.google.android.material.timepicker.MaterialTimePicker
-import com.google.android.material.timepicker.TimeFormat
 import dagger.hilt.android.AndroidEntryPoint
-import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -35,7 +30,7 @@ class CreateMatchActivity : AppCompatActivity() {
 
     lateinit var calendarVM: CalendarVM
     @Inject
-    lateinit var userVM: UserViewModel
+    lateinit var userVM: MainVM
 
     lateinit var createMatchVM: CreateMatchVM
     private lateinit var db: ReservationAppDatabase
@@ -55,7 +50,7 @@ class CreateMatchActivity : AppCompatActivity() {
         db = ReservationAppDatabase.getDatabase(this)
 
         calendarVM = ViewModelProvider(this)[CalendarVM::class.java]
-        userVM = ViewModelProvider(this)[UserViewModel::class.java]
+        userVM = ViewModelProvider(this)[MainVM::class.java]
         createMatchVM = ViewModelProvider(this)[CreateMatchVM::class.java]
 
         timeAutoCompleteTextView = findViewById(R.id.autoCompleteTextView2)

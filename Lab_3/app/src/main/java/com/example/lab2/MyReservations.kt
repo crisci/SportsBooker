@@ -2,9 +2,7 @@ package com.example.lab2
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
@@ -25,25 +23,17 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.lab2.calendar.CalendarVM
 import com.example.lab2.calendar.MyReservationsVM
 import com.example.lab2.calendar.RatingModalVM
-import com.example.lab2.calendar.UserViewModel
+import com.example.lab2.calendar.MainVM
 import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
-import com.example.lab2.database.player_reservation_join.PlayerReservation
-import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
-import com.example.lab2.entities.User
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.time.LocalDate
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -56,7 +46,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
     private lateinit var navController : NavController
 
     @Inject
-    lateinit var userVM: UserViewModel
+    lateinit var userVM: MainVM
     lateinit var vm: MyReservationsVM
     lateinit var calendarVM: CalendarVM
     lateinit var ratingModalVM: RatingModalVM

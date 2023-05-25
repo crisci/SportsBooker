@@ -27,28 +27,28 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cunoraz.tagview.*
-import com.example.lab2.calendar.setTextColorRes
-import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
-import com.example.lab2.database.reservation.formatPrice
+import com.example.lab2.calendar.MainVM
 import com.example.lab2.entities.*
 import com.google.gson.Gson
+import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.*
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.*
+import javax.inject.Inject
 import kotlin.concurrent.thread
 
 @AndroidEntryPoint
 class EditProfileActivity : AppCompatActivity() {
 
-    private lateinit var user: User
-    private var cameraHasFinished: Boolean = true
+    @Inject
+    lateinit var vm: MainVM
 
+    private lateinit var editedUser: User
+    private var cameraHasFinished: Boolean = true
 
     private val listAllInterests: List<Sport> = Sport.values().toList()
 
@@ -71,25 +71,14 @@ class EditProfileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
-
+        setSupportActionBar()
         findViews()
-
-        supportActionBar?.elevation = 0f
-        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
-        supportActionBar?.setCustomView(R.layout.toolbar_edit_profile)
-        val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title_edit_profile)
-        titleTextView?.text = "Edit Profile"
-        backButton = supportActionBar?.customView?.findViewById<ImageButton>(R.id.edit_profile_back_button)!!
-
-        backButton.setOnClickListener {
-            finish()
-        }
 
         // Get the user information sended by the showProfile Activity,
         // than update the content of the views
         val extras = intent.extras
         if(extras != null) {
-            user = User.fromJson(extras.getString("user")!!)
+            editedUser = User.fromJson(extras.getString("user")!!)
         }
 
         initDatePicker()
@@ -133,21 +122,14 @@ class EditProfileActivity : AppCompatActivity() {
         setupTags()
         tagGroup.setOnTagClickListener { tag, position ->
             var uppercaseTagName = tag.text.uppercase(Locale.getDefault()) // i.e. from "Soccer" to "SOCCER", which is the constant in the enum
-            if (user.interests.any { it.name == uppercaseTagName }) {
-                user.interests = user.interests.filterNot{it.name == uppercaseTagName}.toMutableList()
-                //user.statistics.remove(Sport.valueOf(uppercaseTagName))
+            if (editedUser.interests.any { it.name == uppercaseTagName }) {
+                editedUser.interests = editedUser.interests.filterNot{it.name == uppercaseTagName}.toMutableList()
                 setupTags()
             }
             else {
-                if(user.interests.size < 3) {
-                    user.interests.add(Sport.valueOf(uppercaseTagName))
-                    //user.statistics.put(Sport.valueOf(uppercaseTagName), Statistic(
-                    //    sport = Sport.valueOf(uppercaseTagName),
-                    //    gamesPlayed = 0,
-                        //gamesWon = 0,
-                        //gamesLost = 0,
-                        //gamesDrawn = 0
-                    //) )
+                if(editedUser.interests.size < 3) {
+                    editedUser.interests.add(Sport.valueOf(uppercaseTagName))
+
                     setupTags()
                 }
                 else {
@@ -167,7 +149,7 @@ class EditProfileActivity : AppCompatActivity() {
     // This method must be called everytime we make a change in our interests to update the colors.
     private fun setupTags() {
         // We want to make a union between the interests of the user and all the other interests
-        tagGroup.addTags(listAllInterests.union(user.interests).map {currentInterest ->
+        tagGroup.addTags(listAllInterests.union(editedUser.interests).map {currentInterest ->
             /*
             * The enum constants are in uppercase, like "SOCCER". We want a tag like "Soccer".
             * The following code is equivalent to inputString.toLowerCase().capitalize(),
@@ -179,7 +161,7 @@ class EditProfileActivity : AppCompatActivity() {
             tag.tagTextSize = 18F
 
             // If the list of the user's interests contains the current interest, it should be green
-            if (user.interests.contains(currentInterest)) {
+            if (editedUser.interests.contains(currentInterest)) {
                 tag.layoutColor = ContextCompat.getColor(this, R.color.example_1_bg)
                 tag.tagTextColor = Color.WHITE
             }
@@ -192,6 +174,21 @@ class EditProfileActivity : AppCompatActivity() {
             }
             tag
         })
+    }
+
+    private fun setSupportActionBar() {
+
+        supportActionBar?.elevation = 0f
+        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
+        supportActionBar?.setCustomView(R.layout.toolbar_edit_profile)
+        val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title_edit_profile)
+        titleTextView?.text = "Edit Profile"
+        backButton = supportActionBar?.customView?.findViewById<ImageButton>(R.id.edit_profile_back_button)!!
+
+        backButton.setOnClickListener {
+            finish()
+        }
+
     }
 
     //TODO A function that calls all the findViewById() methods for each UI element
@@ -257,10 +254,11 @@ class EditProfileActivity : AppCompatActivity() {
 
         // Open and load the photo
         file_name = savedInstanceState.getString("image")
-        val inputStream = applicationContext.openFileInput(file_name)
-        val rotated = BitmapFactory.decodeStream(inputStream)
-        profileImage.setImageBitmap(rotated)
-
+        if(file_name != ""){
+            val inputStream = applicationContext.openFileInput(file_name)
+            val rotated = BitmapFactory.decodeStream(inputStream)
+            profileImage.setImageBitmap(rotated)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -270,7 +268,7 @@ class EditProfileActivity : AppCompatActivity() {
         outState.putString("description", description_m.text.toString())
         outState.putString("address", address_m.text.toString())
         outState.putString("email", email_m.text.toString())
-        outState.putString("image", file_name)
+        outState.putString("image", file_name ?: "")
         outState.putString("birthday", birthday_m.text.toString())
 
         /*
@@ -279,40 +277,30 @@ class EditProfileActivity : AppCompatActivity() {
         * */
 
         val gsonInterests = Gson()
-        val jsonInterests = gsonInterests.toJson(user.interests)
+        val jsonInterests = gsonInterests.toJson(editedUser.interests)
         outState.putString("interests", jsonInterests)
 
         val gsonSkills = Gson()
         val jsonSkills = gsonSkills.toJson(skills_m)
         outState.putString("skills", jsonSkills)
-
-        //val gsonStatistics = Gson()
-        //val jsonStatistics = gsonStatistics.toJson(user.statistics)
-        //outState.putString("statistics", jsonStatistics)
     }
 
 
     //TODO This function fills the fields
     private fun updateContent() {
-        full_name_m.setText(user.full_name)
-        nickname_m.setText(user.nickname)
-        description_m.setText(user.description)
-        address_m.setText(user.address)
-        email_m.setText(user.email)
-        skills_m = user.badges as MutableMap<BadgeType, Int>
+        full_name_m.setText(editedUser.full_name)
+        nickname_m.setText(editedUser.nickname)
+        description_m.setText(editedUser.description)
+        address_m.setText(editedUser.address)
+        email_m.setText(editedUser.email)
+        skills_m = editedUser.badges as MutableMap<BadgeType, Int>
 
-        if (user.image == null) {
+        if (editedUser.image == "") {
             profileImage.setBackgroundResource(R.drawable.profile_picture)
         }
         else {
-            file_name = user.image
-            // Open and load the photo
-            val inputStream = applicationContext.openFileInput(file_name)
-            val bitmap = BitmapFactory.decodeStream(inputStream)
-            bitmap?.let {
-                // Set the new image to the ImageView
-                profileImage.setImageBitmap(it)
-            }
+            val profileImageUrl = editedUser.image
+            Picasso.get().load(profileImageUrl).into(profileImage)
         }
 
     }
@@ -456,30 +444,8 @@ class EditProfileActivity : AppCompatActivity() {
         while (!cameraHasFinished) {
         }
         confirmButton.text = "Confirm"
-        val sharedPreference =  getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-        var editor = sharedPreference.edit()
+
         val result: Intent = Intent()
-        editor.putString("full_name", full_name_m.text.toString().trim())
-        editor.putString("nickname", nickname_m.text.toString().trim())
-        editor.putString("description", description_m.text.toString().trim())
-        editor.putString("address", address_m.text.toString().trim())
-        editor.putString("email", email_m.text.toString().trim())
-        editor.putString("image", file_name)
-        editor.putString("birthday", birthday_m.text.toString().trim())
-
-        val gsonInterests = Gson()
-        val jsonInterests = gsonInterests.toJson(user.interests)
-        editor.putString("interests", jsonInterests)
-
-        val gsonSkills = Gson()
-        val jsonSkills = gsonSkills.toJson(skills_m)
-        editor.putString("skills", jsonInterests)
-
-        val gsonStatistics = Gson()
-        val jsonStatistics = gsonStatistics.toJson(user.statistics)
-        editor.putString("statistics", jsonStatistics)
-
-        editor.apply()
 
         val editedUser = User(
             full_name = full_name_m.text.toString().trim(),
@@ -487,23 +453,27 @@ class EditProfileActivity : AppCompatActivity() {
             address = address_m.text.toString().trim(),
             description = description_m.text.toString().trim(),
             email = email_m.text.toString().trim(),
-            image = file_name,
-            birthday = user.birthday,
-            interests = user.interests,
-            statistics = user.statistics,
+            image = editedUser.image,
+            birthday = editedUser.birthday,
+            interests = editedUser.interests,
             badges = skills_m
         )
-        result.putExtra("user", editedUser.toJson())
-        setResult(Activity.RESULT_OK, result)
 
+        vm.updateUser(editedUser)
+
+        if(image_uri != null){
+            vm.updateUserImage(image_uri!!)
+        }
+
+        setResult(Activity.RESULT_OK, result)
         finish()
     }
 
     //TODO This function initializes the DatePickerDialog
     private fun initDatePicker() {
-        birthday_m.setText("${user.birthday.dayOfMonth}/${user.birthday.monthValue}/${user.birthday.year}")
+        birthday_m.setText("${editedUser.birthday.dayOfMonth}/${editedUser.birthday.monthValue}/${editedUser.birthday.year}")
         birthday_m.setOnClickListener {
-            val c = user.birthday
+            val c = editedUser.birthday
             val uYear = c.year
             val uMonth =  c.monthValue
             val uDay =  c.dayOfMonth
@@ -513,7 +483,7 @@ class EditProfileActivity : AppCompatActivity() {
                 { _, year, monthOfYear, dayOfMonth ->
                     val dat = (dayOfMonth.toString() + "/" + (monthOfYear + 1) + "/" + year)
                     birthday_m.setText(dat)
-                    user.birthday = LocalDate.of(year, monthOfYear+1, dayOfMonth)
+                    editedUser.birthday = LocalDate.of(year, monthOfYear+1, dayOfMonth)
                 },
                 uYear,
                 uMonth,

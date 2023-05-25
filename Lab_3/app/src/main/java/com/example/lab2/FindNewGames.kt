@@ -6,15 +6,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.GridLayout
-import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.marginRight
-import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -25,19 +20,12 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.lab2.calendar.CalendarVM
 import com.example.lab2.calendar.NewMatchesVM
-import com.example.lab2.calendar.UserViewModel
+import com.example.lab2.calendar.MainVM
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
-import com.example.lab2.database.court.CourtWithReservations
 import com.example.lab2.database.reservation.Reservation
-import com.example.lab2.database.reservation.ReservationWithCourt
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.time.LocalTime
 
 import java.time.format.DateTimeFormatter
@@ -54,7 +42,7 @@ class NewGames : Fragment(R.layout.fragment_new_games) {
     lateinit var vm: NewMatchesVM
     lateinit var calendarVM: CalendarVM
     @Inject
-    lateinit var userVM: UserViewModel
+    lateinit var userVM: MainVM
 
 
     private lateinit var db: ReservationAppDatabase
