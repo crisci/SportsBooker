@@ -246,7 +246,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             swipeRefreshLayout.isRefreshing = false
         }
 
-        calendarVM.getShowTutorial().observe(viewLifecycleOwner) {
+       /* calendarVM.getShowTutorial().observe(viewLifecycleOwner) {
             val builder = AlertDialog.Builder(requireContext())
             val view = layoutInflater.inflate(R.layout.modal_tutorial, null)
             builder.setView(view)
@@ -255,7 +255,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
             }
             val dialog = builder.create()
             dialog.show()
-        }
+        }*/
 
     }
 
