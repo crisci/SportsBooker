@@ -29,19 +29,30 @@
                 android:text="Choose a date:"
                 android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="@+id/guideline2"
-                app:layout_constraintBottom_toTopOf="@id/weekCalendarFragment"
+                app:layout_constraintBottom_toTopOf="@id/week_calendar_card_view"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/week_calendar_card_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:elevation="20dp"
+                android:layout_marginHorizontal="25dp"
+                app:layout_constraintTop_toBottomOf="@id/choose_date"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/textInputLayout"
+                app:cardCornerRadius="30dp"
+                app:cardElevation="8dp">
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/weekCalendarFragment"
-                android:name="com.example.lab2.calendar.DynamicCalendarCreateMatch"
+                android:name="com.example.lab2.calendar.DynamicCalendar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/choose_date"
-                app:layout_constraintBottom_toTopOf="@id/textInputLayout"
-                tools:layout="@layout/dynamic_calendar_create_match_fragment" />
+                tools:layout="@layout/dynamic_calendar_fragment" />
+
+            </androidx.cardview.widget.CardView>
 
 
             <com.google.android.material.textfield.TextInputLayout
@@ -50,7 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toTopOf="@+id/reservation_card_time"
-                app:layout_constraintTop_toBottomOf="@+id/weekCalendarFragment"
+                app:layout_constraintTop_toBottomOf="@+id/week_calendar_card_view"
                 app:layout_constraintStart_toStartOf="@id/guideline2">
 
                 <AutoCompleteTextView

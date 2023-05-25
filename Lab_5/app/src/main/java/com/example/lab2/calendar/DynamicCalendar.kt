@@ -90,33 +90,39 @@ class DynamicCalendar : Fragment(R.layout.dynamic_calendar_fragment){
         )
 
         roundCalendarButton.setOnClickListener(calendarModeToggle)
-        timeslotFilterButton.setOnClickListener {
-            val materialTimePicker: MaterialTimePicker = MaterialTimePicker.Builder()
-                .setTitleText("Pick your time")
-                .setHour(vm.selectedTime.value!!.hour)
-                .setMinute(vm.selectedTime.value!!.minute)
-                .setTimeFormat(TimeFormat.CLOCK_24H)
-                .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
-                .build()
-
-            materialTimePicker.show(childFragmentManager,requireActivity().toString())
-
-            materialTimePicker.addOnPositiveButtonClickListener {
-
-                val pickedHour: Int = materialTimePicker.hour
-                val pickedMinute: Int = materialTimePicker.minute
-
-                if(vm.getSelectedDate().value == LocalDate.now() && pickedHour < LocalTime.now().hour) {
-                    Toast.makeText(activity, "Cannot select past time!", Toast.LENGTH_SHORT).show()
-                    return@addOnPositiveButtonClickListener
-                }
-                vm.selectedTime.value = LocalTime.of(pickedHour,pickedMinute)
-
-            }
+        if(requireActivity().componentName.className == "com.example.lab2.CreateMatchActivity") {
+            timeslotFilterButton.visibility = View.GONE
         }
+        else {
+            timeslotFilterButton.visibility = View.VISIBLE
+            timeslotFilterButton.setOnClickListener {
+                val materialTimePicker: MaterialTimePicker = MaterialTimePicker.Builder()
+                    .setTitleText("Pick your time")
+                    .setHour(vm.selectedTime.value!!.hour)
+                    .setMinute(vm.selectedTime.value!!.minute)
+                    .setTimeFormat(TimeFormat.CLOCK_24H)
+                    .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
+                    .build()
 
-        vm.selectedTime.observe(viewLifecycleOwner) {
-            timeslotFilterButton.text = it.format(DateTimeFormatter.ofPattern("HH:mm"))
+                materialTimePicker.show(childFragmentManager, requireActivity().toString())
+
+                materialTimePicker.addOnPositiveButtonClickListener {
+
+                    val pickedHour: Int = materialTimePicker.hour
+                    val pickedMinute: Int = materialTimePicker.minute
+
+                    if (vm.getSelectedDate().value == LocalDate.now() && pickedHour < LocalTime.now().hour) {
+                        Toast.makeText(activity, "Cannot select past time!", Toast.LENGTH_SHORT)
+                            .show()
+                        return@addOnPositiveButtonClickListener
+                    }
+                    vm.selectedTime.value = LocalTime.of(pickedHour, pickedMinute)
+
+                }
+            }
+            vm.selectedTime.observe(viewLifecycleOwner) {
+                timeslotFilterButton.text = it.format(DateTimeFormatter.ofPattern("HH:mm"))
+            }
         }
     }
 
