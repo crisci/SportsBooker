@@ -120,7 +120,7 @@ class EditProfileActivity : AppCompatActivity() {
         }
 
         setupTags()
-        tagGroup.setOnTagClickListener { tag, position ->
+        tagGroup.setOnTagClickListener { tag, _ ->
             var uppercaseTagName = tag.text.uppercase(Locale.getDefault()) // i.e. from "Soccer" to "SOCCER", which is the constant in the enum
             if (editedUser.interests.any { it.name == uppercaseTagName }) {
                 editedUser.interests = editedUser.interests.filterNot{it.name == uppercaseTagName}.toMutableList()
@@ -182,7 +182,7 @@ class EditProfileActivity : AppCompatActivity() {
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
         supportActionBar?.setCustomView(R.layout.toolbar_edit_profile)
         val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title_edit_profile)
-        titleTextView?.text = "Edit Profile"
+        titleTextView?.setText(R.string.edit_profile_title)
         backButton = supportActionBar?.customView?.findViewById<ImageButton>(R.id.edit_profile_back_button)!!
 
         backButton.setOnClickListener {
@@ -192,7 +192,7 @@ class EditProfileActivity : AppCompatActivity() {
     }
 
     //TODO A function that calls all the findViewById() methods for each UI element
-    fun findViews() {
+    private fun findViews() {
         full_name_m = findViewById(R.id.editNameSurname)
         description_m = findViewById(R.id.editDescription)
         nickname_m = findViewById(R.id.editNickname)

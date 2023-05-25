@@ -1,18 +1,14 @@
 package com.example.lab2.calendar
 
-import android.media.Image
+
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.lab2.entities.User
-import com.google.android.gms.tasks.OnSuccessListener
-import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.UploadTask
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -79,7 +75,7 @@ class MainVM @Inject constructor(): ViewModel() {
                     }
                     .addOnFailureListener {
                             e ->
-                        Log.d("firebase", e.message!!)
+                                error.value = e.message!!
                     }
             }
         }

@@ -1,5 +1,12 @@
 <resources>
     <string name="app_name">SportsBooker</string>
+
+    <!-- SupportActionBar Titles -->
+    <string name="my_reservations_title">My Reservations</string>
+    <string name="profile_title">Profile</string>
+    <string name="edit_profile_title">Edit Profile</string>
+
+
     <string name="nameSurname">Achille Mago</string>
     <string name="statistics">Statistics</string>
     <string name="your_interests">Your interests</string>
@@ -33,8 +40,6 @@
     <string name="confirmEdit">Confirm</string>
     <string name="preference_file_key">com.example.lab2.USER</string>
     <string name="close">Close</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="no_results">You have no reservations</string>
     <string name="no_matches">There are no matches</string>
     <string name="join_match">Join a match</string>

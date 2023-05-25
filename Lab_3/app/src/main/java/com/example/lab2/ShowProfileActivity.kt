@@ -1,14 +1,12 @@
 package com.example.lab2
 
-import android.app.Activity
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.Window
 import android.widget.Button
@@ -22,7 +20,6 @@ import androidx.appcompat.app.ActionBar
 import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.calendar.MyReservationsVM
 import com.example.lab2.calendar.MainVM
-import com.example.lab2.entities.BadgeType
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -30,7 +27,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ShowProfileActivity : AppCompatActivity() {
 
-    private lateinit var full_name: TextView
+    private lateinit var fullName: TextView
     private lateinit var nickname: TextView
     private lateinit var location: TextView
     private lateinit var description: TextView
@@ -39,7 +36,6 @@ class ShowProfileActivity : AppCompatActivity() {
     private lateinit var interestsLayout: LinearLayout
     private lateinit var badgesLayout: LinearLayout
     private lateinit var statisticsLayout: LinearLayout
-    private lateinit var skills: LinearLayout
     private lateinit var backButton: ImageButton
     private lateinit var editProfile: ImageButton
 
@@ -62,29 +58,14 @@ class ShowProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar()
+        findViews()
 
         // Set ViewModels & Current User Data
         reservationVm = ViewModelProvider(this)[MyReservationsVM::class.java]
 
-        vm.setUser()
-
-        // Find views
-        full_name = findViewById(R.id.nameSurname)
-        nickname = findViewById(R.id.nickname)
-        location = findViewById(R.id.location)
-        description = findViewById(R.id.description)
-        profileImage = findViewById(R.id.profile_image)
-        age = findViewById(R.id.age)
-        interestsLayout = findViewById(R.id.profile_interests)
-        badgesLayout = findViewById(R.id.profile_badges)
-        statisticsLayout = findViewById(R.id.profile_statistics)
-        skills = findViewById(R.id.profile_badges)
-
-
-        skills.setOnClickListener { showCustomDialog() }
-
-
         reservationVm.refreshMyStatistics(playerId = 1)
+
+        badgesLayout.setOnClickListener { showCustomDialog() }
 
         vm.user.observe(this) {
             updateContent()
@@ -108,8 +89,21 @@ class ShowProfileActivity : AppCompatActivity() {
 
     }
 
+    private fun findViews(){
+        fullName = findViewById(R.id.nameSurname)
+        nickname = findViewById(R.id.nickname)
+        location = findViewById(R.id.location)
+        description = findViewById(R.id.description)
+        profileImage = findViewById(R.id.profile_image)
+        age = findViewById(R.id.age)
+        interestsLayout = findViewById(R.id.profile_interests)
+        badgesLayout = findViewById(R.id.profile_badges)
+        statisticsLayout = findViewById(R.id.profile_statistics)
+    }
+
+    @SuppressLint("SetTextI18n")
     private fun updateContent() {
-        full_name.text = vm.user.value?.full_name
+        fullName.text = vm.user.value?.full_name
         nickname.text = "@${vm.user.value?.nickname}"
         description.text = vm.user.value?.description
         location.text = vm.user.value?.address
@@ -128,7 +122,7 @@ class ShowProfileActivity : AppCompatActivity() {
         statisticsLayout.removeAllViews()
 
         // Show only 3 small badges, that's why "drop 2"
-        val badges = vm.user.value?.badges?.toList()?.dropLast(2)?.toMap<BadgeType, Int>()?.map {  BadgeView(this, badge = it) }
+        val badges = vm.user.value?.badges?.toList()?.dropLast(2)?.toMap()?.map {  BadgeView(this, badge = it) }
         badges?.forEach { badgesLayout.addView(it) }
 
         val interests = vm.user.value?.interests?.sortedBy { it.name }?.map {  InterestView(this, sport = it) }
@@ -148,18 +142,18 @@ class ShowProfileActivity : AppCompatActivity() {
 
         supportActionBar?.elevation = 0f
 
-        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
+        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
         supportActionBar?.setCustomView(R.layout.toolbar_show_profile)
         val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title_show_profile)
-        titleTextView?.text = "Profile"
-        backButton = supportActionBar?.customView?.findViewById<ImageButton>(R.id.edit_profile_back_button)!!
-        editProfile = supportActionBar?.customView?.findViewById<ImageButton>(R.id.profile_edit_button)!!
+        titleTextView?.setText(R.string.profile_title)
+        backButton = supportActionBar?.customView?.findViewById(R.id.edit_profile_back_button)!!
+        editProfile = supportActionBar?.customView?.findViewById(R.id.profile_edit_button)!!
 
     }
 
     private fun showCustomDialog() {
 
-        val skillsDialog: Dialog = Dialog(this)
+        val skillsDialog = Dialog(this)
         skillsDialog.requestWindowFeature(Window.FEATURE_NO_TITLE) // Remove default title
         skillsDialog.setCancelable(true) // Allow user to exit dialog by clicking outside
         skillsDialog.setContentView(R.layout.skills_dialog)
