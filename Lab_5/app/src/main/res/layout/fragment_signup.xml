@@ -5,11 +5,10 @@
     android:layout_height="match_parent"
     tools:context=".FragmentRegister">
 
-    <TextView
+    <EditText
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="https://www.youtube.com/watch?v=BBJa32lCaaY&ab_channel=LegacyPNDA"
-        android:layout_marginHorizontal="30dp"
+        android:text="https://shorturl.at/jtLP1"
         android:gravity="center"/>
 
 </FrameLayout>
