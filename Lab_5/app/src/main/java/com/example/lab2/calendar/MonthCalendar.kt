@@ -82,7 +82,6 @@ class MonthCalendar : Fragment(R.layout.month_calendar_fragment){
                     // Check the day position as we do not want to select in or out dates.
                     if (day.position == DayPosition.MonthDate && day.date >= LocalDate.now()) {
                         dateClicked(date = day.date)
-                        requireActivity().onBackPressedDispatcher.onBackPressed()
                     }
                 }
             }

@@ -51,59 +51,61 @@ class CreateMatchVM @Inject constructor(
     ) {
 
         viewModelScope.launch() {
-                var newMatchId: Long
-                var availableCourtId: Int
+            var newMatchId: Long
+            var availableCourtId: Int
 
-                availableCourtId = courtRepository.getFirstAvailableCourtForSportDateTime(
-                    sport,
-                    date,
-                    time
-                )
+            availableCourtId = courtRepository.getFirstAvailableCourtForSportDateTime(
+                sport,
+                date,
+                time
+            )
 
-                if(availableCourtId == 0) {
-                    exceptionMessage.value = "No available courts at this time"
-                    return@launch
-                }
-
-                var match = Reservation(
-                    date = date,
-                    time = time,
-                    courtId = availableCourtId,
-                    numOfPlayers = 1,
-                    price = 7.0
-                )
-
-                try {
-                    newMatchId = reservationRepository.saveReservation(match)
-                } catch (e: SQLiteConstraintException) {
-                    exceptionMessage.value = "There is already a match at this time"
-                    return@launch
-                }
-
-
-                try {
-                    playerReservationRepository.confirmReservation(
-                        1,
-                        newMatchId.toInt(),
-                        emptyList(),
-                        7.0
-                    )
-                } catch (e: SQLiteConstraintException) {
-                    exceptionMessage.value = "You already have a reservation at this time"
-                    return@launch
-                }
-
-                exceptionMessage.value = "Match created successfully"
+            if(availableCourtId == 0) {
+                exceptionMessage.value = "No available courts at this time"
+                return@launch
             }
+
+            var match = Reservation(
+                date = date,
+                time = time,
+                courtId = availableCourtId,
+                numOfPlayers = 1,
+                price = 7.0
+            )
+
+            try {
+                newMatchId = reservationRepository.saveReservation(match)
+            } catch (e: SQLiteConstraintException) {
+                exceptionMessage.value = "There is already a match at this time"
+                return@launch
+            }
+
+
+            try {
+                playerReservationRepository.confirmReservation(
+                    1,
+                    newMatchId.toInt(),
+                    emptyList(),
+                    7.0
+                )
+            } catch (e: SQLiteConstraintException) {
+                exceptionMessage.value = "You already have a reservation at this time"
+                return@launch
+            }
+
+            exceptionMessage.value = "Match created successfully"
         }
+    }
 
     fun filterTimeslots(date: LocalDate) {
-        listTimeslots.value = listTimeslots.value!!.filter {
-            val time = LocalTime.parse(it, DateTimeFormatter.ofPattern("HH:mm"))
-            if(date == LocalDate.now()) {
+        if(date > LocalDate.now()) {
+            listTimeslots.value = listOf("08:30","10:00", "11:30", "13:00", "14:30", "16:00", "17:30",
+                "19:00", "20:30", "22:00")
+        }
+        else {
+            listTimeslots.value = listTimeslots.value!!.filter {
+                val time = LocalTime.parse(it, DateTimeFormatter.ofPattern("HH:mm"))
                 time.isAfter(LocalTime.now())
-            } else {
-                true
             }
         }
     }

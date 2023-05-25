@@ -23,14 +23,14 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/weekCalendarFragment"
-            android:name="com.example.lab2.calendar.WeekCalendarCreateMatch"
+            android:name="com.example.lab2.calendar.MonthCalendar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="15dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:layout="@layout/calendar_create_match" />
+            tools:layout="@layout/month_calendar_fragment" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/reservation_card_detail"

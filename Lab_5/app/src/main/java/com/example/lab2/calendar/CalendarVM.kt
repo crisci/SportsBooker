@@ -25,4 +25,12 @@ class CalendarVM @Inject constructor() : ViewModel() {
         return selectedTime
     }
 
+    private val showTutorial = MutableLiveData<Boolean>(true)
+    fun getShowTutorial() : LiveData<Boolean> {
+        return showTutorial
+    }
+    fun setShowTutorial(value: Boolean) {
+        showTutorial.value = value
+    }
+
 }

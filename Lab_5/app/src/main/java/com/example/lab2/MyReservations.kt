@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
@@ -243,6 +244,17 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         swipeRefreshLayout.setOnRefreshListener {
             vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
             swipeRefreshLayout.isRefreshing = false
+        }
+
+        calendarVM.getShowTutorial().observe(viewLifecycleOwner) {
+            val builder = AlertDialog.Builder(requireContext())
+            val view = layoutInflater.inflate(R.layout.modal_tutorial, null)
+            builder.setView(view)
+            builder.setTitle("Swipe horizontally to change the week")
+            builder.setPositiveButton("OK") { dialog, which ->
+            }
+            val dialog = builder.create()
+            dialog.show()
         }
 
     }
