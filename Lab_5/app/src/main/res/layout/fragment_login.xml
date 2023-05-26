@@ -8,23 +8,12 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/login_form"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/login_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
                 android:layout_marginBottom="15dp"
                 android:fontFamily="@font/montserrat_extrabold"
                 android:text="@string/login"
@@ -80,7 +69,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_marginTop="50dp"
-                android:layout_marginBottom="64dp"
                 android:background="@drawable/rectangle_radius"
                 android:backgroundTint="@color/example_1_bg"
                 android:fontFamily="@font/montserrat_semibold"
@@ -90,10 +78,10 @@
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/password"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintVertical_bias="0.2" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -111,7 +99,5 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.3" />-->
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

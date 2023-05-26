@@ -48,6 +48,10 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
                     binding.password.error = "Password must be at least 6 characters long"
                     return@setOnClickListener
                 }
+                if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    binding.email.error = "Invalid email"
+                    return@setOnClickListener
+                }
                 if (password == confirmPassword) {
                         firebaseAuth.createUserWithEmailAndPassword(email, password)
                             .addOnCompleteListener { task ->

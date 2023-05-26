@@ -111,26 +111,31 @@
                 android:id="@+id/fragmentContainerViewAuthentication"
                 android:name="androidx.navigation.fragment.NavHostFragment"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_margin="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
                 app:defaultNavHost="true"
-                app:layout_constraintBottom_toTopOf="@id/access_with_external_service"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/authenticated_tabs"
                 app:navGraph="@navigation/authentication_graph" />
+
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="466dp" />
 
             <LinearLayout
                 android:id="@+id/access_with_external_service"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginBottom="90dp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/guideline6"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/fragmentContainerViewAuthentication">
+                app:layout_constraintStart_toStartOf="parent">
 
                 <TextView
                     android:id="@+id/textView4"
