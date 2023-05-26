@@ -13,15 +13,15 @@
 
         <action
             android:id="@+id/action_login_to_signup"
-            app:destination="@id/register"
+            app:destination="@id/signup"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left" />
     </fragment>
 
     <fragment
-        android:id="@+id/register"
-        android:name="com.example.lab2.FragmentRegister"
-        android:label="fragment_register"
+        android:id="@+id/signup"
+        android:name="com.example.lab2.FragmentSignup"
+        android:label="fragment_signup"
         tools:layout="@layout/fragment_signup">
 
         <action

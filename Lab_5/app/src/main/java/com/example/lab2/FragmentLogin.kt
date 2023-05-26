@@ -1,5 +1,6 @@
 package com.example.lab2
 
+import android.content.Intent
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -21,12 +22,19 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_login, container, false)
+        val view = inflater.inflate(R.layout.fragment_login, container, false)
+
+        view.findViewById<View>(R.id.login).setOnClickListener {
+            val intent = Intent(requireActivity(), MyReservationsActivity::class.java)
+            startActivity(intent)
+        }
+
+        return view
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(FragmentLoginVM::class.java)
+        viewModel = ViewModelProvider(this)[FragmentLoginVM::class.java]
         // TODO: Use the ViewModel
     }
 

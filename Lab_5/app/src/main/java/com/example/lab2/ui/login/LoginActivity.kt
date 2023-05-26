@@ -50,11 +50,15 @@ class LoginActivity : AppCompatActivity() {
         val signupTab = binding.signupTab
         signupTab.setOnClickListener {
             selectedTab.animate().x(signupTab.x).duration = 100
-            navController.navigate(R.id.action_login_to_signup)
+            if (navController.currentDestination?.id == R.id.login) {
+                navController.navigate(R.id.action_login_to_signup)
+            }
         }
         loginTab.setOnClickListener { 
             selectedTab.animate().x(loginTab.x).duration = 100
-            navController.navigate(R.id.action_signup_to_login)
+            if (navController.currentDestination?.id == R.id.signup) {
+                navController.navigate(R.id.action_signup_to_login)
+            }
         }
 
 

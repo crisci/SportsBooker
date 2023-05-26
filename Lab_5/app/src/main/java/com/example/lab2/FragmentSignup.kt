@@ -9,13 +9,13 @@ import android.view.ViewGroup
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class FragmentRegister : Fragment(R.layout.fragment_signup) {
+class FragmentSignup : Fragment(R.layout.fragment_signup) {
 
     companion object {
-        fun newInstance() = FragmentRegister()
+        fun newInstance() = FragmentSignup()
     }
 
-    private lateinit var viewModel: FragmentRegisterViewModel
+    private lateinit var viewModel: FragmentSignupViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,7 +26,7 @@ class FragmentRegister : Fragment(R.layout.fragment_signup) {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(FragmentRegisterViewModel::class.java)
+        viewModel = ViewModelProvider(this)[FragmentSignupViewModel::class.java]
         // TODO: Use the ViewModel
     }
 

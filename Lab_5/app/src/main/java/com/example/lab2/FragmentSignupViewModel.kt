@@ -2,6 +2,6 @@ package com.example.lab2
 
 import androidx.lifecycle.ViewModel
 
-class FragmentRegisterViewModel : ViewModel() {
+class FragmentSignupViewModel : ViewModel() {
     // TODO: Implement the ViewModel
 }
