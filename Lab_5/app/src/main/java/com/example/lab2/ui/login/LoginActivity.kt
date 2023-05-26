@@ -45,17 +45,25 @@ class LoginActivity : AppCompatActivity() {
                     .findFragmentById(R.id.fragmentContainerViewAuthentication) as NavHostFragment
                 ).navController
 
-        val selectedTab = binding.selectedTab
-        val loginTab = binding.loginTab
-        val signupTab = binding.signupTab
+        val selectedTab = binding.selectedView
+        val loginTab = binding.loginTextView
+        val signupTab = binding.signupTextView
+        val leftGuideline = binding.guideline4
+        val rightGuideline = binding.guideline5
         signupTab.setOnClickListener {
-            selectedTab.animate().x(signupTab.x).duration = 100
+            selectedTab.animate()
+                .x(rightGuideline.x)
+                .setDuration(500)
+                .start()
             if (navController.currentDestination?.id == R.id.login) {
                 navController.navigate(R.id.action_login_to_signup)
             }
         }
-        loginTab.setOnClickListener { 
-            selectedTab.animate().x(loginTab.x).duration = 100
+        loginTab.setOnClickListener {
+            selectedTab.animate()
+                .x(leftGuideline.x)
+                .setDuration(500)
+                .start()
             if (navController.currentDestination?.id == R.id.signup) {
                 navController.navigate(R.id.action_signup_to_login)
             }
