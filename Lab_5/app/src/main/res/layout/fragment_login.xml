@@ -30,11 +30,11 @@
                 android:text="@string/login"
                 android:textColor="@color/darker_blue"
                 android:textSize="20sp"
-                app:layout_constraintStart_toStartOf="@+id/username"
+                app:layout_constraintStart_toStartOf="@+id/email"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/username"
+                android:id="@+id/email"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
                 app:startIconContentDescription="@string/lighting_court">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/username_edit_text"
+                    android:id="@+id/email_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_email"
@@ -64,7 +64,7 @@
                 app:endIconMode="password_toggle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/username">
+                app:layout_constraintTop_toBottomOf="@+id/email">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/password_edit_text"
