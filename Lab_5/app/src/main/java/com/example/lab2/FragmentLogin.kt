@@ -80,6 +80,11 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
                     "Wrong email and/or password",
                     Toast.LENGTH_SHORT
                 ).show()
+                else -> Toast.makeText(
+                    requireActivity(),
+                    "Error: ${exception.errorCode}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
         else {

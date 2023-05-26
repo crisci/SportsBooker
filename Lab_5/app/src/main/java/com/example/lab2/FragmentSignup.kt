@@ -39,7 +39,15 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
             val password = binding.passwordEditText.text.toString()
             val confirmPassword = binding.confirmPasswordEditText.text.toString()
 
+            binding.email.error = null
+            binding.password.error = null
+            binding.confirmPassword.error = null
+
             if (email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()) {
+                if(password.length < 6) {
+                    binding.password.error = "Password must be at least 6 characters long"
+                    return@setOnClickListener
+                }
                 if (password == confirmPassword) {
                         firebaseAuth.createUserWithEmailAndPassword(email, password)
                             .addOnCompleteListener { task ->
@@ -54,8 +62,8 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
                                 }
                             }
                 } else {
-                    Toast.makeText(requireActivity(), "Passwords do not match", Toast.LENGTH_SHORT)
-                        .show()
+                    binding.password.error = "Passwords do not match"
+                    binding.confirmPassword.error = "Passwords do not match"
                 }
             } else {
                 Toast.makeText(requireActivity(), "Please fill in all fields", Toast.LENGTH_SHORT)
@@ -71,6 +79,11 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
                 "ERROR_EMAIL_ALREADY_IN_USE" -> binding.email.error = "Email already in use"
                 "ERROR_WEAK_PASSWORD" -> binding.password.error = "Password must be at least 6 characters long"
                 "ERROR_INVALID_EMAIL" -> binding.email.error = "Invalid email"
+                else -> Toast.makeText(
+                    requireActivity(),
+                    "Error: ${exception.errorCode}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         } else {
             Toast.makeText(
