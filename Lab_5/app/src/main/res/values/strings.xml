@@ -61,4 +61,6 @@
     <string name="login_failed">"Login failed"</string>
     <string name="or_login_with">or login with</string>
     <string name="welcome_to_the_app">Welcome to SportsBooker</string>
+    <string name="signup">Signup</string>
+    <string name="confirm_password">Confirm Password</string>
 </resources>
