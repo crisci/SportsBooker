@@ -39,12 +39,11 @@
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chip_group_select_interests"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
             android:layout_marginTop="30dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/finish_registration"
+            app:layout_constraintStart_toStartOf="@+id/select_interests"
             app:layout_constraintTop_toBottomOf="@id/select_interests" />
 
         <Button

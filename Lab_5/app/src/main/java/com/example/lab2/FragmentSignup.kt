@@ -82,7 +82,10 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
             val name = binding.nameEditText.text.toString()
             val surname = binding.surnameEditText.text.toString()
             val dateOfBirth = binding.dateOfBirthEditText.text.toString()
+
+            //TODO it would be good if we used a component that searches for real locations/cities, to avoid typos
             val location = binding.locationEditText.text.toString()
+
             val username = binding.usernameEditText.text.toString()
 
             binding.name.error = null
@@ -91,6 +94,11 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
             binding.location.error = null
             binding.username.error = null
             binding.email.error = null
+
+            //TODO if passwords do not match,
+            // the error exclamation mark must not overlap/replace the eye icon to show/hide
+            // the password, this can be fixed either enlarging the view or moving the eye icon on
+            // the left or creating a custom layout
             binding.password.error = null
             binding.confirmPassword.error = null
 
@@ -127,6 +135,10 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
                                 }
                             }
                 } else {
+                    //TODO if passwords do not match,
+                    // the error exclamation mark must not overlap/replace the eye icon to show/hide
+                    // the password, this can be fixed either enlarging the view or moving the eye icon on
+                    // the left or creating a custom layout
                     binding.password.error = "Passwords do not match"
                     binding.confirmPassword.error = "Passwords do not match"
                 }
