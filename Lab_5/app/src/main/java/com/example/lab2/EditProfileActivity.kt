@@ -12,6 +12,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Matrix
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -180,6 +181,7 @@ class EditProfileActivity : AppCompatActivity() {
 
         supportActionBar?.elevation = 0f
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.example_1_bg)))
         supportActionBar?.setCustomView(R.layout.toolbar_edit_profile)
         val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title_edit_profile)
         titleTextView?.setText(R.string.edit_profile_title)

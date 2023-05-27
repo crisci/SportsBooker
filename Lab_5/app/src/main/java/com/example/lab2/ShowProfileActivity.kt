@@ -144,6 +144,7 @@ class ShowProfileActivity : AppCompatActivity() {
 
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
         supportActionBar?.setCustomView(R.layout.toolbar_show_profile)
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.example_1_bg)))
         val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title_show_profile)
         titleTextView?.setText(R.string.profile_title)
         backButton = supportActionBar?.customView?.findViewById(R.id.edit_profile_back_button)!!

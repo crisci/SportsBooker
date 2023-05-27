@@ -3,6 +3,7 @@ package com.example.lab2
 import android.app.Activity
 import android.content.Intent
 import android.database.sqlite.SQLiteConstraintException
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Button
@@ -142,6 +143,7 @@ class EditReservationActivity : AppCompatActivity() {
 
         supportActionBar?.elevation = 0f
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.example_1_bg)))
         supportActionBar?.setCustomView(R.layout.toolbar)
         val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
         titleTextView?.text = "Edit Reservations"

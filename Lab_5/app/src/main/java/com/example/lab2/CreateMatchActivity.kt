@@ -1,6 +1,7 @@
 package com.example.lab2
 
 import android.app.Activity
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.widget.ArrayAdapter
@@ -45,7 +46,7 @@ class CreateMatchActivity : AppCompatActivity() {
         setContentView(R.layout.activity_create_match)
 
         supportActionBar?.elevation = 0f
-
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.example_1_bg)))
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
         supportActionBar?.setCustomView(R.layout.toolbar)
         val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
