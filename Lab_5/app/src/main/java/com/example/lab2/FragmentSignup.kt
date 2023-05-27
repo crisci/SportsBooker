@@ -11,6 +11,8 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.example.lab2.viewmodels.MainVM
 import com.example.lab2.databinding.FragmentSignupBinding
+import com.example.lab2.entities.Sport
+import com.example.lab2.viewmodels.SignupVM
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -35,6 +37,7 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var viewModel: FragmentSignupViewModel
+    private lateinit var signupVM: SignupVM
     private lateinit var binding: FragmentSignupBinding
     private lateinit var navController: NavController
 
@@ -46,6 +49,8 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
         firebaseAuth = FirebaseAuth.getInstance()
 
         navController = findNavController()
+
+        signupVM = ViewModelProvider(requireActivity())[SignupVM::class.java]
 
         val view = inflater.inflate(R.layout.fragment_signup, container, false)
         binding = FragmentSignupBinding.bind(view)
@@ -121,14 +126,18 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
                         firebaseAuth.createUserWithEmailAndPassword(email, password)
                             .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
+                                    signupVM.createPlayer(
+                                        task.result.user?.uid!!,
+                                        email,
+                                        name,
+                                        surname,
+                                        dateOfBirth,
+                                        location,
+                                        username,
+                                        mutableListOf()
+                                    )
                                     val bundle = Bundle()
-                                    bundle.putString("userId", task.result?.user?.uid)
-                                    bundle.putString("email", email)
-                                    bundle.putString("name", name)
-                                    bundle.putString("surname", surname)
-                                    bundle.putString("dateOfBirth", dateOfBirth)
-                                    bundle.putString("location", location)
-                                    bundle.putString("username", username)
+                                    bundle.putString("uid", task.result.user?.uid)
                                     navController.navigate(R.id.action_signup_to_select_interests, bundle)
                                 } else {
                                     showValidationError(task.exception)

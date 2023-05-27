@@ -88,26 +88,14 @@ class FragmentSignupSelectInterests : Fragment(R.layout.fragment_signup_select_i
                 Toast.makeText(requireContext(), "Please select at least 1 sport", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            val userId = arguments?.getString("userId")
-            val name = arguments?.getString("name")
-            val surname = arguments?.getString("surname")
-            val username = arguments?.getString("username")
-            val email = arguments?.getString("email")
-            val dateOfBirth = arguments?.getString("dateOfBirth")
-            val location = arguments?.getString("location")
+            val uid = arguments?.getString("uid") ?: return@setOnClickListener
             try {
-                signupVM.createPlayer(
-                    userId!!,
-                    name!!,
-                    surname!!,
-                    username!!,
-                    email!!,
-                    dateOfBirth!!,
-                    location!!,
+                signupVM.updatePlayer(
+                    uid,
                     selectedInterests.map { Sport.valueOf(it.uppercase()) }.toMutableList()
                 )
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Error creating user", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Error updating the user", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             navController.navigate(R.id.action_select_interests_to_login)

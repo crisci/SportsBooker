@@ -30,4 +30,8 @@ class SignupVM @Inject constructor() : ViewModel() {
         )
         db.collection("players").document(userId).set(user)
     }
+
+    fun updatePlayer(userId: String, sports: MutableList<Sport>) {
+        db.collection("players").document(userId).update("interests", sports)
+    }
 }
