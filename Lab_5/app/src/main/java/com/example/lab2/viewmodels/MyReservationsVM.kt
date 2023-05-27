@@ -1,30 +1,20 @@
-package com.example.lab2.calendar
+package com.example.lab2.viewmodels
 
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.lab2.database.court.Court
 import com.example.lab2.database.court_review.CourtReviewRepository
 import com.example.lab2.database.player.PlayerRepository
-import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationRepository
-import com.example.lab2.database.reservation.ReservationWithCourt
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.entities.Sport
 import com.example.lab2.entities.Statistic
-import com.example.lab2.entities.User
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel

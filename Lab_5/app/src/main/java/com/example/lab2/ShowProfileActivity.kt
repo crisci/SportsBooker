@@ -18,8 +18,8 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.lifecycle.ViewModelProvider
-import com.example.lab2.calendar.MyReservationsVM
-import com.example.lab2.calendar.MainVM
+import com.example.lab2.viewmodels.MyReservationsVM
+import com.example.lab2.viewmodels.MainVM
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject

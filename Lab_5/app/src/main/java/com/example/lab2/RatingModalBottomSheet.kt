@@ -8,12 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
-import com.example.lab2.calendar.RatingModalVM
+import com.example.lab2.viewmodels.RatingModalVM
 import com.example.lab2.database.court_review.CourtReview
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputEditText

@@ -2,6 +2,7 @@ package com.example.lab2.ui.login
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.drawable.ColorDrawable
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -36,7 +37,7 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         supportActionBar?.elevation = 0f
-
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.example_1_bg)))
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
         supportActionBar?.setCustomView(R.layout.toolbar_login)
 

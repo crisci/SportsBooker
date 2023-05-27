@@ -18,9 +18,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.lab2.calendar.CalendarVM
-import com.example.lab2.calendar.NewMatchesVM
-import com.example.lab2.calendar.MainVM
+import com.example.lab2.viewmodels.CalendarVM
+import com.example.lab2.viewmodels.NewMatchesVM
+import com.example.lab2.viewmodels.MainVM
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.reservation.Reservation

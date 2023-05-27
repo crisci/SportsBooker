@@ -4,16 +4,13 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import androidx.activity.OnBackPressedCallback
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
-import androidx.transition.TransitionInflater
-import androidx.transition.TransitionManager
 import com.example.lab2.R
 import com.example.lab2.databinding.MonthCalendarCalendarDayBinding
 import com.example.lab2.databinding.MonthCalendarFragmentBinding
+import com.example.lab2.viewmodels.CalendarVM
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
@@ -25,7 +22,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MonthCalendar : Fragment(R.layout.month_calendar_fragment){

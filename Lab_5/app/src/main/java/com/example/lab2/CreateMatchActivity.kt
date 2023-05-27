@@ -1,7 +1,6 @@
 package com.example.lab2
 
 import android.app.Activity
-import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
 import android.util.Log
 import android.widget.ArrayAdapter
@@ -12,18 +11,13 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
-import com.example.lab2.calendar.CalendarVM
-import com.example.lab2.calendar.CreateMatchVM
-import com.example.lab2.calendar.MainVM
+import com.example.lab2.viewmodels.CalendarVM
+import com.example.lab2.viewmodels.CreateMatchVM
+import com.example.lab2.viewmodels.MainVM
 import com.example.lab2.database.ReservationAppDatabase
-import com.example.lab2.entities.Sport
 import com.google.android.material.textfield.TextInputLayout
-import com.google.android.material.timepicker.MaterialTimePicker
-import com.google.android.material.timepicker.TimeFormat
 import dagger.hilt.android.AndroidEntryPoint
-import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject

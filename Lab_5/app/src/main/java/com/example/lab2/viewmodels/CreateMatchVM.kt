@@ -1,9 +1,6 @@
-package com.example.lab2.calendar
+package com.example.lab2.viewmodels
 
 import android.database.sqlite.SQLiteConstraintException
-import android.util.Log
-import android.widget.Toast
-import androidx.constraintlayout.motion.utils.ViewState
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,10 +10,7 @@ import com.example.lab2.database.player_reservation_join.PlayerReservationReposi
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter

@@ -38,6 +38,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/guideline">
 
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -119,23 +124,17 @@
                 app:layout_constraintTop_toBottomOf="@id/authenticated_tabs"
                 app:navGraph="@navigation/authentication_graph" />
 
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_begin="466dp" />
-
             <LinearLayout
                 android:id="@+id/access_with_external_service"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintTop_toBottomOf="@id/guideline6"
+                android:layout_marginVertical="30dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent">
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/fragmentContainerViewAuthentication">
 
                 <TextView
                     android:id="@+id/textView4"
@@ -153,10 +152,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="8dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="20dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="8dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="@+id/textView4"
                     app:layout_constraintStart_toStartOf="@+id/textView4"
@@ -167,10 +166,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:padding="10dp"
                         android:adjustViewBounds="true"
                         android:maxWidth="60dp"
                         android:maxHeight="60dp"
+                        android:padding="10dp"
                         android:scaleType="fitXY"
                         app:srcCompat="@drawable/google_icon" />
 
@@ -178,6 +177,8 @@
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </ScrollView>
 
     </com.google.android.material.card.MaterialCardView>
 

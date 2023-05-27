@@ -1,12 +1,10 @@
-package com.example.lab2.calendar
+package com.example.lab2.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lab2.database.court.Court
-import com.example.lab2.database.court.CourtWithReservations
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationRepository
 import com.example.lab2.database.reservation.ReservationWithCourt

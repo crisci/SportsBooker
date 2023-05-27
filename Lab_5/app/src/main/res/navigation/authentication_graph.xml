@@ -29,6 +29,23 @@
             app:destination="@id/login"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_signup_to_select_interests"
+            app:destination="@id/select_interests"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left" />
     </fragment>
 
+    <fragment
+        android:id="@+id/select_interests"
+        android:name="com.example.lab2.FragmentSignupSelectInterests"
+        android:label="fragment_signup_select_interests"
+        tools:layout="@layout/fragment_signup_select_interests">
+        <action
+            android:id="@+id/action_select_interests_to_login"
+            app:destination="@id/login"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right" />
+    </fragment>
 </navigation>

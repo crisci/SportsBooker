@@ -7,9 +7,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
-import com.example.lab2.calendar.MainVM
+import com.example.lab2.viewmodels.MainVM
 import com.example.lab2.databinding.FragmentLoginBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
@@ -53,7 +52,7 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
                                     Toast.LENGTH_SHORT
                                 ).show()
 
-                                mainVM.setUser(firebaseAuth.uid!!)
+                                mainVM.setUser(task.result.user?.uid!!)
                                 val intent = Intent(requireActivity(), MyReservationsActivity::class.java)
                                 startActivity(intent)
 

@@ -1,4 +1,4 @@
-package com.example.lab2.calendar
+package com.example.lab2.viewmodels
 
 import dagger.Module
 import dagger.Provides

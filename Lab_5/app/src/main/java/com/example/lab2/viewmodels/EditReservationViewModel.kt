@@ -1,4 +1,4 @@
-package com.example.lab2.calendar
+package com.example.lab2.viewmodels
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,12 +9,10 @@ import com.example.lab2.database.reservation.ReservationRepository
 import com.example.lab2.database.reservation.ReservationTimeslot
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.entities.Equipment
-import com.example.lab2.entities.Sport
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel

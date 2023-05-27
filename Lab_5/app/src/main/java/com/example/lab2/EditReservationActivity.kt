@@ -15,8 +15,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.example.lab2.calendar.EditReservationViewModel
-import com.example.lab2.calendar.EquipmentsVM
+import com.example.lab2.viewmodels.EditReservationViewModel
+import com.example.lab2.viewmodels.EquipmentsVM
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationTimeslot

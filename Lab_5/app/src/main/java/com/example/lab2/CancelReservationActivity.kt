@@ -13,7 +13,7 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import com.example.lab2.calendar.MainVM
+import com.example.lab2.viewmodels.MainVM
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.reservation.Reservation

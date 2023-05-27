@@ -30,7 +30,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cunoraz.tagview.*
-import com.example.lab2.calendar.MainVM
+import com.example.lab2.viewmodels.MainVM
 import com.example.lab2.entities.*
 import com.google.gson.Gson
 import com.squareup.picasso.Picasso

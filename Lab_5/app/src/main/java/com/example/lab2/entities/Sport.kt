@@ -8,3 +8,15 @@ enum class Sport {
     BASEBALL,
     GOLF
 }
+
+fun getSportFromString(sport: String): Sport {
+    return when(sport.lowercase()) {
+        "Tennis" -> Sport.TENNIS
+        "Padel" -> Sport.PADEL
+        "Soccer" -> Sport.SOCCER
+        "Basketball" -> Sport.BASKETBALL
+        "Baseball" -> Sport.BASEBALL
+        "Golf" -> Sport.GOLF
+        else -> Sport.TENNIS
+    }
+}

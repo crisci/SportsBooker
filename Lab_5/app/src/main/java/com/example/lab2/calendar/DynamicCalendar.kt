@@ -5,9 +5,6 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
-import android.view.animation.LinearInterpolator
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -19,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.R
 import com.example.lab2.databinding.DynamicCalendarFragmentBinding
 import com.example.lab2.databinding.MonthCalendarCalendarDayBinding
+import com.example.lab2.viewmodels.CalendarVM
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.kizitonwose.calendar.core.CalendarDay

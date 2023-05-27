@@ -12,8 +12,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.lifecycle.ViewModelProvider
-import com.example.lab2.calendar.EquipmentsVM
-import com.example.lab2.calendar.MainVM
+import com.example.lab2.viewmodels.EquipmentsVM
+import com.example.lab2.viewmodels.MainVM
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.reservation.Reservation

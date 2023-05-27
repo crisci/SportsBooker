@@ -9,7 +9,7 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import com.example.lab2.calendar.MainVM
+import com.example.lab2.viewmodels.MainVM
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

@@ -11,7 +11,6 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
@@ -21,10 +20,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.lab2.calendar.CalendarVM
-import com.example.lab2.calendar.MyReservationsVM
-import com.example.lab2.calendar.RatingModalVM
-import com.example.lab2.calendar.MainVM
+import com.example.lab2.viewmodels.CalendarVM
+import com.example.lab2.viewmodels.MyReservationsVM
+import com.example.lab2.viewmodels.RatingModalVM
+import com.example.lab2.viewmodels.MainVM
 import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
