@@ -28,12 +28,15 @@ import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
+import com.example.lab2.viewmodels_firebase.ReservationViewModel
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -51,6 +54,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
     lateinit var calendarVM: CalendarVM
     lateinit var ratingModalVM: RatingModalVM
 
+    lateinit var resVM: ReservationViewModel
+
     private lateinit var adapterCardFilters: AdapterFilterReservation
 
     private lateinit var db: ReservationAppDatabase
@@ -59,6 +64,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
     private lateinit var findNewGamesButton: Button
     private lateinit var leaveRatingLayout: ConstraintLayout
     var showBanner = false
+
+
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
@@ -82,80 +89,11 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         db = ReservationAppDatabase.getDatabase(requireContext())
 
-   /*     CoroutineScope(Dispatchers.IO).launch {
-            db.reservationDao().saveReservation(
-                Reservation(
-                    1,
-                    1,
-                    0,
-                    7.0,
-                    LocalDate.now().minusDays(1),
-                    LocalTime.of(20, 0)
-                )
-            )
-            db.reservationDao().saveReservation(
-                Reservation(
-                    2,
-                    1,
-                    0,
-                    7.0,
-                    LocalDate.now(),
-                    LocalTime.of(21, 0)
-                )
-            )
-            db.reservationDao().saveReservation(
-                Reservation(
-                    3,
-                    3,
-                    0,
-                    9.0,
-                    LocalDate.now(),
-                    LocalTime.of(19, 0)
-                )
-            )
-            db.reservationDao().saveReservation(
-                Reservation(
-                    4,
-                    2,
-                    0,
-                    9.0,
-                    LocalDate.now(),
-                    LocalTime.of(18, 0)
-                )
-            )
-            db.reservationDao().saveReservation(
-                Reservation(
-                    5,
-                    2,
-                    0,
-                    9.0,
-                    LocalDate.now(),
-                    LocalTime.of(22, 0)
-                )
-            )
-            db.reservationDao().saveReservation(
-                Reservation(
-                    6,
-                    2,
-                    0,
-                    9.0,
-                    LocalDate.now(),
-                    LocalTime.of(23, 0)
-                )
-            )
-            *//* Prev day reservation to show court rating popup
-            db.playerReservationDAO().confirmReservation(
-                1,
-                1,
-                emptyList(),
-                7.0
-            )
-             *//*
-        }*/
 
         vm = ViewModelProvider(requireActivity())[MyReservationsVM::class.java]
         calendarVM = ViewModelProvider(requireActivity())[CalendarVM::class.java]
         ratingModalVM = ViewModelProvider(requireActivity())[RatingModalVM::class.java]
+        resVM = ViewModelProvider(requireActivity())[ReservationViewModel::class.java]
 
         vm.refreshMyReservations(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests)
 
@@ -235,6 +173,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
         findNewGamesButton = view.findViewById(R.id.find_new_games_button)
         findNewGamesButton.setOnClickListener {
+            resVM.getPlayerReservations("mbvhLWL5YbPoYIqRskD1XkVVILv1")
             val intentBookReservation = Intent(requireContext(), BookReservationActivity::class.java)
             launcher.launch(intentBookReservation)
         }
