@@ -1,6 +1,7 @@
 package com.example.lab2.viewmodels
 
 import android.database.sqlite.SQLiteConstraintException
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,11 +10,17 @@ import com.example.lab2.database.court.CourtRepository
 import com.example.lab2.database.player_reservation_join.PlayerReservationRepository
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationRepository
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,6 +29,8 @@ class CreateMatchVM @Inject constructor(
     private val playerReservationRepository: PlayerReservationRepository,
     private val courtRepository: CourtRepository
 ): ViewModel() {
+
+    val db = FirebaseFirestore.getInstance()
 
     private var listTimeslots : MutableLiveData<List<String>> = MutableLiveData(
         listOf("08:30","10:00", "11:30", "13:00", "14:30", "16:00", "17:30",
@@ -45,8 +54,8 @@ class CreateMatchVM @Inject constructor(
     ) {
 
         viewModelScope.launch() {
-            var newMatchId: Long
-            var availableCourtId: Int
+            val newMatchId: Long
+            val availableCourtId: Int
 
             availableCourtId = courtRepository.getFirstAvailableCourtForSportDateTime(
                 sport,

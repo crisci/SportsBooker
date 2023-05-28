@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.example.lab2.database.BitmapConverter
+import com.google.firebase.firestore.DocumentSnapshot
 
 @Entity(tableName = "courts")
 data class Court (
@@ -17,3 +18,4 @@ data class Court (
     @TypeConverters(BitmapConverter::class)
     val courtPhoto: Bitmap? = null
 )
+

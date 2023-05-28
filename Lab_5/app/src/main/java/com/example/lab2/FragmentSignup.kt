@@ -122,18 +122,19 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
                     binding.email.error = "Invalid email"
                     return@setOnClickListener
                 }
+                //userId: String, name: String, surname: String, username: String, email: String, dateOfBirth: String, location: String, selectedInterests: MutableList<Sport>
                 if (password == confirmPassword) {
                         firebaseAuth.createUserWithEmailAndPassword(email, password)
                             .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
                                     signupVM.createPlayer(
                                         task.result.user?.uid!!,
-                                        email,
                                         name,
                                         surname,
+                                        username,
+                                        email,
                                         dateOfBirth,
                                         location,
-                                        username,
                                         mutableListOf()
                                     )
                                     val bundle = Bundle()
