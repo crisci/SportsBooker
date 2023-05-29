@@ -10,7 +10,8 @@ data class Court(
     val maxNumberOfPlayers: Long?,
     val name: String?,
     val sport: String?,
-    val basePrice: Double?
+    val basePrice: Double?,
+    val image: String?
 )
 
 
@@ -21,6 +22,7 @@ fun firebaseToCourt(d: DocumentSnapshot): Court {
         d.getLong("maxNumOfPlayers"),
         d.getString("name"),
         d.getString("sport"),
-        d.getDouble("basePrice")
+        d.getDouble("basePrice"),
+        d.getString("image")
     )
 }

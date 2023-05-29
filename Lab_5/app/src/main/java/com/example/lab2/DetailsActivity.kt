@@ -21,6 +21,7 @@ import com.example.lab2.viewmodels_firebase.firebaseToMatchWithCourtAndEquipment
 import com.google.android.material.textview.MaterialTextView
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
+import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -110,6 +111,7 @@ class DetailsActivity : AppCompatActivity() {
         price.text = "€${String.format("%.02f", reservation.finalPrice)}"
         description.text = reservation.court.description
         //courtPhoto.setImageBitmap(reservation.court.courtPhoto)
+        Picasso.get().load(reservation.court.image).into(courtPhoto)
         rating.rating = avg.toFloat()
         setupEquipments(reservation.equipments)
     }
