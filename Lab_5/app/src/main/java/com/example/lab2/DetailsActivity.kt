@@ -4,11 +4,13 @@ import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.appcompat.app.ActionBar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.viewmodels.MyReservationsVM
 import com.example.lab2.calendar.displayText
@@ -50,6 +52,8 @@ class DetailsActivity : AppCompatActivity() {
     private lateinit var courtPhoto: ImageView
     private lateinit var rating: RatingBar
     private lateinit var date: TextView
+    private lateinit var details: ConstraintLayout
+    private lateinit var loading: ConstraintLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +73,8 @@ class DetailsActivity : AppCompatActivity() {
         courtPhoto = findViewById(R.id.court_image)
         rating = findViewById(R.id.detail_rating)
         date = findViewById(R.id.date_detail)
+        details = findViewById(R.id.details)
+        loading = findViewById(R.id.loading_details)
 
         supportActionBar?.elevation = 0f
         supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.example_1_bg)))
@@ -110,10 +116,11 @@ class DetailsActivity : AppCompatActivity() {
         date.text = setupDate(reservation.match.date)
         price.text = "€${String.format("%.02f", reservation.finalPrice)}"
         description.text = reservation.court.description
-        //courtPhoto.setImageBitmap(reservation.court.courtPhoto)
         Picasso.get().load(reservation.court.image).into(courtPhoto)
         rating.rating = avg.toFloat()
         setupEquipments(reservation.equipments)
+        loading.visibility = View.GONE
+        details.visibility = View.VISIBLE
     }
 
     private fun setupEquipments(equipmets: List<Equipment>) {
