@@ -12,6 +12,7 @@ import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationRepository
 import com.example.lab2.viewmodels_firebase.MatchFirebase
 import com.example.lab2.viewmodels_firebase.ReservationFirebase
+import com.example.lab2.viewmodels_firebase.toTimestamp
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
@@ -92,7 +93,9 @@ class CreateMatchVM @Inject constructor(
                                         db.collection("reservations").add(
                                             ReservationFirebase(
                                                 matchAdded,
-                                                db.collection("players").document("HhkmyV1SqjVEsVt83Ld65I0cF9x2")
+                                                db.collection("players").document("HhkmyV1SqjVEsVt83Ld65I0cF9x2"),
+                                                emptyList(),
+                                                court.first().getLong("basePrice")!!
                                             )
                                         )
                                     }
@@ -102,12 +105,6 @@ class CreateMatchVM @Inject constructor(
                     }
                 }
         }
-    }
-
-    fun LocalDateTime.toTimestamp(): Timestamp {
-        val epochSeconds = this.minusHours(2).toEpochSecond(ZoneOffset.UTC)
-        val nanoseconds = this.nano
-        return Timestamp(epochSeconds, nanoseconds)
     }
 
 

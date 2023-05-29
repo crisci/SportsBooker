@@ -3,6 +3,7 @@ package com.example.lab2
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
@@ -28,7 +29,9 @@ import com.example.lab2.calendar.setTextColorRes
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.database.reservation.formatPrice
+import com.example.lab2.viewmodels_firebase.MatchWithCourtAndEquipments
 import com.example.lab2.viewmodels_firebase.ReservationViewModel
+import com.example.lab2.viewmodels_firebase.formatPrice
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -152,6 +155,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         vm.getMyReservations().observe(viewLifecycleOwner){
             adapterCard.setReservations(it)
             showOrHideNoResultImage()
+            Log.e("test", vm.getMyReservations().value.toString())
         }
 
         calendarVM.getSelectedDate().observe(requireActivity()) {
@@ -207,15 +211,15 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
 
 
-    override fun onEditClick(reservation: ReservationWithCourtAndEquipments) {
+    override fun onEditClick(reservation: MatchWithCourtAndEquipments) {
 
         val intentEditReservation = Intent(activity, EditReservationActivity::class.java).apply {
             addCategory(Intent.CATEGORY_SELECTED_ALTERNATIVE)
-            putExtra("reservationId", reservation.reservation.reservationId)
-            putExtra("date", reservation.reservation.date.toString())
-            putExtra("time", reservation.reservation.time.toString())
-            putExtra("price", reservation.reservation.price)
-            putExtra("numOfPlayers", reservation.reservation.numOfPlayers)
+            putExtra("reservationId", reservation.match.matchId)
+            putExtra("date", reservation.match.date.toString())
+            putExtra("time", reservation.match.time.toString())
+            putExtra("price", reservation.finalPrice)
+            putExtra("numOfPlayers", reservation.match.numOfPlayers)
             putExtra("courtId", reservation.court.courtId)
             putExtra("courtName", reservation.court.name)
             putExtra("sport", reservation.court.sport)
@@ -241,10 +245,10 @@ class ViewHolderCard(v: View): RecyclerView.ViewHolder(v) {
     val context: Context = v.context
 }
 
-class AdapterCard(private var list: List<ReservationWithCourtAndEquipments>, private val listener: OnEditClickListener): RecyclerView.Adapter<ViewHolderCard>() {
+class AdapterCard(private var list: List<MatchWithCourtAndEquipments>, private val listener: OnEditClickListener): RecyclerView.Adapter<ViewHolderCard>() {
 
     interface OnEditClickListener {
-        fun onEditClick(reservation: ReservationWithCourtAndEquipments)
+        fun onEditClick(reservation: MatchWithCourtAndEquipments)
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderCard {
         val v = LayoutInflater.from(parent.context)
@@ -257,29 +261,28 @@ class AdapterCard(private var list: List<ReservationWithCourtAndEquipments>, pri
     }
 
     override fun onBindViewHolder(holder: ViewHolderCard, position: Int) {
-        val maxNumPlayers = 7
         holder.name.text = "${list[position].court.name}"
         holder.location.text = "Via Giovanni Magni, 32"
         holder.price.text = "${list[position].formatPrice()}"
-        if(list[position].reservation.numOfPlayers == maxNumPlayers) {
+        if(list[position].match.numOfPlayers == list[position].court.maxNumberOfPlayers) {
             holder.currentNumberOfPlayers.setTextColorRes(R.color.darker_blue)
         }
         else {
             holder.currentNumberOfPlayers.setTextColorRes(R.color.example_1_bg)
         }
-        holder.currentNumberOfPlayers.text = "${list[position].reservation.numOfPlayers}"
+        holder.currentNumberOfPlayers.text = "${list[position].match.numOfPlayers}"
         holder.maxNumberOfPlayers.text = "/7"
-        holder.time.text = list[position].reservation.time.format(DateTimeFormatter.ofPattern("HH:mm")).toString()
+        holder.time.text = list[position].match.time.format(DateTimeFormatter.ofPattern("HH:mm")).toString()
         holder.sport.text = "${list[position].court.sport}"
 
         holder.editButton.setOnClickListener { listener.onEditClick(list[holder.bindingAdapterPosition]) }
         holder.detailsButton.setOnClickListener {
             val intent =  Intent(holder.context, DetailsActivity::class.java)
-            intent.putExtra("reservationId", list[position].reservation.reservationId)
+            intent.putExtra("reservationId", list[position].match.matchId)
             holder.context.startActivity(intent) }
     }
 
-    fun setReservations(newReservations: List<ReservationWithCourtAndEquipments>) {
+    fun setReservations(newReservations: List<MatchWithCourtAndEquipments>) {
 
         val diffs = DiffUtil.calculateDiff(
             ReservationDiffCallback(list, newReservations)

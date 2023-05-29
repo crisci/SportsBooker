@@ -5,6 +5,7 @@ import com.example.lab2.entities.Sport
 import com.google.firebase.firestore.DocumentSnapshot
 
 data class Court(
+    val courtId: String,
     val description: String?,
     val maxNumberOfPlayers: Long?,
     val name: String?,
@@ -15,6 +16,7 @@ data class Court(
 
 fun firebaseToCourt(d: DocumentSnapshot): Court {
     return Court(
+        d.id,
         d.getString("description"),
         d.getLong("maxNumOfPlayers"),
         d.getString("name"),

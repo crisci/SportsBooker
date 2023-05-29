@@ -1,9 +1,11 @@
 package com.example.lab2.viewmodels_firebase
 
+import com.google.firebase.Timestamp
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import java.time.ZoneOffset
 
 class TimestampUtil {
     companion object {
@@ -23,4 +25,10 @@ class TimestampUtil {
             return localTime!!
         }
     }
+}
+
+fun LocalDateTime.toTimestamp(): Timestamp {
+    val epochSeconds = this.minusHours(2).toEpochSecond(ZoneOffset.UTC)
+    val nanoseconds = this.nano
+    return Timestamp(epochSeconds, nanoseconds)
 }
