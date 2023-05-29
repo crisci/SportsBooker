@@ -278,7 +278,7 @@ class AdapterCard(private var list: List<MatchWithCourtAndEquipments>, private v
         holder.editButton.setOnClickListener { listener.onEditClick(list[holder.bindingAdapterPosition]) }
         holder.detailsButton.setOnClickListener {
             val intent =  Intent(holder.context, DetailsActivity::class.java)
-            intent.putExtra("reservationId", list[position].match.matchId)
+            intent.putExtra("reservationId", list[position].reservationId)
             holder.context.startActivity(intent) }
     }
 

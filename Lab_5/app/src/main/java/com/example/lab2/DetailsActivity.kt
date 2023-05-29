@@ -3,6 +3,7 @@ package com.example.lab2
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RatingBar
@@ -14,7 +15,12 @@ import com.example.lab2.calendar.displayText
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.entities.Equipment
+import com.example.lab2.viewmodels_firebase.DetailsViewModel
+import com.example.lab2.viewmodels_firebase.MatchWithCourtAndEquipments
+import com.example.lab2.viewmodels_firebase.firebaseToMatchWithCourtAndEquipments
 import com.google.android.material.textview.MaterialTextView
+import com.google.firebase.firestore.FieldPath
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +34,7 @@ class DetailsActivity : AppCompatActivity() {
 
 
     lateinit var reservationVM: MyReservationsVM
+    lateinit var detailsViewModel: DetailsViewModel
 
     private lateinit var backButton: ImageView
 
@@ -48,6 +55,7 @@ class DetailsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_details)
 
         reservationVM = ViewModelProvider(this)[MyReservationsVM::class.java]
+        detailsViewModel = ViewModelProvider(this)[DetailsViewModel::class.java]
 
         db = ReservationAppDatabase.getDatabase(this)
         sport = findViewById(R.id.sport_name_detail_reservation)
@@ -74,28 +82,35 @@ class DetailsActivity : AppCompatActivity() {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        val reservationId = intent.getIntExtra("reservationId", 0)
-
+        val reservationId = intent.getStringExtra("reservationId")!!
         CoroutineScope(Dispatchers.IO).launch {
-            val reservation = reservationVM.getReservationDetails(reservationId)
-            val avg = reservationVM.getCourtAvgReviews(reservation.court.courtId)
-            MainScope().launch {
-                updateView(reservation, avg)
+            FirebaseFirestore.getInstance().collection("reservations").whereEqualTo(FieldPath.documentId(), reservationId).get().addOnSuccessListener { r ->
+                Log.e("id", r.first().id.toString())
+                FirebaseFirestore.getInstance().collection("matches").whereEqualTo(FieldPath.documentId(), r.first().getDocumentReference("match")?.id).get().addOnSuccessListener { m ->
+                    Log.e("id", m.first().id.toString())
+                    FirebaseFirestore.getInstance().collection("courts").whereEqualTo(FieldPath.documentId(), m.first().getDocumentReference("court")?.id).get().addOnSuccessListener { c ->
+                        Log.e("id", c.first().id.toString())
+                        val details = firebaseToMatchWithCourtAndEquipments(m.first(), c.first(), r.first())
+                        MainScope().launch {
+                            updateView(details, 0.0)
+                        }
+                    }
+                }
             }
         }
 
     }
 
-    private fun updateView(reservation: ReservationWithCourtAndEquipments, avg: Float) {
+    private fun updateView(reservation: MatchWithCourtAndEquipments, avg: Double) {
         sport.text = reservation.court.sport
         court.text = reservation.court.name
         location.text = "Via Giovanni Magni, 32"
-        hour.text = reservation.reservation.time.format(DateTimeFormatter.ofPattern("HH:mm"))
-        date.text = setupDate(reservation.reservation.date)
+        hour.text = reservation.match.time.format(DateTimeFormatter.ofPattern("HH:mm"))
+        date.text = setupDate(reservation.match.date)
         price.text = "€${String.format("%.02f", reservation.finalPrice)}"
         description.text = reservation.court.description
-        courtPhoto.setImageBitmap(reservation.court.courtPhoto)
-        rating.rating = avg
+        //courtPhoto.setImageBitmap(reservation.court.courtPhoto)
+        rating.rating = avg.toFloat()
         setupEquipments(reservation.equipments)
     }
 

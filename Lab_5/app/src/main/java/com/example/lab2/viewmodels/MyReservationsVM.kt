@@ -19,6 +19,7 @@ import com.example.lab2.viewmodels_firebase.MatchWithCourtAndEquipments
 import com.example.lab2.viewmodels_firebase.TimestampUtil
 import com.example.lab2.viewmodels_firebase.firebaseToCourt
 import com.example.lab2.viewmodels_firebase.firebaseToMatch
+import com.example.lab2.viewmodels_firebase.firebaseToMatchWithCourtAndEquipments
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -69,11 +70,10 @@ class MyReservationsVM @Inject constructor(
                     val match = reservation.getDocumentReference("match")?.get()?.await()
                     val court = match?.getDocumentReference("court")?.get()?.await()
                     list.add(
-                        MatchWithCourtAndEquipments(
-                            firebaseToMatch(match!!),
-                            firebaseToCourt(court!!),
-                            reservation.get("listOfEquipments") as List<Equipment>,
-                            reservation.getDouble("finalPrice")!!
+                        firebaseToMatchWithCourtAndEquipments(
+                            match!!,
+                            court!!,
+                            reservation
                         )
                     )
                 }
@@ -120,12 +120,7 @@ class MyReservationsVM @Inject constructor(
                             val match = reservation.getDocumentReference("match")?.get()?.await()
                             val court = match?.getDocumentReference("court")?.get()?.await()
                             list.add(
-                                MatchWithCourtAndEquipments(
-                                    firebaseToMatch(match!!),
-                                    firebaseToCourt(court!!),
-                                    reservation.get("listOfEquipments") as List<Equipment>,
-                                    reservation.getDouble("finalPrice")!!
-                                )
+                               firebaseToMatchWithCourtAndEquipments(match!!, court!!, reservation)
                             )
                         }
                         Log.e("sport",interests.map { i -> i.toString().lowercase().replaceFirstChar { c -> c.uppercase() } }.toString())
