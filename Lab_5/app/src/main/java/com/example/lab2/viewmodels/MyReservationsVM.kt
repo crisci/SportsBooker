@@ -22,6 +22,7 @@ import com.example.lab2.viewmodels_firebase.firebaseToMatch
 import com.example.lab2.viewmodels_firebase.firebaseToMatchWithCourtAndEquipments
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.QuerySnapshot
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -61,25 +62,7 @@ class MyReservationsVM @Inject constructor(
     private var _myReservations = MutableLiveData<List<MatchWithCourtAndEquipments>>()
     val res: LiveData<List<MatchWithCourtAndEquipments>> = _myReservations
 
-    private val l: ListenerRegistration = FirebaseFirestore.getInstance().collection("reservations")
-        .whereEqualTo("player", db.document("players/HhkmyV1SqjVEsVt83Ld65I0cF9x2"))
-        .addSnapshotListener { documents, error ->
-            val list = mutableListOf<MatchWithCourtAndEquipments>()
-            CoroutineScope(Dispatchers.IO).launch {
-                documents?.documents?.forEach { reservation ->
-                    val match = reservation.getDocumentReference("match")?.get()?.await()
-                    val court = match?.getDocumentReference("court")?.get()?.await()
-                    list.add(
-                        firebaseToMatchWithCourtAndEquipments(
-                            match!!,
-                            court!!,
-                            reservation
-                        )
-                    )
-                }
-                _myReservations.postValue(list.toList())
-            }
-        }
+    private var _listener: ListenerRegistration? = null;
 
     fun getMyReservations() : LiveData<List<MatchWithCourtAndEquipments>> {
         return res
@@ -109,27 +92,41 @@ class MyReservationsVM @Inject constructor(
     }
 
     fun refreshMyReservations(date: LocalDate, time: LocalTime, interests: List<Sport>) {
-        viewModelScope.launch {
-            FirebaseFirestore.getInstance().collection("reservations")
-                .whereEqualTo("player", db.document("players/HhkmyV1SqjVEsVt83Ld65I0cF9x2"))
-                .addSnapshotListener { documents, error ->
-                    Log.e("test", documents?.documents.toString())
-                    val list = mutableListOf<MatchWithCourtAndEquipments>()
-                    CoroutineScope(Dispatchers.IO).launch {
-                        documents?.documents?.forEach { reservation ->
-                            val match = reservation.getDocumentReference("match")?.get()?.await()
-                            val court = match?.getDocumentReference("court")?.get()?.await()
-                            list.add(
-                               firebaseToMatchWithCourtAndEquipments(match!!, court!!, reservation)
-                            )
-                        }
-                        Log.e("sport",interests.map { i -> i.toString().lowercase().replaceFirstChar { c -> c.uppercase() } }.toString())
-                        _myReservations.postValue(list.toList().filter {
-                            it.match.date == date && it.match.time >= time
-                                    && interests.map { i -> i.toString().lowercase().replaceFirstChar { c -> c.uppercase() } }.contains(it.court.sport)
-                        })
-                    }
+        _listener?.remove()
+
+        val formattedInterests = formatInterests(interests)
+
+        _listener = FirebaseFirestore.getInstance().collection("reservations")
+            .whereEqualTo("player", db.document("players/mbvhLWL5YbPoYIqRskD1XkVVILv1"))
+            .addSnapshotListener { documents, error ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    val list = processDocuments(documents)
+                    Log.i("Reservations", list.toString())
+                    Log.e("sport", formattedInterests.toString())
+                    _myReservations.postValue(filterList(list, date, time, formattedInterests))
                 }
+            }
+    }
+
+    private fun formatInterests(interests: List<Sport>): List<String> {
+        return interests.map { i -> i.toString().lowercase().replaceFirstChar { c -> c.uppercase() } }
+    }
+
+    private suspend fun processDocuments(documents: QuerySnapshot?): List<MatchWithCourtAndEquipments> {
+        return documents?.documents?.mapNotNull { reservation ->
+            val matchRef = reservation.getDocumentReference("match")?.get()?.await()
+            val courtRef = matchRef?.getDocumentReference("court")?.get()?.await()
+            if (matchRef != null && courtRef != null) {
+                firebaseToMatchWithCourtAndEquipments(matchRef, courtRef, reservation)
+            } else null
+        } ?: emptyList()
+    }
+
+    private fun filterList(list: List<MatchWithCourtAndEquipments>, date: LocalDate, time: LocalTime, interests: List<String>): List<MatchWithCourtAndEquipments> {
+        return list.filter {
+            it.match.date == date &&
+                    it.match.time >= time &&
+                    interests.contains(it.court.sport)
         }
     }
 
