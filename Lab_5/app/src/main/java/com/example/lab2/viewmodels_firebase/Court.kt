@@ -4,6 +4,7 @@ import com.example.lab2.database.player.Player
 import com.example.lab2.entities.Sport
 import com.google.firebase.firestore.DocumentSnapshot
 
+@kotlinx.serialization.Serializable
 data class Court(
     val courtId: String,
     val description: String?,

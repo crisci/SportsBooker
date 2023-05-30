@@ -1,22 +1,23 @@
 package com.example.lab2.viewmodels_firebase
 
-import android.media.audiofx.DynamicsProcessing.Eq
-import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.entities.Equipment
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
 
-data class MatchWithCourtAndEquipments (
+@kotlinx.serialization.Serializable
+class MatchWithCourtAndEquipments (
     val reservationId: String,
-    val match : Match,
+    var match : Match,
     val court : Court,
-    val equipments: List<Equipment>,
-    val finalPrice: Double
+    var equipments: List<Equipment>,
+    var finalPrice: Double
     )
 
 fun firebaseToMatchWithCourtAndEquipments (m: DocumentSnapshot, c: DocumentSnapshot, r: DocumentSnapshot): MatchWithCourtAndEquipments {
 
-    val mappedEquipments: List<Equipment> = (r.get("listOfEquipments") as List<String>).map {
-        when(it.lowercase()) {
+    val mappedEquipments : List<Equipment> = (r.get("listOfEquipments") as List<String>).map {
+        when(it.lowercase()){
             "racket" -> Equipment("Racket", 2.0)
             "tennis balls" -> Equipment("Tennis balls", 1.5)
             "soccer ball" -> Equipment("Soccer ball", 5.0)
@@ -32,6 +33,22 @@ fun firebaseToMatchWithCourtAndEquipments (m: DocumentSnapshot, c: DocumentSnaps
     return MatchWithCourtAndEquipments(r.id, firebaseToMatch(m), firebaseToCourt(c), mappedEquipments, r.getDouble("finalPrice")!!)
 }
 
-    fun MatchWithCourtAndEquipments.formatPrice(): String {
+fun MatchWithCourtAndEquipments.formatPrice(): String {
         return String.format("%.02f", finalPrice)
     }
+
+fun MatchWithCourtAndEquipmentsToFirebase(playerId: String, r: MatchWithCourtAndEquipments) : Map<String, Any>{
+
+    val map : MutableMap<String, Any> = mutableMapOf()
+
+    val mappedEquipments = r.equipments.map { it.name }
+
+    map["finalPrice"] = r.finalPrice
+    map["listOfEquipments"] = mappedEquipments
+    map["match"] = FirebaseFirestore.getInstance().document("matches/${r.match.matchId}")
+    map["player"] = FirebaseFirestore.getInstance().document("players/${playerId}")
+
+    return map
+
+}
+

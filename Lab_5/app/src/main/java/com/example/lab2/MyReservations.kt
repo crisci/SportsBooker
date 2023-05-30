@@ -38,6 +38,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -91,6 +94,8 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
         super.onViewCreated(view, savedInstanceState)
 
         db = ReservationAppDatabase.getDatabase(requireContext())
+
+        userVM.setUser() // TODO: this needs to be set during Login...
 
 
         vm = ViewModelProvider(requireActivity())[MyReservationsVM::class.java]
@@ -213,19 +218,11 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations), AdapterCard.
 
     override fun onEditClick(reservation: MatchWithCourtAndEquipments) {
 
+        val jsonString = Json.encodeToString(MatchWithCourtAndEquipments.serializer(), reservation)
+
         val intentEditReservation = Intent(activity, EditReservationActivity::class.java).apply {
             addCategory(Intent.CATEGORY_SELECTED_ALTERNATIVE)
-            putExtra("reservationId", reservation.match.matchId)
-            putExtra("date", reservation.match.date.toString())
-            putExtra("time", reservation.match.time.toString())
-            putExtra("price", reservation.finalPrice)
-            putExtra("numOfPlayers", reservation.match.numOfPlayers)
-            putExtra("courtId", reservation.court.courtId)
-            putExtra("courtName", reservation.court.name)
-            putExtra("sport", reservation.court.sport)
-            putExtra("equipments", Gson().toJson(reservation.equipments))
-            putExtra("finalPrice", reservation.finalPrice)
-            putExtra("playerId", playerId)
+            putExtra("reservationJson", jsonString)
         }
         launcher.launch(intentEditReservation)
     }

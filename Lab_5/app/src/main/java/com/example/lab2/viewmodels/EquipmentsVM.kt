@@ -41,7 +41,7 @@ class EquipmentsVM @Inject constructor(
     }
 
     fun getListEquipments(sport: String): List<Equipment> {
-        return SPORT_EQUIPMENT_MAP[sport]!!
+        return SPORT_EQUIPMENT_MAP[sport] ?: emptyList()
     }
 
 
