@@ -62,9 +62,9 @@ class CreateMatchActivity : AppCompatActivity() {
         sportAutoCompleteTV = findViewById(R.id.autoCompleteTextView)
         confirmButton = findViewById(R.id.confirm_button_confirm_reservation)
 
-        Log.d("CreateMatchActivity", "onCreate: ${userVM.getUser().value!!.interests}")
+        Log.d("CreateMatchActivity", "onCreate: ${userVM.user.value!!.interests}")
 
-        val sportArrayAdapter = ArrayAdapter(applicationContext, R.layout.dropdown_item, userVM.getUser().value!!.interests)
+        val sportArrayAdapter = ArrayAdapter(applicationContext, R.layout.dropdown_item, userVM.user.value!!.interests)
         sportAutoCompleteTV.setAdapter(sportArrayAdapter)
 
         createMatchVM.getListTimeslots().observe(this) {
@@ -88,7 +88,7 @@ class CreateMatchActivity : AppCompatActivity() {
         }
 
         confirmButton.setOnClickListener {
-            if (userVM.getUser().value!!.interests
+            if (userVM.user.value!!.interests
                     .find { it.name == sportAutoCompleteTV.text.toString()} == null
                 || createMatchVM.getListTimeslots().value!!.find { it == timeslotAutocompleteTextView.text.toString()} == null
             ) {
@@ -120,7 +120,7 @@ class CreateMatchActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        val arrayAdapter = ArrayAdapter(applicationContext, R.layout.dropdown_item, userVM.getUser().value!!.interests)
+        val arrayAdapter = ArrayAdapter(applicationContext, R.layout.dropdown_item, userVM.user.value!!.interests)
         sportAutoCompleteTV.setAdapter(arrayAdapter)
         val arrayAdapter2 = ArrayAdapter(applicationContext, R.layout.dropdown_item, createMatchVM.getListTimeslots().value!!)
         timeslotAutocompleteTextView.setAdapter(arrayAdapter2)

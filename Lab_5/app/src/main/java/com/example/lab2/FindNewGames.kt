@@ -60,9 +60,10 @@ class NewGames : Fragment(R.layout.fragment_new_games) {
         if(response.resultCode == AppCompatActivity.RESULT_OK) {
             val data: Intent? = response.data
             vm.loadNewMatches(
+                playerId = userVM.userId,
                 date = calendarVM.getSelectedDate().value!!,
                 time = calendarVM.getSelectedTime().value!!,
-                interests = userVM.getUser().value!!.interests.toList()
+                interests = userVM.user.value!!.interests.toList()
             )
             requireActivity().setResult(Activity.RESULT_OK)
             requireActivity().finish()
@@ -110,8 +111,8 @@ class NewGames : Fragment(R.layout.fragment_new_games) {
 
         noResults = view.findViewById(R.id.no_results)
 
-        userVM.getUser().observe(viewLifecycleOwner) {
-            adapterCardFilters.setFilters(listOf(null).plus(userVM.getUser().value!!.interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
+        userVM.user.observe(viewLifecycleOwner) {
+            adapterCardFilters.setFilters(listOf(null).plus(userVM.user.value!!.interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
         }
 
         vm.getNewMatches().observe(requireActivity()){
@@ -122,35 +123,39 @@ class NewGames : Fragment(R.layout.fragment_new_games) {
         calendarVM.getSelectedDate().observe(viewLifecycleOwner) {
             Log.d("DATETIME", "Date changed to $it")
             vm.loadNewMatches(
+                playerId = userVM.userId,
                 date = it,
                 time = calendarVM.getSelectedTime().value!!,
-                interests = userVM.getUser().value!!.interests.toList()
+                interests = userVM.user.value!!.interests.toList()
             )
         }
 
         vm.getSportFilter().observe(viewLifecycleOwner) {
             vm.loadNewMatches(
+                playerId = userVM.userId,
                 date = calendarVM.getSelectedDate().value!!,
                 time = calendarVM.getSelectedTime().value!!,
-                interests = userVM.getUser().value!!.interests.toList()
+                interests = userVM.user.value!!.interests.toList()
             )
         }
 
         calendarVM.getSelectedTime().observe(viewLifecycleOwner) {
             Log.d("DATETIME", "Time changed to $it")
             vm.loadNewMatches(
+                playerId = userVM.userId,
                 date = calendarVM.getSelectedDate().value!!,
                 time = it,
-                interests = userVM.getUser().value!!.interests.toList()
+                interests = userVM.user.value!!.interests.toList()
             )
         }
 
         val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
         swipeRefreshLayout.setOnRefreshListener {
             vm.loadNewMatches(
+                playerId = userVM.userId,
                 date = calendarVM.getSelectedDate().value!!,
                 time = calendarVM.getSelectedTime().value!!,
-                interests = userVM.getUser().value!!.interests.toList()
+                interests = userVM.user.value!!.interests.toList()
             )
             swipeRefreshLayout.isRefreshing = false
         }

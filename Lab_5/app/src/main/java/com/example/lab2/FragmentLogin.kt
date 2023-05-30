@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.LifecycleOwner
 import com.example.lab2.viewmodels.MainVM
 import com.example.lab2.databinding.FragmentLoginBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -28,6 +29,9 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
     @Inject
     lateinit var mainVM: MainVM
 
+
+    private lateinit var authStateListener: FirebaseAuth.AuthStateListener
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -38,9 +42,23 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
 
         firebaseAuth = FirebaseAuth.getInstance()
 
+        authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            val user = firebaseAuth.currentUser
+
+             // Qui si riceve la callback se l'utente ha loggato
+            if (user != null) {
+                mainVM.listenToUserUpdates(user.uid)
+                observeUserUpdates(this)
+            }
+        }
+
+        firebaseAuth.addAuthStateListener(authStateListener)
+
         view.findViewById<View>(R.id.login).setOnClickListener {
             val email = binding.emailEditText.text.toString()
             val password = binding.passwordEditText.text.toString()
+
+
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
                     firebaseAuth.signInWithEmailAndPassword(email, password)
@@ -51,11 +69,6 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
                                     "Logged in successfully",
                                     Toast.LENGTH_SHORT
                                 ).show()
-
-                                mainVM.setUser(task.result.user?.uid!!)
-                                val intent = Intent(requireActivity(), MyReservationsActivity::class.java)
-                                startActivity(intent)
-
                             } else {
                                 showValidationError(task.exception)
                             }
@@ -68,6 +81,13 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
         }
 
         return view
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (authStateListener != null) {
+            firebaseAuth.removeAuthStateListener(authStateListener)
+        }
     }
 
     private fun showValidationError(exception: Exception?) {
@@ -99,6 +119,15 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this)[FragmentLoginVM::class.java]
         // TODO: Use the ViewModel
+    }
+
+
+    private fun observeUserUpdates(lifecycleOwner : LifecycleOwner) {
+        mainVM.user.observe(lifecycleOwner) { user ->
+            // Once the user data is received, navigate to HomeActivity
+            val intent = Intent(requireActivity(), MyReservationsActivity::class.java)
+            startActivity(intent)
+        }
     }
 
 }
