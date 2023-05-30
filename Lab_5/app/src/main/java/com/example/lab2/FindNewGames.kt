@@ -3,6 +3,7 @@ package com.example.lab2
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -112,10 +113,11 @@ class NewGames : Fragment(R.layout.fragment_new_games) {
 
         vm.getNewMatches().observe(requireActivity()){
             showOrHideNoResultImage()
-            adapterCard.setListCourts(vm.getNewMatches().value!!)
+            adapterCard.setListCourts(it)
         }
 
         calendarVM.getSelectedDate().observe(viewLifecycleOwner) {
+            Log.d("DATETIME", "Date changed to $it")
             vm.loadNewMatches(
                 date = it,
                 time = calendarVM.getSelectedTime().value!!,
@@ -132,6 +134,7 @@ class NewGames : Fragment(R.layout.fragment_new_games) {
         }
 
         calendarVM.getSelectedTime().observe(viewLifecycleOwner) {
+            Log.d("DATETIME", "Time changed to $it")
             vm.loadNewMatches(
                 date = calendarVM.getSelectedDate().value!!,
                 time = it,

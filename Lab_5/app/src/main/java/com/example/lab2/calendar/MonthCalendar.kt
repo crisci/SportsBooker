@@ -129,8 +129,6 @@ class MonthCalendar : Fragment(R.layout.month_calendar_fragment){
             monthCalendarView.notifyDateChanged(currentSelection)
         } else {
             selectedDate = date
-            vm.setSelectedDate(selectedDate!!)
-
             if (currentSelection != null) {
                 // We need to also reload the previously selected
                 // date so we can REMOVE the selection background.

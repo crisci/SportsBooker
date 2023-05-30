@@ -87,6 +87,12 @@ class DynamicCalendar : Fragment(R.layout.dynamic_calendar_fragment){
             daysOfWeek
         )
 
+        vm.getSelectedDate().observe(viewLifecycleOwner) {
+            vm.selectedTime.value = if(it == LocalDate.now()) LocalTime.now() else LocalTime.of(8, 0)
+            monthCalendarView.scrollToDate(it)
+            weekCalendarView.scrollToDate(it)
+        }
+
         roundCalendarButton.setOnClickListener(calendarModeToggle)
         if(requireActivity().componentName.className == "com.example.lab2.CreateMatchActivity") {
             timeslotFilterButton.visibility = View.GONE
@@ -140,8 +146,6 @@ class DynamicCalendar : Fragment(R.layout.dynamic_calendar_fragment){
                     // Check the day position as we do not want to select in or out dates.
                     if (day.date >= LocalDate.now()) {
                         dateClicked(date = day.date)
-                        vm.setSelectedDate(day.date)
-                        monthCalendarView.scrollToDate(day.date)
                     }
                 }
             }
@@ -178,8 +182,6 @@ class DynamicCalendar : Fragment(R.layout.dynamic_calendar_fragment){
                 view.setOnClickListener {
                     if (day.position == WeekDayPosition.RangeDate && day.date >= LocalDate.now()) {
                         dateClicked(date = day.date)
-                        vm.setSelectedDate(day.date)
-                        updateDate()
                     }
                 }
             }
@@ -285,16 +287,10 @@ class DynamicCalendar : Fragment(R.layout.dynamic_calendar_fragment){
     private val calendarModeToggle = object : View.OnClickListener {
         override fun onClick(view: View) {
             weekToMonth = !weekToMonth
-            // We want the first visible day to remain visible after the
-            // change so we scroll to the position on the target calendar.
             if (!weekToMonth) {
-                val targetDate = monthCalendarView.findFirstVisibleDay()?.date ?: return
                 weekCalendarView.scrollToWeek(vm.getSelectedDate().value!!)
             } else {
-                // It is possible to have two months in the visible week (30 | 31 | 1 | 2 | 3 | 4 | 5)
-                // We always choose the second one. Please use what works best for your use case.
-                val targetMonth = weekCalendarView.findLastVisibleDay()?.date?.yearMonth ?: return
-                monthCalendarView.scrollToMonth(targetMonth)
+                monthCalendarView.scrollToMonth(vm.getSelectedDate().value!!.yearMonth)
             }
 
             val weekHeight = weekCalendarView.height
@@ -340,10 +336,4 @@ class DynamicCalendar : Fragment(R.layout.dynamic_calendar_fragment){
             animator.start()
         }
     }
-
-    fun updateDate(){
-        vm.selectedTime.value = if(vm.getSelectedDate().value == LocalDate.now()) LocalTime.now() else LocalTime.of(8, 0)
-        weekCalendarView.notifyDateChanged(vm.getSelectedDate().value!!)
-    }
-
 }
