@@ -297,7 +297,7 @@
                         app:layout_constraintTop_toBottomOf="@+id/mvp_title2">
 
                         <ImageView
-                            android:id="@+id/image1"
+                            android:id="@+id/player_image_details"
                             android:layout_width="45dp"
                             android:layout_height="45dp"
                             android:adjustViewBounds="true"
