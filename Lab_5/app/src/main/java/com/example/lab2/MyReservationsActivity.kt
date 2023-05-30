@@ -3,6 +3,7 @@ package com.example.lab2
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,6 +20,7 @@ class MyReservationsActivity : AppCompatActivity() {
 
     private lateinit var navController : NavController
     private lateinit var myProfileButton: ImageView
+    private lateinit var notificationsButton: FrameLayout
 
     @Inject
     lateinit var mainVM: MainVM
@@ -33,6 +35,11 @@ class MyReservationsActivity : AppCompatActivity() {
         setSupportActionBar()
         mainVM.setUser() //TODO: At the moment, there is a default value for parameter "userId"
 
+        notificationsButton = supportActionBar?.customView?.findViewById<FrameLayout>(R.id.notifications)!!
+        notificationsButton.setOnClickListener {
+            val intentNotifications = Intent(this, NotificationsActivity::class.java)
+            launcher.launch(intentNotifications)
+        }
 
         navController = (
             supportFragmentManager
