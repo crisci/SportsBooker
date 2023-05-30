@@ -62,7 +62,7 @@ class MyReservationsVM @Inject constructor(
     val res: LiveData<List<MatchWithCourtAndEquipments>> = _myReservations
 
     private val l: ListenerRegistration = FirebaseFirestore.getInstance().collection("reservations")
-        .whereEqualTo("player", db.document("players/HhkmyV1SqjVEsVt83Ld65I0cF9x2"))
+        .whereEqualTo("player", db.document("players/mbvhLWL5YbPoYIqRskD1XkVVILv1"))
         .addSnapshotListener { documents, error ->
             val list = mutableListOf<MatchWithCourtAndEquipments>()
             CoroutineScope(Dispatchers.IO).launch {
@@ -111,7 +111,7 @@ class MyReservationsVM @Inject constructor(
     fun refreshMyReservations(date: LocalDate, time: LocalTime, interests: List<Sport>) {
         viewModelScope.launch {
             FirebaseFirestore.getInstance().collection("reservations")
-                .whereEqualTo("player", db.document("players/HhkmyV1SqjVEsVt83Ld65I0cF9x2"))
+                .whereEqualTo("player", db.document("players/mbvhLWL5YbPoYIqRskD1XkVVILv1"))
                 .addSnapshotListener { documents, error ->
                     Log.e("test", documents?.documents.toString())
                     val list = mutableListOf<MatchWithCourtAndEquipments>()

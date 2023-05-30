@@ -20,7 +20,7 @@ class CalendarVM @Inject constructor() : ViewModel() {
         selectedDate.value = value
     }
 
-    var selectedTime = MutableLiveData<LocalTime>(LocalTime.of(10,0))
+    var selectedTime = MutableLiveData<LocalTime>(LocalTime.now())
     fun getSelectedTime() : LiveData<LocalTime> {
         return selectedTime
     }
