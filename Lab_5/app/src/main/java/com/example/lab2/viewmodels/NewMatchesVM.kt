@@ -87,9 +87,12 @@ class NewMatchesVM @Inject constructor(): ViewModel() {
     }
 
     private fun filterNewMatches(mapCourtMatches: Map<Court, List<Match>>, time: LocalTime, interests: List<String>): Map<Court, List<Match>> {
+        val sportFilter = getSportFilter().value
+        if (sportFilter.isNullOrEmpty())
+            return mapCourtMatches
         val filteredMap = mutableMapOf<Court, List<Match>>()
         for ((court, matches) in mapCourtMatches) {
-            if (interests.contains(court.sport)) {
+            if (interests.contains(court.sport) && sportFilter == court.sport) {
                 val filteredMatches = matches.filter { match ->
                     match.time.isAfter(time)
                 }
