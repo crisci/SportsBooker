@@ -124,7 +124,13 @@ class MyReservationsVM @Inject constructor(
 
     private fun filterList(list: List<MatchWithCourtAndEquipments>, date: LocalDate, time: LocalTime, interests: List<String>): List<MatchWithCourtAndEquipments> {
         val sportFilter = getSportFilter().value
-        if (sportFilter.isNullOrEmpty()) return list
+        if (sportFilter.isNullOrEmpty()) {
+            return list.filter {
+                it.match.date == date &&
+                        it.match.time >= time &&
+                        interests.contains(it.court.sport)
+            }
+        }
         return list.filter {
             it.match.date == date &&
                     it.match.time >= time &&
