@@ -21,15 +21,14 @@
             android:id="@+id/court_name_reservation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="13dp"
             android:fontFamily="@font/montserrat_bold"
             android:text="Name"
             android:textColor="@color/black"
             android:textSize="20sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/sport_name"
-            app:layout_constraintVertical_bias="0.26" />
+            app:layout_constraintTop_toBottomOf="@+id/sport_name" />
 
         <TextView
             android:id="@+id/sport_name"
@@ -74,11 +73,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/timeslotsRecyclerView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/timeslotsRecyclerView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
 
         </LinearLayout>
 
