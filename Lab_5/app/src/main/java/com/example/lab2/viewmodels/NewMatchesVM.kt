@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import javax.inject.Inject
 
@@ -42,7 +43,7 @@ class NewMatchesVM @Inject constructor(): ViewModel() {
 
         val mapCourtMatches = mutableMapOf<Court, MutableList<Match>>()
         val participatingMatchIds = mutableListOf<String>()
-        val startOfTimestamp = date.atStartOfDay().toTimestamp()
+        val startOfTimestamp = LocalDateTime.of(date,time).toTimestamp()
         val endOfTimestamp = date.atTime(LocalTime.MAX).toTimestamp()
 
         viewModelScope.launch(Dispatchers.IO) {
