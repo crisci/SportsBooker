@@ -76,7 +76,7 @@ class NewMatchesVM @Inject constructor(): ViewModel() {
                                 }
                             }
                         }
-                        _newMatches.postValue(filterNewMatches(mapCourtMatches, time, formattedInterests))
+                        _newMatches.postValue(filterNewMatches(mapCourtMatches, formattedInterests))
                     }
                 }
             matchesListener = matchesSnapshot
@@ -87,22 +87,11 @@ class NewMatchesVM @Inject constructor(): ViewModel() {
         return interests.map { i -> i.toString().lowercase().replaceFirstChar { c -> c.uppercase() } }
     }
 
-    private fun filterNewMatches(mapCourtMatches: Map<Court, List<Match>>, time: LocalTime, interests: List<String>): Map<Court, List<Match>> {
+    fun filterNewMatches(mapCourtMatches: Map<Court, List<Match>>, interests: List<String>): Map<Court, List<Match>> {
         val sportFilter = getSportFilter().value
         if (sportFilter.isNullOrEmpty())
             return mapCourtMatches
-        val filteredMap = mutableMapOf<Court, List<Match>>()
-        for ((court, matches) in mapCourtMatches) {
-            if (interests.contains(court.sport) && sportFilter == court.sport) {
-                val filteredMatches = matches.filter { match ->
-                    match.time.isAfter(time)
-                }
-                if (filteredMatches.isNotEmpty()) {
-                    filteredMap[court] = filteredMatches
-                }
-            }
-        }
-        return filteredMap
+        return mapCourtMatches.filter { entry -> entry.key.sport == sportFilter && interests.contains(sportFilter)}
     }
 
     override fun onCleared() {
