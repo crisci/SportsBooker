@@ -16,10 +16,15 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.viewmodels.EquipmentsVM
 import com.example.lab2.viewmodels.MainVM
 import com.example.lab2.database.ReservationAppDatabase
-import com.example.lab2.database.court.Court
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.entities.Equipment
+import com.example.lab2.viewmodels.ConfirmReservationVM
+import com.example.lab2.viewmodels_firebase.Court
+import com.example.lab2.viewmodels_firebase.Match
+import com.example.lab2.viewmodels_firebase.MatchWithCourt
+import com.example.lab2.viewmodels_firebase.MatchWithCourtAndEquipments
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.serialization.json.Json
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -30,8 +35,9 @@ import kotlin.concurrent.thread
 class ConfirmReservationActivity : AppCompatActivity() {
 
     private lateinit var db: ReservationAppDatabase
-    private lateinit var reservation: Reservation
-    private lateinit var court: Court
+    private lateinit var matchWithCourt: MatchWithCourt
+    private lateinit var match : Match
+    private lateinit var court : Court
     private lateinit var sport_name: TextView
     private lateinit var court_name_confirm_reservation: TextView
     private lateinit var location_confirm_reservation: TextView
@@ -41,7 +47,9 @@ class ConfirmReservationActivity : AppCompatActivity() {
     private lateinit var priceText: TextView
     private lateinit var backButton: ImageView
     private lateinit var checkboxContainer : LinearLayout
+    private lateinit var playerId: String
 
+    lateinit var confirmReservationVM: ConfirmReservationVM
 
     lateinit var equipmentsVM: EquipmentsVM
     @Inject
@@ -53,6 +61,14 @@ class ConfirmReservationActivity : AppCompatActivity() {
         db = ReservationAppDatabase.getDatabase(this)
 
         equipmentsVM = ViewModelProvider(this)[EquipmentsVM::class.java]
+        confirmReservationVM = ViewModelProvider(this)[ConfirmReservationVM::class.java]
+
+        playerId = vm.currentUserId.value!!
+
+        val matchWithCourtString = intent.getStringExtra("jsonMatch")
+        matchWithCourt = Json.decodeFromString(MatchWithCourt.serializer(), matchWithCourtString!!)
+        match = matchWithCourt.match
+        court = matchWithCourt.court
 
         sport_name = findViewById(R.id.sport_name_confirm_reservation)
         court_name_confirm_reservation = findViewById(R.id.court_name_confirm_reservation)
@@ -71,20 +87,6 @@ class ConfirmReservationActivity : AppCompatActivity() {
         val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
         titleTextView?.text = "Confirm Reservation"
 
-
-        val reservationId = intent.extras?.getInt("reservationId", 0)
-        val date = intent.extras?.getString("date")
-        val time = intent.extras?.getString("time")
-        val numOfPlayers = intent.extras?.getInt("numOfPlayers", 0)
-        val price = intent.extras?.getDouble("price", 0.0)
-        val courtId = intent.extras?.getInt("courtId", 0)
-        val courtName = intent.extras?.getString("courtName")
-        val sport = intent.extras?.getString("sport")
-        val maxNumberOfPlayers = intent.extras?.getInt("maxNumberOfPlayers")
-
-        reservation = Reservation(reservationId!!,courtId!!,numOfPlayers!!,price!!, LocalDate.parse(date, DateTimeFormatter.ISO_DATE), LocalTime.parse(time))
-        court = Court(courtId, courtName!!, sport!!, maxNumberOfPlayers!!)
-
         backButton = supportActionBar?.customView?.findViewById<ImageView>(R.id.custom_back_icon)!!
         backButton.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
@@ -97,15 +99,16 @@ class ConfirmReservationActivity : AppCompatActivity() {
         sport_name.text = "${court.sport}"
         court_name_confirm_reservation.text = "${court.name}"
         location_confirm_reservation.text = "Via Giovanni Magni, 32"
-        val dayMonth = reservation.date.format(DateTimeFormatter.ofPattern("dd MMM")).split(" ")
+        val dayMonth = match.date.format(DateTimeFormatter.ofPattern("dd MMM")).split(" ")
         val day = dayMonth[0]
         val month = dayMonth[1].replaceFirstChar { it.uppercase() }
         val formattedDate = "$day $month"
         date_confirm_reservation.text = formattedDate
-        time_confirm_reservation.text = reservation.time.format(DateTimeFormatter.ofPattern("HH:mm")).toString()
+        time_confirm_reservation.text = match.time.format(DateTimeFormatter.ofPattern("HH:mm")).toString()
 
         //val equipments = equipmentsBySport(court.sport)
-        setupCheckboxes(reservation.price)
+        //TODO setup checkboxes needs a price, which is the starting base price for that sport
+        //setupCheckboxes(match.price)
 
         confirmButton.setOnClickListener {
             val listEquipments = mutableListOf<Equipment>()
@@ -124,10 +127,25 @@ class ConfirmReservationActivity : AppCompatActivity() {
 
             thread {
                 // TODO: Check also the if the player has already booked match in the same timeslot
-                if(reservation.numOfPlayers < court.maxNumOfPlayers) {
+                if(match.numOfPlayers < court.maxNumberOfPlayers!!) {
                     try {
-                        db.playerReservationDAO().confirmReservation(1, reservation.reservationId, listEquipments, equipmentsVM.getPersonalPrice().value!!)
-                        db.reservationDao().updateNumOfPlayers(reservation.reservationId)
+                        //TODO add reservation to the database and update number of players
+/*
+                        confirmReservationVM.addReservation(
+                            playerId,
+                            MatchWithCourtAndEquipments(
+                                "",
+                                match,
+                                court,
+                                listEquipments,
+                                equipmentsVM.getPersonalPrice().value!!
+                            )
+                        )
+*/
+
+
+                        //db.playerReservationDAO().confirmReservation(1, reservation.reservationId, listEquipments, equipmentsVM.getPersonalPrice().value!!)
+                        //db.reservationDao().updateNumOfPlayers(reservation.reservationId)
                         setResult(Activity.RESULT_OK)
                         finish()
                     } catch (err: RuntimeException) {
@@ -144,7 +162,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
 
         equipmentsVM.setPersonalPrice(startingPrice)
 
-        val equipments = equipmentsVM.getListEquipments(court.sport)
+        val equipments = equipmentsVM.getListEquipments(court.sport!!)
 
         for (e in equipments) {
             val checkbox = CheckBox(this)

@@ -25,8 +25,11 @@ import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.viewmodels.NewMatchesVM
 import com.example.lab2.viewmodels_firebase.Court
 import com.example.lab2.viewmodels_firebase.Match
+import com.example.lab2.viewmodels_firebase.MatchWithCourt
+import com.example.lab2.viewmodels_firebase.MatchWithCourtAndEquipments
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.serialization.json.Json
 import java.time.LocalTime
 
 import java.time.format.DateTimeFormatter
@@ -191,15 +194,9 @@ class AdapterNewGames(private var mapNewMatches: Map<Court,List<Match>>): Recycl
             override fun onClickTimeslot(timeslot: LocalTime) {
                 val match = matches.find { it.time == timeslot }
                 val currentGameBundle = Bundle().apply {
-                    putString("matchId", match!!.matchId)
-                    putString("date", match.date.toString())
-                    putString("time", match.time.toString())
-                    putDouble("price", court.basePrice!!)
-                    putLong("numOfPlayers", match.numOfPlayers)
-                    putString("courtId", court.courtId)
-                    putString("courtName", court.name)
-                    putString("sport", court.sport)
-                    putLong("maxNumberOfPlayers", court.maxNumberOfPlayers!!)
+                    val matchWithCourt = MatchWithCourt(match!!,court)
+                    val jsonString = Json.encodeToString(MatchWithCourt.serializer(), matchWithCourt)
+                    putString("jsonMatch", jsonString)
                 }
 
                 listener.onClickReservation(currentGameBundle)
