@@ -19,11 +19,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.lab2.viewmodels.CalendarVM
-import com.example.lab2.viewmodels.NewMatchesVM
 import com.example.lab2.viewmodels.MainVM
 import com.example.lab2.database.ReservationAppDatabase
-import com.example.lab2.database.court.Court
-import com.example.lab2.database.reservation.Reservation
+import com.example.lab2.viewmodels.NewMatchesVM
+import com.example.lab2.viewmodels_firebase.Court
+import com.example.lab2.viewmodels_firebase.Match
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalTime
@@ -38,11 +38,10 @@ class NewGames : Fragment(R.layout.fragment_new_games) {
 
     private lateinit var navController : NavController
 
-
-    lateinit var vm: NewMatchesVM
     lateinit var calendarVM: CalendarVM
     @Inject
     lateinit var userVM: MainVM
+    lateinit var vm: NewMatchesVM
 
 
     private lateinit var db: ReservationAppDatabase
@@ -56,7 +55,11 @@ class NewGames : Fragment(R.layout.fragment_new_games) {
     private fun processResponse(response: androidx.activity.result.ActivityResult) {
         if(response.resultCode == AppCompatActivity.RESULT_OK) {
             val data: Intent? = response.data
-            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
+            vm.loadNewMatches(
+                date = calendarVM.getSelectedDate().value!!,
+                time = calendarVM.getSelectedTime().value!!,
+                interests = userVM.getUser().value!!.interests.toList()
+            )
             requireActivity().setResult(Activity.RESULT_OK)
             requireActivity().finish()
         }
@@ -77,8 +80,6 @@ class NewGames : Fragment(R.layout.fragment_new_games) {
 
         vm = ViewModelProvider(requireActivity())[NewMatchesVM::class.java]
         calendarVM = ViewModelProvider(requireActivity())[CalendarVM::class.java]
-
-        vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
 
         addMatchButton = view.findViewById(R.id.add_match)
         addMatchButton.setOnClickListener {
@@ -109,26 +110,42 @@ class NewGames : Fragment(R.layout.fragment_new_games) {
             adapterCardFilters.setFilters(listOf(null).plus(userVM.getUser().value!!.interests.map { sport -> sport.name.lowercase().replaceFirstChar { it.uppercase() } }))
         }
 
-        vm.getMapNewMatches().observe(requireActivity()){
+        vm.getNewMatches().observe(requireActivity()){
             showOrHideNoResultImage()
-            adapterCard.setListCourts(vm.getMapNewMatches().value!!)
+            adapterCard.setListCourts(vm.getNewMatches().value!!)
         }
 
         calendarVM.getSelectedDate().observe(viewLifecycleOwner) {
-            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
+            vm.loadNewMatches(
+                date = it,
+                time = calendarVM.getSelectedTime().value!!,
+                interests = userVM.getUser().value!!.interests.toList()
+            )
         }
 
         vm.getSportFilter().observe(viewLifecycleOwner) {
-            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
+            vm.loadNewMatches(
+                date = calendarVM.getSelectedDate().value!!,
+                time = calendarVM.getSelectedTime().value!!,
+                interests = userVM.getUser().value!!.interests.toList()
+            )
         }
 
         calendarVM.getSelectedTime().observe(viewLifecycleOwner) {
-            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
+            vm.loadNewMatches(
+                date = calendarVM.getSelectedDate().value!!,
+                time = it,
+                interests = userVM.getUser().value!!.interests.toList()
+            )
         }
 
         val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
         swipeRefreshLayout.setOnRefreshListener {
-            vm.refreshNewMatches(calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value!!, userVM.getUser().value!!.interests.toList())
+            vm.loadNewMatches(
+                date = calendarVM.getSelectedDate().value!!,
+                time = calendarVM.getSelectedTime().value!!,
+                interests = userVM.getUser().value!!.interests.toList()
+            )
             swipeRefreshLayout.isRefreshing = false
         }
 
@@ -145,7 +162,7 @@ class ViewHolderNewGames(v: View): RecyclerView.ViewHolder(v) {
 
 }
 
-class AdapterNewGames(private var mapNewMatches: Map<Court,List<Reservation>>): RecyclerView.Adapter<ViewHolderNewGames>(){
+class AdapterNewGames(private var mapNewMatches: Map<Court,List<Match>>): RecyclerView.Adapter<ViewHolderNewGames>(){
 
     private lateinit var listener: OnClickReservation
 
@@ -165,21 +182,21 @@ class AdapterNewGames(private var mapNewMatches: Map<Court,List<Reservation>>): 
 
     override fun onBindViewHolder(holder: ViewHolderNewGames, position: Int) {
         val court = mapNewMatches.entries.elementAt(position).key
-        val reservations = mapNewMatches.entries.elementAt(position).value
+        val matches = mapNewMatches.entries.elementAt(position).value
         holder.timeslots.layoutManager = LinearLayoutManager(holder.itemView.context, LinearLayoutManager.HORIZONTAL, false)
-        holder.timeslots.adapter = TimeslotAdapter(court, reservations, object : TimeslotAdapter.OnClickTimeslot {
+        holder.timeslots.adapter = TimeslotAdapter(court, matches, object : TimeslotAdapter.OnClickTimeslot {
             override fun onClickTimeslot(timeslot: LocalTime) {
-                val reservation = reservations.find { it.time == timeslot }
+                val match = matches.find { it.time == timeslot }
                 val currentGameBundle = Bundle().apply {
-                    putInt("reservationId", reservation!!.reservationId)
-                    putString("date", reservation.date.toString())
-                    putString("time", reservation.time.toString())
-                    putDouble("price", reservation.price)
-                    putInt("numOfPlayers", reservation.numOfPlayers)
-                    putInt("courtId", reservation.courtId)
+                    putString("matchId", match!!.matchId)
+                    putString("date", match.date.toString())
+                    putString("time", match.time.toString())
+                    putDouble("price", court.basePrice!!)
+                    putLong("numOfPlayers", match.numOfPlayers)
+                    putString("courtId", court.courtId)
                     putString("courtName", court.name)
                     putString("sport", court.sport)
-                    putInt("maxNumberOfPlayers", court.maxNumOfPlayers)
+                    putLong("maxNumberOfPlayers", court.maxNumberOfPlayers!!)
                 }
 
                 listener.onClickReservation(currentGameBundle)
@@ -195,7 +212,7 @@ class AdapterNewGames(private var mapNewMatches: Map<Court,List<Reservation>>): 
         this.listener = listener
     }
 
-    fun setListCourts(newListCourts: Map<Court,List<Reservation>>) {
+    fun setListCourts(newListCourts: Map<Court,List<Match>>) {
 
         val diffs = DiffUtil.calculateDiff(
             CourtTimeslotDiffCallback(mapNewMatches, newListCourts)
@@ -205,7 +222,7 @@ class AdapterNewGames(private var mapNewMatches: Map<Court,List<Reservation>>): 
     }
 }
 
-class TimeslotAdapter(private val court: Court, private val listReservations: List<Reservation>, private val listener: OnClickTimeslot) :
+class TimeslotAdapter(private val court: Court, private val listMatches: List<Match>, private val listener: OnClickTimeslot) :
     RecyclerView.Adapter<TimeslotAdapter.ViewHolder>() {
 
     interface OnClickTimeslot {
@@ -224,15 +241,15 @@ class TimeslotAdapter(private val court: Court, private val listReservations: Li
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val list = listReservations[position]
+        val list = listMatches[position]
         holder.timeslotTextView.text = list.time.format(DateTimeFormatter.ofPattern("HH:mm"))
-        holder.numPlayersLeftTV.text = "${court.maxNumOfPlayers-list.numOfPlayers} left"
+        holder.numPlayersLeftTV.text = "${court.maxNumberOfPlayers?.minus(list.numOfPlayers)} left"
         holder.itemView.setOnClickListener {
             listener.onClickTimeslot(list.time)
         }
     }
 
-    override fun getItemCount(): Int = listReservations.size
+    override fun getItemCount(): Int = listMatches.size
 }
 
 
