@@ -63,7 +63,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
         equipmentsVM = ViewModelProvider(this)[EquipmentsVM::class.java]
         confirmReservationVM = ViewModelProvider(this)[ConfirmReservationVM::class.java]
 
-        playerId = vm.currentUserId.value!!
+        playerId = vm.userId
 
         val matchWithCourtString = intent.getStringExtra("jsonMatch")
         matchWithCourt = Json.decodeFromString(MatchWithCourt.serializer(), matchWithCourtString!!)

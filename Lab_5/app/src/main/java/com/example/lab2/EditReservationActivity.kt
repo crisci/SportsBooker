@@ -110,7 +110,7 @@ class EditReservationActivity : AppCompatActivity() {
         }
 
 
-        playerId = mainVM.currentUserId.value!!
+        playerId = mainVM.userId
 
         val reservationString = intent.getStringExtra("reservationJson")
         reservation = Json.decodeFromString(MatchWithCourtAndEquipments.serializer(), reservationString!!)
