@@ -3,12 +3,14 @@ package com.example.lab2.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.lab2.entities.User
 import com.example.lab2.viewmodels_firebase.Invitation
 import com.example.lab2.viewmodels_firebase.TimestampUtil
 import com.example.lab2.viewmodels_firebase.firebaseToCourt
 import com.example.lab2.viewmodels_firebase.firebaseToMatch
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -91,15 +93,22 @@ class NotificationVM @Inject constructor() : ViewModel() {
     fun joinTheMatch(notification: Invitation) {
         //val notificationRef = db.collection("invitations").document(notification.id!!)
         //notificationRef.update("seen", true)
-        val matchRef = db.collection("matches").document(notification.match.matchId!!)
-        matchRef.update("listOfPlayers", notification.match.listOfPlayers.plus(auth.currentUser!!.uid))
-        matchRef.update("numOfPlayers", FieldValue.increment(1))
-        db.collection("reservations").add(
-            hashMapOf(
-                "match" to db.document("matches/${notification.match.matchId}"),
-                "player" to db.document("players/${auth.currentUser!!.uid}"),
+        viewModelScope.launch {
+            val matchRef = db.collection("matches").document(notification.match.matchId!!)
+            val court = matchRef.get().await().getDocumentReference("court")?.get()?.await()
+            matchRef.update("listOfPlayers", notification.match.listOfPlayers
+                .plus("players/${auth.currentUser!!.uid}")
             )
-        )
-        deleteNotification(notification.id!!)
+            matchRef.update("numOfPlayers", FieldValue.increment(1))
+            db.collection("reservations").add(
+                hashMapOf(
+                    "match" to db.document("matches/${notification.match.matchId}"),
+                    "player" to db.document("players/${auth.currentUser!!.uid}"),
+                    "listOfEquipments" to listOf<DocumentReference>(),
+                    "finalPrice" to court!!.getDouble("basePrice"),
+                )
+            )
+            deleteNotification(notification.id!!)
+        }
     }
 }
