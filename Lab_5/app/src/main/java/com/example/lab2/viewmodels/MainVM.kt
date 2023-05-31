@@ -25,7 +25,6 @@ class MainVM @Inject constructor(): ViewModel() {
     val db = FirebaseFirestore.getInstance()
     val storage = FirebaseStorage.getInstance()
     val auth = FirebaseAuth.getInstance()
-    var currentUserId : MutableLiveData<String> = MutableLiveData("")
     var error : MutableLiveData<String?> = MutableLiveData()
     private val _user = MutableLiveData<User>()
     val user: LiveData<User> get() = _user
@@ -68,7 +67,7 @@ class MainVM @Inject constructor(): ViewModel() {
     fun updateUser(editedUser: User) {
 
         db.collection("players")
-            .document(currentUserId.value!!)
+            .document(userId)
             .set(User.toFirebase(editedUser))
             .addOnSuccessListener {
                 _user.value = editedUser
@@ -87,7 +86,7 @@ class MainVM @Inject constructor(): ViewModel() {
         storeImage(imageUri, fileName){ imageUrl ->
             if(imageUrl != null) {
                 db.collection("players")
-                    .document(currentUserId.value!!)
+                    .document(userId)
                     .update("image", imageUrl)
                     .addOnSuccessListener {
                         user.value?.image = imageUrl

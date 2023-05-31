@@ -34,14 +34,14 @@ class DetailsViewModel @Inject constructor() : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
 
-    fun getReservationDetails(reservationId: String, context: Context) {
+    fun getReservationDetails(reservationId: String, context: Context, currentPlayer: User) {
         db.collection("reservations").whereEqualTo(FieldPath.documentId(), reservationId).get()
             .addOnSuccessListener { r ->
                 db.collection("matches").whereEqualTo(
                     FieldPath.documentId(),
                     r.first().getDocumentReference("match")?.id
                 ).get().addOnSuccessListener { m ->
-                    getPlayers(m)
+                    getPlayers(m, currentPlayer)
                     db.collection("courts").whereEqualTo(
                         FieldPath.documentId(),
                         m.first().getDocumentReference("court")?.id
@@ -81,7 +81,7 @@ class DetailsViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    private fun getPlayers(m: QuerySnapshot) {
+    private fun getPlayers(m: QuerySnapshot, currentPlayer: User) {
         CoroutineScope(Dispatchers.IO).launch {
             val listOfReferences = m.first().get("listOfPlayers") as List<DocumentReference>
             val list = mutableListOf<User>()
@@ -91,7 +91,7 @@ class DetailsViewModel @Inject constructor() : ViewModel() {
                         .await()
                 list.add(User.fromFirebase(user.first()))
             }
-            _listOfPlayers.postValue(list.filter { !it.email.equals("mattiamazzari@gmail.com") })
+            _listOfPlayers.postValue(list.filter { it.email != currentPlayer.email })
         }
     }
 
