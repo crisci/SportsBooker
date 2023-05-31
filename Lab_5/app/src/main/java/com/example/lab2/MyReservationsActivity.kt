@@ -14,14 +14,18 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.example.lab2.viewmodels.MainVM
 import com.example.lab2.viewmodels.NotificationVM
+import com.facebook.shimmer.ShimmerFrameLayout
+import com.squareup.picasso.Callback
+import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
+import java.lang.Exception
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MyReservationsActivity : AppCompatActivity() {
 
     private lateinit var navController : NavController
-    private lateinit var myProfileButton: ImageView
+    private lateinit var myProfileButton: ShimmerFrameLayout
     private lateinit var notificationsButton: FrameLayout
 
     @Inject
@@ -50,7 +54,7 @@ class MyReservationsActivity : AppCompatActivity() {
                 .findFragmentById(R.id.fragmentContainerView) as NavHostFragment
         ).navController
 
-        myProfileButton = supportActionBar?.customView?.findViewById<ImageView>(R.id.custom_my_profile)!!
+        myProfileButton = supportActionBar?.customView?.findViewById<ShimmerFrameLayout>(R.id.custom_my_profile)!!
         myProfileButton.setOnClickListener {
             val intentShowProfile = Intent(this, ShowProfileActivity::class.java)
             launcher.launch(intentShowProfile)
@@ -76,6 +80,23 @@ class MyReservationsActivity : AppCompatActivity() {
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
         supportActionBar?.setCustomView(R.layout.toolbar_with_profile)
         val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
+        val shimmerFrame = supportActionBar?.customView?.findViewById<ShimmerFrameLayout>(R.id.custom_my_profile)
+        val profilePicture = supportActionBar?.customView?.findViewById<ImageView>(R.id.toolbar_profile_image)
+
+        setProfileImage(shimmerFrame!!, profilePicture!!)
+
         titleTextView?.setText(R.string.my_reservations_title)
+    }
+
+    private fun setProfileImage(shimmerFrame: ShimmerFrameLayout, profilePicture: ImageView){
+        Picasso.get().load(mainVM.user.value?.image).into(profilePicture, object :
+            Callback {
+            override fun onSuccess() {
+                shimmerFrame.stopShimmer()
+                shimmerFrame.hideShimmer()
+            }
+            override fun onError(e: Exception?) {
+            }
+        })
     }
 }

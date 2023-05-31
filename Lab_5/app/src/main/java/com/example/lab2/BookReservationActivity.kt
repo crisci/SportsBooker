@@ -9,14 +9,24 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.example.lab2.viewmodels.MainVM
+import com.facebook.shimmer.ShimmerFrameLayout
+import com.squareup.picasso.Callback
+import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
+import java.lang.Exception
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class BookReservationActivity : AppCompatActivity() {
 
+    @Inject
+    lateinit var mainVM: MainVM
+
     private lateinit var navController : NavController
     private lateinit var backButton: ImageView
-    private lateinit var myProfileButton: ImageView
+    private lateinit var myProfileButton: ShimmerFrameLayout
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,10 +45,13 @@ class BookReservationActivity : AppCompatActivity() {
         supportActionBar?.elevation = 0f
         supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.example_1_bg)))
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
-        supportActionBar?.setCustomView(R.layout.toolbar)
+        supportActionBar?.setCustomView(R.layout.toolbar_with_profile_and_back)
         val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
         titleTextView?.text = "Join a match"
-        myProfileButton = supportActionBar?.customView?.findViewById(R.id.custom_my_profile)!!
+        myProfileButton = supportActionBar?.customView?.findViewById<ShimmerFrameLayout>(R.id.custom_my_profile)!!
+        val profilePicture = supportActionBar?.customView?.findViewById<ImageView>(R.id.toolbar_profile_image)!!
+
+        setProfileImage(myProfileButton, profilePicture)
         myProfileButton.setOnClickListener {
             val intentShowProfile = Intent(this, ShowProfileActivity::class.java)
             startActivity(intentShowProfile)
@@ -48,4 +61,17 @@ class BookReservationActivity : AppCompatActivity() {
             onBackPressedDispatcher.onBackPressed()
         }
     }
+
+    private fun setProfileImage(shimmerFrame: ShimmerFrameLayout, profilePicture: ImageView){
+        Picasso.get().load(mainVM.user.value?.image).into(profilePicture, object :
+            Callback {
+            override fun onSuccess() {
+                shimmerFrame.stopShimmer()
+                shimmerFrame.hideShimmer()
+            }
+            override fun onError(e: Exception?) {
+            }
+        })
+    }
+
 }

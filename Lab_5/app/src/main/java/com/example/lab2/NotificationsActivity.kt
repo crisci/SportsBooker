@@ -36,8 +36,6 @@ class NotificationsActivity: AppCompatActivity(), AdapterInvitations.OnClickList
 
     @Inject
     lateinit var notificationVM: NotificationVM
-
-    private lateinit var myProfileButton: ImageView
     private lateinit var backButton: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,11 +54,6 @@ class NotificationsActivity: AppCompatActivity(), AdapterInvitations.OnClickList
         }
 
         setSupportActionBar()
-        myProfileButton = supportActionBar?.customView?.findViewById(R.id.custom_my_profile)!!
-        myProfileButton.setOnClickListener {
-            val intentShowProfile = Intent(this, ShowProfileActivity::class.java)
-            startActivity(intentShowProfile)
-        }
 
         backButton = supportActionBar?.customView?.findViewById<ImageView>(R.id.custom_back_icon)!!
         backButton.setOnClickListener {

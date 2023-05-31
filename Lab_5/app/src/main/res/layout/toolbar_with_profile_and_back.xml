@@ -69,36 +69,14 @@
         </com.facebook.shimmer.ShimmerFrameLayout>
 
 
-        <FrameLayout
-            android:id="@+id/notifications"
+        <ImageView
+            android:id="@+id/custom_back_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
+            android:src="@drawable/ic_back_name"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/rounded_notifications"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/number_of_notifications"
-                android:layout_width="wrap_content"
-                android:layout_height="12dp"
-                android:layout_gravity="end"
-                android:background="@drawable/red_circle_new_notification"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:paddingHorizontal="3dp"
-                android:text="0"
-                android:textColor="@color/white"
-                android:textSize="10sp" />
-
-        </FrameLayout>
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
