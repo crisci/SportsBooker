@@ -88,17 +88,14 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
 
         var currentMatch : Match? = null
 
-        val list = documents?.documents?.mapNotNull { match ->
+        documents?.documents?.mapNotNull { match ->
             if (match != null) {
                 val m = firebaseToMatch(match)
                 if(m.date == dateToSearch && m.time.truncatedTo(ChronoUnit.MINUTES) == currentTimeslot.truncatedTo(ChronoUnit.MINUTES)){
                     currentMatch = Match(m.matchId, m.numOfPlayers, m.date, m.time, m.listOfPlayers)
                     null
-                }else if(m.date == dateToSearch && m.time.isAfter(LocalTime.now())){
-                    val players = match.get ("listOfPlayers") as List<DocumentReference>
-                    if(!players.contains(db.document("players/$playerId"))){
-                        m
-                    } else null
+                }else if(m.date == dateToSearch && m.time.isAfter(LocalTime.now()) && !m.listOfPlayers.contains(playerId)){
+                    m
                 } else null
             } else null
         }.also {
