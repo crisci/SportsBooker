@@ -13,6 +13,7 @@ import com.example.lab2.entities.Equipment
 import com.example.lab2.viewmodels_firebase.*
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
@@ -139,7 +140,7 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
     private fun updateOldMatch(playerId: String, oldReservation: MatchWithCourtAndEquipments){
 
         val oldMatchEdits = mutableMapOf<String, Any>()
-        oldMatchEdits["numOfPlayers"] = oldReservation.match.numOfPlayers - 1
+        oldMatchEdits["numOfPlayers"] = FieldValue.increment(-1)
         Log.i("old match before", oldReservation.match.listOfPlayers.toString())
         oldReservation.match.listOfPlayers.remove(playerId)
         Log.i("old match after", oldReservation.match.listOfPlayers.toString())
@@ -156,7 +157,7 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
 
     private fun updateNewMatch(playerId: String){
         val newMatchEdits = mutableMapOf<String, Any>()
-        newMatchEdits["numOfPlayers"] = getEditedReservation().value?.match?.numOfPlayers?.plus(1)!!
+        newMatchEdits["numOfPlayers"] = FieldValue.increment(1)
         Log.i("new match before", getEditedReservation().value?.match?.listOfPlayers!!.toString())
         getEditedReservation().value?.match?.listOfPlayers?.add(playerId)
         Log.i("new match before", getEditedReservation().value?.match?.listOfPlayers!!.toString())
