@@ -9,6 +9,7 @@ import com.example.lab2.viewmodels_firebase.TimestampUtil
 import com.example.lab2.viewmodels_firebase.firebaseToCourt
 import com.example.lab2.viewmodels_firebase.firebaseToMatch
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -91,6 +92,14 @@ class NotificationVM @Inject constructor() : ViewModel() {
         //val notificationRef = db.collection("invitations").document(notification.id!!)
         //notificationRef.update("seen", true)
         val matchRef = db.collection("matches").document(notification.match.matchId!!)
-        matchRef.update("players", notification.match.listOfPlayers.plus(auth.currentUser!!.uid))
+        matchRef.update("listOfPlayers", notification.match.listOfPlayers.plus(auth.currentUser!!.uid))
+        matchRef.update("numOfPlayers", FieldValue.increment(1))
+        db.collection("reservations").add(
+            hashMapOf(
+                "match" to db.document("matches/${notification.match.matchId}"),
+                "player" to db.document("players/${auth.currentUser!!.uid}"),
+            )
+        )
+        deleteNotification(notification.id!!)
     }
 }

@@ -110,14 +110,14 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations),
 
         leaveRatingLayout = view.findViewById(R.id.leave_rating_banner)
 
-        CoroutineScope(Dispatchers.IO).launch {
+/*        CoroutineScope(Dispatchers.IO).launch {
             // Check if the rating dialog should be shown
             // doing a GET every minute
             while (true) {
                 ratingModalVM.checkIfPlayerHasAlreadyReviewed(playerId)
                 delay(60000) // 60 seconds
             }
-        }
+        }*/
 
         ratingModalVM.getShowBanner().observe(viewLifecycleOwner) {
             if (it == true) leaveRatingLayout.visibility = View.VISIBLE
