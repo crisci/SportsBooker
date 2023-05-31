@@ -91,13 +91,13 @@ class MyReservationsVM @Inject constructor(
         }
     }
 
-    fun refreshMyReservations(date: LocalDate, time: LocalTime, interests: List<Sport>) {
+    fun refreshMyReservations(userID: String, date: LocalDate, time: LocalTime, interests: List<Sport>) {
         _listener?.remove()
 
         val formattedInterests = formatInterests(interests)
 
         _listener = FirebaseFirestore.getInstance().collection("reservations")
-            .whereEqualTo("player", db.document("players/mbvhLWL5YbPoYIqRskD1XkVVILv1"))
+            .whereEqualTo("player", db.document("players/$userID"))
             .addSnapshotListener { documents, error ->
                 CoroutineScope(Dispatchers.IO).launch {
                     val list = processDocuments(documents)

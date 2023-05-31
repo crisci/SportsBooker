@@ -36,7 +36,6 @@ class MyReservationsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_reservations)
         setSupportActionBar()
-        mainVM.setUser() //TODO: At the moment, there is a default value for parameter "userId"
 
         notificationVM = ViewModelProvider(this)[NotificationVM::class.java]
 

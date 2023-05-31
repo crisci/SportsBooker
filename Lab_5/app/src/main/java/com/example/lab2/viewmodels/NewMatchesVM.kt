@@ -35,7 +35,7 @@ class NewMatchesVM @Inject constructor(): ViewModel() {
 
     private var matchesListener: ListenerRegistration? = null
 
-    fun loadNewMatches(playerId: String = "mbvhLWL5YbPoYIqRskD1XkVVILv1", date: LocalDate, time: LocalTime, interests: List<Sport>) {
+    fun loadNewMatches(playerId: String, date: LocalDate, time: LocalTime, interests: List<Sport>) {
 
         matchesListener?.remove()
 

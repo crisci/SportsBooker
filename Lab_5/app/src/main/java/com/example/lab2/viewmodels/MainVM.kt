@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.lab2.LauncherActivity
 import com.example.lab2.entities.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -13,40 +14,56 @@ import com.google.firebase.storage.FirebaseStorage
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import android.content.Intent
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.firestore.ListenerRegistration
 
 @Singleton
 class MainVM @Inject constructor(): ViewModel() {
 
-    // TODO: At the moment User is set to DEFAULT, so that other activities can still work
-    // TODO: It needs to be changed to MutableLiveData<User?> = MutableLiveData(null)
-
     val db = FirebaseFirestore.getInstance()
     val storage = FirebaseStorage.getInstance()
-    val auth = FirebaseAuth.getInstance().signInAnonymously() //TODO: This is needed for the storage, will be replace with real auth
-    var user : MutableLiveData<User> = MutableLiveData(User.default())
+    val auth = FirebaseAuth.getInstance()
     var currentUserId : MutableLiveData<String> = MutableLiveData("")
     var error : MutableLiveData<String?> = MutableLiveData()
+    private val _user = MutableLiveData<User>()
+    val user: LiveData<User> get() = _user
+    private val _eventLogout = MutableLiveData<Unit>()
+    val eventLogout: LiveData<Unit> get() = _eventLogout
+    private var userListener: ListenerRegistration? = null
+
+
+    val userId: String get() = auth.currentUser!!.uid;
+
+    fun listenToUserUpdates(userId: String) {
+        Log.w("MainVM", "Start listening: /players/$userId")
+        userListener = db.collection("players").document(userId)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.w("MainVM", "Listen failed.", e)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    Log.d("MainVM", "Current data: ${snapshot.data}")
+                    _user.value = User.fromFirebase(snapshot)
+                    _user.postValue(_user.value)
+                } else {
+                    Log.d("MainVM", "Current data: null")
+                }
+            }
+    }
+
+
+    override fun onCleared() {
+        super.onCleared()
+        userListener?.remove()
+    }
 
 
     var listBookedReservations = MutableLiveData<MutableSet<Int>>(mutableSetOf())
 
-    fun setUser(userId: String = "mbvhLWL5YbPoYIqRskD1XkVVILv1") {
-        db.collection("players").document(userId).addSnapshotListener{ value, error ->
-            if(value!=null){
-                user.value = User.fromFirebase(value)
-                Log.d("MainVM", "User set to: ${user.value}")
-                currentUserId.value = userId
-                this.error.value = null
-            }
-            if(error != null){
-                this.error.value = error.message
-            }
-        }
-    }
-
-    fun getUser(): LiveData<User> {
-        return user
-    }
 
     fun updateUser(editedUser: User) {
 
@@ -54,7 +71,7 @@ class MainVM @Inject constructor(): ViewModel() {
             .document(currentUserId.value!!)
             .set(User.toFirebase(editedUser))
             .addOnSuccessListener {
-                user.value = editedUser
+                _user.value = editedUser
                 error.value = null
             }
             .addOnFailureListener {
