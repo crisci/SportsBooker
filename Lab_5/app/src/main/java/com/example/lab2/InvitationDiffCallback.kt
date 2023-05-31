@@ -22,8 +22,7 @@ class InvitationDiffCallback(
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         return invitations[oldItemPosition].sender == newInvitations[newItemPosition].sender
-                && invitations[oldItemPosition].date == newInvitations[newItemPosition].date
-                && invitations[oldItemPosition].time == newInvitations[newItemPosition].time
+                && invitations[oldItemPosition].timestamp == newInvitations[newItemPosition].timestamp
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
@@ -51,8 +50,7 @@ class InvitationDiffCallback(
 
     private fun isInvitationTheSame(oldInvitation: Invitation, newInvitation: Invitation): Boolean {
         return oldInvitation.sender == newInvitation.sender &&
-                oldInvitation.date == newInvitation.date &&
-                oldInvitation.time == newInvitation.time
+                oldInvitation.timestamp == newInvitation.timestamp
     }
 
 }

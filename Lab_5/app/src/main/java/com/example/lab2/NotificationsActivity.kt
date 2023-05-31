@@ -22,6 +22,7 @@ import com.example.lab2.viewmodels.NotificationVM
 import com.example.lab2.viewmodels_firebase.Invitation
 import com.example.lab2.viewmodels_firebase.MatchWithCourtAndEquipments
 import com.facebook.shimmer.ShimmerFrameLayout
+import com.google.firebase.Timestamp
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
@@ -89,6 +90,7 @@ class InvitationViewHolder(v: View): RecyclerView.ViewHolder(v) {
     val timeDetail: TextView = v.findViewById(R.id.hour_detail)
     val acceptButton: Button = v.findViewById(R.id.accept_invitation_button)
     val declineButton: Button = v.findViewById(R.id.decline_invitation_button)
+    val notificationTime: TextView = v.findViewById(R.id.notification_time)
 }
 
 class AdapterInvitations(private var list: List<Invitation>, private val listener: OnClickListener) : RecyclerView.Adapter<InvitationViewHolder>() {
@@ -121,6 +123,30 @@ class AdapterInvitations(private var list: List<Invitation>, private val listene
         }
         holder.declineButton.setOnClickListener() {
             listener.onClickDecline(list[holder.absoluteAdapterPosition].id!!)
+        }
+        holder.notificationTime.text = getTimeAgo(list[position].timestamp)
+    }
+
+    private fun getTimeAgo(timestamp: Timestamp): String {
+        val now = Timestamp.now()
+        val difference = now.seconds - timestamp.seconds
+
+        val seconds = difference
+        val minutes = seconds / 60
+        val hours = minutes / 60
+        val days = hours / 24
+        val weeks = days / 7
+        val months = weeks / 4
+        val years = months / 12
+
+        return when {
+            years > 0 -> "$years ${if (years == 1L) "year" else "years"} ago"
+            months > 0 -> "$months ${if (months == 1L) "month" else "months"} ago"
+            weeks > 0 -> "$weeks ${if (weeks == 1L) "week" else "weeks"} ago"
+            days > 0 -> "$days ${if (days == 1L) "day" else "days"} ago"
+            hours > 0 -> "$hours ${if (hours == 1L) "hour" else "hours"} ago"
+            minutes > 0 -> "$minutes ${if (minutes == 1L) "minute" else "minutes"} ago"
+            else -> "$seconds ${if (seconds == 1L) "second" else "seconds"} ago"
         }
     }
 

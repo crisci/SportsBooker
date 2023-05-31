@@ -61,16 +61,13 @@ class NotificationVM @Inject constructor() : ViewModel() {
                             val sender =
                                 notification.getDocumentReference("sentBy")?.get()?.await()
                             val timestamp = notification.getTimestamp("timestamp")
-                            val date = TimestampUtil.timestampToLocalDate(timestamp!!)
-                            val time = TimestampUtil.timestampToLocalTime(timestamp)
                             invitations.add(
                                 Invitation(
                                     id = notification.id,
                                     sender = User.fromFirebase(sender!!),
                                     match = firebaseToMatch(match),
                                     court = firebaseToCourt(court!!),
-                                    date = date,
-                                    time = time
+                                    timestamp = timestamp!!
                                 )
                             )
                         }
