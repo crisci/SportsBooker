@@ -64,7 +64,7 @@ class ShowProfileActivity : AppCompatActivity() {
         reservationVm = ViewModelProvider(this)[MyReservationsVM::class.java]
 
         // TODO : Statistics need to be retrieved from Firebase!
-        reservationVm.refreshMyStatistics(playerId = 1)
+        reservationVm.refreshMyStatistics(playerId = vm.userId)
 
         badgesLayout.setOnClickListener { showCustomDialog() }
 

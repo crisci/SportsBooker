@@ -34,7 +34,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MyReservationsVM @Inject constructor(
-    private val playerRepository: PlayerRepository,
     private val reservationRepository: ReservationRepository,
     private val courtReviewRepository: CourtReviewRepository,
     ): ViewModel() {
@@ -72,23 +71,48 @@ class MyReservationsVM @Inject constructor(
         return myStatistics
     }
 
-    fun refreshMyStatistics(playerId: Int) {
-        viewModelScope.launch {
-            myStatistics.value =
-                playerRepository.loadAllReservationsByPlayerId(
-                    1,
-                ).groupBy { it.court.sport }.map {
-                    when(it.key.lowercase()){
-                        "baseball" -> Statistic(sport = Sport.BASEBALL, gamesPlayed = it.value.size)
-                        "basketball" -> Statistic(sport = Sport.BASKETBALL, gamesPlayed = it.value.size)
-                        "golf" -> Statistic(sport = Sport.GOLF, gamesPlayed = it.value.size)
-                        "padel" -> Statistic(sport = Sport.PADEL, gamesPlayed = it.value.size)
-                        "soccer" -> Statistic(sport = Sport.SOCCER, gamesPlayed = it.value.size)
-                        "tennis" -> Statistic(sport = Sport.TENNIS, gamesPlayed = it.value.size)
-                        else -> throw java.lang.RuntimeException("Wrong sport in database entry!")
-                    }
+    fun refreshMyStatistics(playerId: String) {
+
+        FirebaseFirestore.getInstance().collection("reservations")
+            .whereEqualTo("player", db.document("players/$playerId"))
+            .get().addOnSuccessListener { documents ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    val list = processStatistics(documents)
+                    myStatistics.postValue(list)
                 }
+            }
+    }
+
+    private suspend fun processStatistics(documents: QuerySnapshot?) : List<Statistic> {
+
+        val statistics = documents?.documents?.mapNotNull { reservation ->
+            val matchRef = reservation.getDocumentReference("match")?.get()?.await()
+            val courtRef = matchRef?.getDocumentReference("court")?.get()?.await()
+
+            if(matchRef != null && courtRef != null){
+                val m = firebaseToMatchWithCourtAndEquipments(matchRef, courtRef, reservation)
+                if(m.match.date.isBefore(LocalDate.now())){
+                    m.court.sport!! to 1
+                }else null
+
+            } else null
         }
+
+        val sumBySport = statistics?.groupBy { it.first }?.mapValues { entry -> entry.value.sumOf { it.second } }?.toList()
+
+        return sumBySport?.map {
+            when(it.first.lowercase()){
+                "baseball" -> Statistic(sport = Sport.BASEBALL, gamesPlayed = it.second)
+                "basketball" -> Statistic(sport = Sport.BASKETBALL, gamesPlayed = it.second)
+                "golf" -> Statistic(sport = Sport.GOLF, gamesPlayed = it.second)
+                "padel" -> Statistic(sport = Sport.PADEL, gamesPlayed = it.second)
+                "soccer" -> Statistic(sport = Sport.SOCCER, gamesPlayed = it.second)
+                "tennis" -> Statistic(sport = Sport.TENNIS, gamesPlayed = it.second)
+                else -> throw RuntimeException("Unknown sport name found while retrieving statistics.")
+            }
+        } ?: listOf()
+
+
     }
 
     fun refreshMyReservations(userID: String, date: LocalDate, time: LocalTime, interests: List<Sport>) {
