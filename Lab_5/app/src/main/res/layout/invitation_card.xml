@@ -9,7 +9,7 @@
     android:background="@drawable/rectangle_rounded_shadowed"
     android:elevation="10dp"
     android:orientation="horizontal"
-    android:layout_weight="5"
+    android:layout_weight="7"
     android:padding="15dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -17,38 +17,48 @@
         android:layout_height="match_parent"
         android:layout_weight="1">
 
-        <androidx.cardview.widget.CardView
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmer_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="300dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:shimmer_auto_start="true">
 
-            <ImageView
-                android:id="@+id/profile_image"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:adjustViewBounds="true"
-                android:background="@drawable/circle_shape"
-                android:contentDescription="@string/profile_picture"
-                android:scaleType="centerCrop"
-                android:src="@drawable/profile_picture"
-                app:layout_constraintBottom_toTopOf="@+id/linearLayout" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="300dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-        </androidx.cardview.widget.CardView>
+                <ImageView
+                    android:id="@+id/profile_image"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/circle_shape"
+                    android:contentDescription="@string/profile_picture"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/profile_picture"
+                    app:layout_constraintBottom_toTopOf="@+id/linearLayout" />
+
+            </androidx.cardview.widget.CardView>
+
+        </com.facebook.shimmer.ShimmerFrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
         android:layout_height="130dp"
-        android:layout_weight="4"
+        android:layout_weight="6"
         android:backgroundTint="@color/white">
 
         <TextView
-            android:id="@+id/court_name_reservation"
+            android:id="@+id/sport_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat_bold"
@@ -57,18 +67,31 @@
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sport_name"
+            app:layout_constraintTop_toBottomOf="@+id/invited_you_to"
             app:layout_constraintVertical_bias="0.25" />
 
         <TextView
-            android:id="@+id/sport_name"
+            android:id="@+id/sender_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat_bold"
             android:includeFontPadding="false"
             android:paddingBottom="0dp"
-            android:text="Mario invited you to"
+            android:text="Mario Testa"
+            android:textColor="@color/darker_blue"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/invited_you_to"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat_bold"
+            android:includeFontPadding="false"
+            android:paddingBottom="0dp"
+            android:layout_marginLeft="3dp"
+            android:text="invited you to"
+            app:layout_constraintStart_toEndOf="@id/sender_name"
             app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
@@ -77,15 +100,15 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/court_name_reservation"
-            app:layout_constraintTop_toBottomOf="@+id/court_name_reservation"
+            app:layout_constraintStart_toStartOf="@+id/sport_name"
+            app:layout_constraintTop_toBottomOf="@+id/sport_name"
             app:layout_constraintVertical_bias="0.06999999">
 
             <TextView
                 android:id="@+id/location_reservation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Location"
+                android:text="@string/address"
                 app:layout_constraintStart_toEndOf="@+id/imageView" />
         </LinearLayout>
 

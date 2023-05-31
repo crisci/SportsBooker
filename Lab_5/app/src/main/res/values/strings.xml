@@ -5,6 +5,7 @@
     <string name="my_reservations_title">My Reservations</string>
     <string name="profile_title">Profile</string>
     <string name="edit_profile_title">Edit Profile</string>
+    <string name="notifications_title">Notifications</string>
 
 
     <string name="nameSurname">Achille Mago</string>
@@ -71,6 +72,7 @@
     <string name="complete_your_registration">Complete your registration</string>
     <string name="skip_for_now">Skip for now</string>
     <string name="finish">Finish</string>
+    <string name="address">Via Giovanni Magni, 32</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

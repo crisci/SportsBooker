@@ -9,9 +9,11 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.example.lab2.viewmodels.MainVM
+import com.example.lab2.viewmodels.NotificationVM
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -24,6 +26,7 @@ class MyReservationsActivity : AppCompatActivity() {
 
     @Inject
     lateinit var mainVM: MainVM
+    lateinit var notificationVM: NotificationVM
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -34,6 +37,8 @@ class MyReservationsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_my_reservations)
         setSupportActionBar()
         mainVM.setUser() //TODO: At the moment, there is a default value for parameter "userId"
+
+        notificationVM = ViewModelProvider(this)[NotificationVM::class.java]
 
         notificationsButton = supportActionBar?.customView?.findViewById<FrameLayout>(R.id.notifications)!!
         notificationsButton.setOnClickListener {
@@ -51,6 +56,18 @@ class MyReservationsActivity : AppCompatActivity() {
             val intentShowProfile = Intent(this, ShowProfileActivity::class.java)
             launcher.launch(intentShowProfile)
         }
+
+        notificationVM.numberOfUnseenNotifications.observe(this) {
+            val numberOfUnseenNotificationsTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.number_of_notifications)
+            if(it > 0) {
+                numberOfUnseenNotificationsTextView?.visibility = TextView.VISIBLE
+                numberOfUnseenNotificationsTextView?.text = it.toString()
+            }
+            else {
+                numberOfUnseenNotificationsTextView?.visibility = TextView.GONE
+            }
+        }
+
 
     }
 
