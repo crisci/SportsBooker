@@ -48,8 +48,6 @@ class EditReservationActivity : AppCompatActivity() {
 
     private lateinit var reservation: MatchWithCourtAndEquipments
 
-    private lateinit var playerId: String
-
     private lateinit var court_name_edit_reservation: TextView
     private lateinit var location_edit_reservation: TextView
     private lateinit var cancelButton: Button
@@ -101,16 +99,13 @@ class EditReservationActivity : AppCompatActivity() {
 
         cancelButton.setOnClickListener {
             try{
-                editReservationVM.cancelReservation(playerId, reservation)
+                editReservationVM.cancelReservation(mainVM.userId, reservation)
                 setResult(Activity.RESULT_OK)
                 finish()
             }catch (err: Exception){
                 Toast.makeText(applicationContext, "${err.message}", Toast.LENGTH_SHORT).show()
             }
         }
-
-
-        playerId = mainVM.userId
 
         val reservationString = intent.getStringExtra("reservationJson")
         reservation = Json.decodeFromString(MatchWithCourtAndEquipments.serializer(), reservationString!!)
@@ -125,7 +120,7 @@ class EditReservationActivity : AppCompatActivity() {
         // Fetch from the db the other reservations for the same court
         editReservationVM.fetchAvailableMatches(
             date = reservation.match.date,
-            playerId = playerId,
+            playerId = mainVM.userId,
             courtId = reservation.court.courtId,
             currentTimeslot = reservation.match.time
         )
@@ -162,7 +157,7 @@ class EditReservationActivity : AppCompatActivity() {
         try {
             editReservationVM.setEditedEquipment(equipmentsVM.getEquipments().value!!)
             editReservationVM.setEditedPrice(equipmentsVM.getPersonalPrice().value!!)
-            editReservationVM.submitUpdate(playerId, oldReservation = reservation)
+            editReservationVM.submitUpdate(mainVM.userId, oldReservation = reservation)
             setResult(Activity.RESULT_OK)
             finish()
         } catch(err: Exception) {

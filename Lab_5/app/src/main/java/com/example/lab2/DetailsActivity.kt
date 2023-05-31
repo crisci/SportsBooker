@@ -23,6 +23,7 @@ import com.example.lab2.calendar.displayText
 import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.entities.Equipment
 import com.example.lab2.entities.User
+import com.example.lab2.viewmodels.MainVM
 import com.example.lab2.viewmodels.MyReservationsVM
 import com.example.lab2.viewmodels_firebase.DetailsViewModel
 import com.example.lab2.viewmodels_firebase.MatchWithCourtAndEquipments
@@ -35,10 +36,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.lang.Exception
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class DetailsActivity : AppCompatActivity() {
 
+    @Inject
+    lateinit var mainVM : MainVM
 
     lateinit var reservationVM: MyReservationsVM
     lateinit var detailsViewModel: DetailsViewModel
@@ -98,7 +102,7 @@ class DetailsActivity : AppCompatActivity() {
         }
 
         val reservationId = intent.getStringExtra("reservationId")!!
-        detailsViewModel.getReservationDetails(reservationId, applicationContext)
+        detailsViewModel.getReservationDetails(reservationId, applicationContext, currentPlayer = mainVM.user.value!!)
 
         detailsViewModel.listOfPlayers.observe(this) {
             if (detailsViewModel.listOfPlayers.value?.isNotEmpty()!!) {
