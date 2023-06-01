@@ -17,6 +17,7 @@ class SignupVM @Inject constructor() : ViewModel() {
     fun createPlayer(userId: String, name: String, surname: String, username: String, email: String, dateOfBirth: String, location: String, selectedInterests: MutableList<Sport>) {
         val user = User.toFirebase(
             User(
+                userId = userId,
                 full_name = "$name $surname",
                 nickname = username,
                 email = email,
