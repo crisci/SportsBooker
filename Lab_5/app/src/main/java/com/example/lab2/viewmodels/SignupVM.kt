@@ -1,6 +1,7 @@
 package com.example.lab2.viewmodels
 
 import androidx.lifecycle.ViewModel
+import com.example.lab2.entities.BadgeType
 import com.example.lab2.entities.Sport
 import com.example.lab2.entities.User
 import com.google.firebase.firestore.FirebaseFirestore
@@ -25,7 +26,7 @@ class SignupVM @Inject constructor() : ViewModel() {
                 birthday = LocalDate.parse(dateOfBirth),
                 address = location,
                 interests = selectedInterests,
-                badges = mutableMapOf(),
+                badges = BadgeType.values().associateWith { 0 },
                 image = "https://firebasestorage.googleapis.com/v0/b/sportsbooker-mad.appspot.com/o/images%2Fprofile_picture.jpeg?alt=media&token=e5441836-e955-4a13-966b-202f0f3cd210&_gl=1*6spico*_ga*MTk2NjY0NzgxMS4xNjgzMTkzMzEy*_ga_CW55HF8NVT*MTY4NTYyMTM1MS4xNy4xLjE2ODU2MjUzMTcuMC4wLjA."
             )
         )
