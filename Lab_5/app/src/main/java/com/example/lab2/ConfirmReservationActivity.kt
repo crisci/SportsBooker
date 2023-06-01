@@ -93,6 +93,10 @@ class ConfirmReservationActivity : AppCompatActivity() {
         }
 
         updateContent()
+
+        confirmReservationVM.exceptionMessage.observe(this) {
+            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun updateContent() {
@@ -108,7 +112,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
 
         //val equipments = equipmentsBySport(court.sport)
         //TODO setup checkboxes needs a price, which is the starting base price for that sport
-        //setupCheckboxes(match.price)
+        setupCheckboxes(court.basePrice!!)
 
         confirmButton.setOnClickListener {
             val listEquipments = mutableListOf<Equipment>()
@@ -129,19 +133,14 @@ class ConfirmReservationActivity : AppCompatActivity() {
                 // TODO: Check also the if the player has already booked match in the same timeslot
                 if(match.numOfPlayers < court.maxNumberOfPlayers!!) {
                     try {
-                        //TODO add reservation to the database and update number of players
-/*
                         confirmReservationVM.addReservation(
-                            playerId,
                             MatchWithCourtAndEquipments(
-                                "",
-                                match,
-                                court,
-                                listEquipments,
-                                equipmentsVM.getPersonalPrice().value!!
+                                match = match,
+                                court = court,
+                                equipments = listEquipments,
+                                finalPrice = equipmentsVM.getPersonalPrice().value!!
                             )
                         )
-*/
 
 
                         //db.playerReservationDAO().confirmReservation(1, reservation.reservationId, listEquipments, equipmentsVM.getPersonalPrice().value!!)
@@ -161,7 +160,6 @@ class ConfirmReservationActivity : AppCompatActivity() {
     private fun setupCheckboxes(startingPrice: Double) {
 
         equipmentsVM.setPersonalPrice(startingPrice)
-
         val equipments = equipmentsVM.getListEquipments(court.sport!!)
 
         for (e in equipments) {

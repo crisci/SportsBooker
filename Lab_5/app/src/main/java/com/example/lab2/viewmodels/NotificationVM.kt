@@ -88,23 +88,22 @@ class NotificationVM @Inject constructor() : ViewModel() {
     }
 
     fun joinTheMatch(notification: Invitation) {
-        //val notificationRef = db.collection("invitations").document(notification.id!!)
-        //notificationRef.update("seen", true)
         viewModelScope.launch {
             val matchRef = db.collection("matches").document(notification.match.matchId!!)
             val court = matchRef.get().await().getDocumentReference("court")?.get()?.await()
-            matchRef.update("listOfPlayers", notification.match.listOfPlayers
-                .plus("players/${auth.currentUser!!.uid}")
-            )
+            val playerRef = db.collection("players").document(auth.currentUser!!.uid)
+            matchRef.update("listOfPlayers", FieldValue.arrayUnion(playerRef))
             matchRef.update("numOfPlayers", FieldValue.increment(1))
+
             db.collection("reservations").add(
                 hashMapOf(
                     "match" to db.document("matches/${notification.match.matchId}"),
-                    "player" to db.document("players/${auth.currentUser!!.uid}"),
+                    "player" to playerRef,
                     "listOfEquipments" to listOf<DocumentReference>(),
                     "finalPrice" to court!!.getDouble("basePrice"),
                 )
             )
+
             deleteNotification(notification.id!!)
         }
     }

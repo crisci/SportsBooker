@@ -7,7 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 @kotlinx.serialization.Serializable
 class MatchWithCourtAndEquipments (
-    val reservationId: String,
+    val reservationId: String? = null,
     var match : Match,
     val court : Court,
     var equipments: List<Equipment>,

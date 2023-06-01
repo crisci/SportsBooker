@@ -174,7 +174,7 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
 
     private fun deleteReservation(oldReservation: MatchWithCourtAndEquipments){
         // Delete reservation
-        db.collection("reservations").document(oldReservation.reservationId).delete()
+        db.collection("reservations").document(oldReservation.reservationId!!).delete()
             .addOnFailureListener {
                 throw it
             }
