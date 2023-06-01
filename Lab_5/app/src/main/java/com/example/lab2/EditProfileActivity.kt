@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.cunoraz.tagview.*
 import com.example.lab2.viewmodels.MainVM
 import com.example.lab2.entities.*
+import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
@@ -450,6 +451,7 @@ class EditProfileActivity : AppCompatActivity() {
         val result: Intent = Intent()
 
         val editedUser = User(
+            userId = FirebaseAuth.getInstance().uid!!,
             full_name = full_name_m.text.toString().trim(),
             nickname = nickname_m.text.toString().trim(),
             address = address_m.text.toString().trim(),

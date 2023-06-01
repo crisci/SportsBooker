@@ -270,6 +270,7 @@ class ViewHolderCard(v: View) : RecyclerView.ViewHolder(v) {
     val sport: TextView = v.findViewById(R.id.sport_name)
     val detailsButton: Button = v.findViewById(R.id.detailReservationButton)
     val context: Context = v.context
+    val maxNumber: TextView = v.findViewById(R.id.max_number_players)
 }
 
 class AdapterCard(
@@ -301,7 +302,8 @@ class AdapterCard(
             holder.currentNumberOfPlayers.setTextColorRes(R.color.example_1_bg)
         }
         holder.currentNumberOfPlayers.text = "${list[position].match.numOfPlayers}"
-        holder.maxNumberOfPlayers.text = "/7"
+        if(list[position].match.numOfPlayers == list[position].court.maxNumberOfPlayers) holder.currentNumberOfPlayers.setTextColor(holder.context.getColor(R.color.bright_red))
+        holder.maxNumberOfPlayers.text = "/${list[position].court.maxNumberOfPlayers}"
         holder.time.text =
             list[position].match.time.format(DateTimeFormatter.ofPattern("HH:mm")).toString()
         holder.sport.text = "${list[position].court.sport}"

@@ -17,6 +17,7 @@ class SignupVM @Inject constructor() : ViewModel() {
     fun createPlayer(userId: String, name: String, surname: String, username: String, email: String, dateOfBirth: String, location: String, selectedInterests: MutableList<Sport>) {
         val user = User.toFirebase(
             User(
+                userId = userId,
                 full_name = "$name $surname",
                 nickname = username,
                 email = email,
@@ -25,7 +26,7 @@ class SignupVM @Inject constructor() : ViewModel() {
                 address = location,
                 interests = selectedInterests,
                 badges = mutableMapOf(),
-                image = ""
+                image = "https://firebasestorage.googleapis.com/v0/b/sportsbooker-mad.appspot.com/o/images%2Fprofile_picture.jpeg?alt=media&token=e5441836-e955-4a13-966b-202f0f3cd210&_gl=1*6spico*_ga*MTk2NjY0NzgxMS4xNjgzMTkzMzEy*_ga_CW55HF8NVT*MTY4NTYyMTM1MS4xNy4xLjE2ODU2MjUzMTcuMC4wLjA."
             )
         )
         db.collection("players").document(userId).set(user)

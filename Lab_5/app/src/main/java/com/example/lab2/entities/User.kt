@@ -3,6 +3,7 @@ package com.example.lab2.entities
 import com.example.lab2.DateAsLongSerializer
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.ServerTimestamp
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
@@ -15,6 +16,7 @@ import java.util.Date
 
 @Serializable
 data class User(
+    @Exclude
     val userId: String,
     val full_name: String,
     val nickname: String,

@@ -31,24 +31,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvTimeslot">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/baseline_my_profile"
-        app:tint="@color/example_1_bg"
-        />
+        <ImageView
+            android:id="@+id/user_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_my_profile"
+            app:tint="@color/example_1_bg" />
 
-    <TextView
-        android:id="@+id/tvPlayersLeft"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="7 left"
-        android:fontFamily="@font/montserrat_extrabold"
-        android:textColor="@color/example_1_bg"
-        app:layout_constraintTop_toBottomOf="@id/tvTimeslot"
-        android:layout_gravity="center"/>
+        <TextView
+            android:id="@+id/tvPlayersLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/montserrat_extrabold"
+            android:text="7 left"
+            android:textColor="@color/example_1_bg"
+            app:layout_constraintTop_toBottomOf="@id/tvTimeslot" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

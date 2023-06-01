@@ -117,12 +117,16 @@ class DetailsActivity : AppCompatActivity() {
         }
 
         detailsViewModel.reservation.observe(this) {
-            updateView(detailsViewModel.reservation.value!!, 0.0)
+            updateView(detailsViewModel.reservation.value!!)
+        }
+
+        detailsViewModel.avg.observe(this) {
+            rating.rating = detailsViewModel.avg.value!!.toFloat()
         }
 
     }
 
-    private fun updateView(reservation: MatchWithCourtAndEquipments, avg: Double) {
+    private fun updateView(reservation: MatchWithCourtAndEquipments) {
         Picasso.get().load(reservation.court.image).into(courtPhoto, object : Callback {
             override fun onSuccess() {
                 sport.text = reservation.court.sport
@@ -132,7 +136,6 @@ class DetailsActivity : AppCompatActivity() {
                 date.text = setupDate(reservation.match.date)
                 price.text = "€${String.format("%.02f", reservation.finalPrice)}"
                 description.text = reservation.court.description
-                rating.rating = avg.toFloat()
                 setupEquipments(reservation.equipments)
                 loading.visibility = View.GONE
                 details.visibility = View.VISIBLE

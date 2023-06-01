@@ -32,6 +32,9 @@ class DetailsViewModel @Inject constructor() : ViewModel() {
     private val _listOfPlayers = MutableLiveData<List<User>>()
     val listOfPlayers: LiveData<List<User>> = _listOfPlayers
 
+    private val _avg = MutableLiveData<Double>()
+    val avg: LiveData<Double> = _avg
+
     private val db = FirebaseFirestore.getInstance()
 
     fun getReservationDetails(reservationId: String, context: Context, currentPlayer: User) {
@@ -41,17 +44,18 @@ class DetailsViewModel @Inject constructor() : ViewModel() {
                     FieldPath.documentId(),
                     r.first().getDocumentReference("match")?.id
                 ).get().addOnSuccessListener { m ->
-                    getPlayers(m, currentPlayer)
                     db.collection("courts").whereEqualTo(
                         FieldPath.documentId(),
                         m.first().getDocumentReference("court")?.id
                     ).get().addOnSuccessListener { c ->
+                        avg(c)
                         val details =
                             firebaseToMatchWithCourtAndEquipments(m.first(), c.first(), r.first())
                         Log.e("id", r.first().id)
                         Log.e("price", r.first().getDouble("finalPrice").toString())
                         Log.e("equipments", details.equipments.toString())
                         _reservation.postValue(details)
+                        getPlayers(m, currentPlayer)
                     }.addOnFailureListener {
                         MainScope().launch {
                             Toast.makeText(
@@ -95,5 +99,18 @@ class DetailsViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    private fun avg(c: QuerySnapshot) {
+        CoroutineScope(Dispatchers.IO).launch {
+            db.collection("court_reviews").whereEqualTo("court", c.first().reference).get().addOnSuccessListener { reviews ->
+                var sum = 0.0
+                for(rv in reviews) {
+                    val map = rv.get("listOfRatings") as HashMap<String, Double>
+                    sum += map["cleanliness"]!! + map["lighting"]!! + map["maintenance"]!!
+                }
+                sum = sum/3/reviews.documents.size
+                _avg.postValue(sum)
+            }
+        }
+    }
 
 }

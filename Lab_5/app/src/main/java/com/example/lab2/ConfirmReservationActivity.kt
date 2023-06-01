@@ -24,6 +24,8 @@ import com.example.lab2.viewmodels_firebase.Match
 import com.example.lab2.viewmodels_firebase.MatchWithCourt
 import com.example.lab2.viewmodels_firebase.MatchWithCourtAndEquipments
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.time.LocalDate
 import java.time.LocalTime
@@ -151,7 +153,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
                         Log.e("confirm", "Cannot duplicate the match")
                     }
                 } else {
-                        Toast.makeText(applicationContext, "The maximum number of players is reached.", Toast.LENGTH_SHORT).show()
+                        MainScope().launch { Toast.makeText(applicationContext, "The maximum number of players is reached.", Toast.LENGTH_SHORT).show() }
                 }
             }
         }

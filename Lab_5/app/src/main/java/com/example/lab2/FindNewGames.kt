@@ -2,6 +2,8 @@ package com.example.lab2
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
+import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,6 +14,7 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -238,6 +241,8 @@ class TimeslotAdapter(private val court: Court, private val listMatches: List<Ma
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val timeslotTextView: TextView = view.findViewById(R.id.tvTimeslot)
         val numPlayersLeftTV: TextView = view.findViewById(R.id.tvPlayersLeft)
+        val context = view.context
+        val userIcon: ImageView = view.findViewById(R.id.user_icon)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -250,6 +255,10 @@ class TimeslotAdapter(private val court: Court, private val listMatches: List<Ma
         val list = listMatches[position]
         holder.timeslotTextView.text = list.time.format(DateTimeFormatter.ofPattern("HH:mm"))
         holder.numPlayersLeftTV.text = "${court.maxNumberOfPlayers?.minus(list.numOfPlayers)} left"
+        if(court.maxNumberOfPlayers?.minus(list.numOfPlayers) == 0.toLong()) {
+            holder.numPlayersLeftTV.setTextColor(holder.context.getColor(R.color.bright_red))
+            holder.userIcon.setColorFilter(ContextCompat.getColor(holder.context, R.color.bright_red))
+        }
         holder.itemView.setOnClickListener {
             listener.onClickTimeslot(list.time)
         }

@@ -150,8 +150,7 @@ class MyReservationsVM @Inject constructor(
         if (sportFilter.isNullOrEmpty()) {
             return list.filter {
                 it.match.date == date &&
-                        it.match.time >= time &&
-                        interests.contains(it.court.sport)
+                        it.match.time >= time
             }
         }
         return list.filter {
