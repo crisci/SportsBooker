@@ -40,7 +40,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/leave_rating_banner"
-                android:visibility="invisible"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:elevation="10dp"

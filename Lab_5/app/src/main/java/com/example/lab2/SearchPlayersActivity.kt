@@ -1,5 +1,6 @@
 package com.example.lab2
 
+import android.annotation.SuppressLint
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -63,7 +64,7 @@ class SearchPlayersActivity : AppCompatActivity(), AdapterPlayersList.OnClickLis
         recyclerViewPlayers.adapter = adapterCard
 
         mainVM.allPlayers.observe(this){
-            adapterCard.setPlayers(it)
+            adapterCard.setPlayers(it.filter { player -> !reservation.match.listOfPlayers.contains(player.userId) })
         }
 
     }
@@ -82,14 +83,13 @@ class SearchPlayersActivity : AppCompatActivity(), AdapterPlayersList.OnClickLis
         }
     }
 
-    override fun onClickInvite(sender: String, recipient: User, match: Match, result: (it: Boolean) -> Unit) {
-        try {
-            notificationVM.sendInvitation(sender, recipient, match)
-            result(true)
-        }catch(err: Exception){
-            Toast.makeText(this, err.message, Toast.LENGTH_SHORT).show()
-            result(false)
+    override fun onClickInvite(sender: String, recipient: User, match: Match, callback: (it: Boolean) -> Unit) {
+            notificationVM.sendInvitation(sender, recipient, match){
+                if(it != null){
+                    Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
+                }
         }
+        callback(true)
     }
 
 }
@@ -112,6 +112,7 @@ class AdapterPlayersList(private var list: List<User>, private val listener: OnC
         return PlayerViewHolder(view)
     }
 
+    @SuppressLint("ResourceAsColor")
     override fun onBindViewHolder(holder: PlayerViewHolder, position: Int) {
         holder.fullName.text = list[position].full_name
         holder.nickname.text = list[position].nickname
@@ -142,6 +143,7 @@ class AdapterPlayersList(private var list: List<User>, private val listener: OnC
                 if(it){
                     holder.inviteButton.isClickable = false
                     holder.inviteButton.setText(R.string.invited)
+                    holder.inviteButton.alpha = 0.5f
                 }
             }
         }
