@@ -451,7 +451,7 @@ class EditProfileActivity : AppCompatActivity() {
         val result: Intent = Intent()
 
         val editedUser = User(
-            userId = FirebaseAuth.getInstance().uid!!,
+            userId = vm.user.value?.userId!!,
             full_name = full_name_m.text.toString().trim(),
             nickname = nickname_m.text.toString().trim(),
             address = address_m.text.toString().trim(),

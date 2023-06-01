@@ -15,6 +15,7 @@ import com.google.firebase.firestore.ListenerRegistration
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -46,12 +47,17 @@ class NotificationVM @Inject constructor() : ViewModel() {
                         val notifications = querySnapshot.documents
                         for (notification in notifications) {
                             val seen = notification.getBoolean("seen")
-                            if(seen==false) {
-                                _numberOfUnseenNotifications.postValue(_numberOfUnseenNotifications.value?.plus(1))
-                            }
-                            else {
-                                if(numberOfUnseenNotifications.value!! > 0)
-                                    _numberOfUnseenNotifications.postValue(_numberOfUnseenNotifications.value?.minus(1))
+                            if (seen == false) {
+                                _numberOfUnseenNotifications.postValue(
+                                    _numberOfUnseenNotifications.value?.plus(
+                                        1
+                                    )
+                                )
+                            } else {
+                                if (numberOfUnseenNotifications.value!! > 0)
+                                    _numberOfUnseenNotifications.postValue(
+                                        _numberOfUnseenNotifications.value?.minus(1)
+                                    )
                             }
                             val match =
                                 notification.getDocumentReference("match")?.get()?.await()
@@ -106,8 +112,30 @@ class NotificationVM @Inject constructor() : ViewModel() {
         }
     }
 
-    fun sendInvitation(sender: String, recipient: User, match: Match) {
-        Log.i("sendInvitation", "$sender + ${recipient.full_name} + ${match.matchId}")
-        throw Exception("sendInvitation() needs to be implemented")
+    fun sendInvitation(sender: String, recipient: User, match: Match, callback: (Exception?) -> Unit) {
+        viewModelScope.launch {
+            val newInvitation = invitationToFirebase(match = match, sentBy = sender, sentTo = recipient)
+            try {
+                db.collection("invitations")
+                    .whereEqualTo("match", db.document("matches/${match.matchId}"))
+                    .whereEqualTo("sentBy", db.document("players/${sender}"))
+                    .whereEqualTo("sentTo", db.document("players/${recipient.userId}"))
+                    .get()
+                    .addOnSuccessListener {
+                        if (it.documents.isEmpty()) {
+                            // Add a new invitation
+                            db.collection("invitations").add(newInvitation)
+                                .addOnFailureListener { e ->
+                                   callback(e)
+                                }
+                        } else {
+                            // An invitation already exists
+                            callback(Exception("You have already sent an invitation to this player."))
+                        }
+                    }
+            } catch (err: Exception) {
+                callback(err)
+            }
+        }
     }
 }
