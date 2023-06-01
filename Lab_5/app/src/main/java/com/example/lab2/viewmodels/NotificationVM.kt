@@ -1,14 +1,12 @@
 package com.example.lab2.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lab2.entities.User
-import com.example.lab2.viewmodels_firebase.Invitation
-import com.example.lab2.viewmodels_firebase.TimestampUtil
-import com.example.lab2.viewmodels_firebase.firebaseToCourt
-import com.example.lab2.viewmodels_firebase.firebaseToMatch
+import com.example.lab2.viewmodels_firebase.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
@@ -106,5 +104,10 @@ class NotificationVM @Inject constructor() : ViewModel() {
 
             deleteNotification(notification.id!!)
         }
+    }
+
+    fun sendInvitation(sender: String, recipient: User, match: Match) {
+        Log.i("sendInvitation", "$sender + ${recipient.full_name} + ${match.matchId}")
+        throw Exception("sendInvitation() needs to be implemented")
     }
 }

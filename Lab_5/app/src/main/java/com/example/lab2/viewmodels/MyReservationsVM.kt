@@ -34,7 +34,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MyReservationsVM @Inject constructor(
-    private val reservationRepository: ReservationRepository,
     private val courtReviewRepository: CourtReviewRepository,
     ): ViewModel() {
 
@@ -163,17 +162,6 @@ class MyReservationsVM @Inject constructor(
         }
     }
 
-    private fun filterMyReservationsBySportAndTimeslot(allMyReservations: List<ReservationWithCourtAndEquipments>, time: LocalTime, interests: List<Sport>) : List<ReservationWithCourtAndEquipments> {
-        val sportFilter = getSportFilter().value
-        if (sportFilter.isNullOrEmpty()) {
-            return allMyReservations.filter { r -> ( r.reservation.time == time || r.reservation.time.isAfter(time) ) && interests.any { it.toString().lowercase() == r.court.sport.lowercase() } }.filter { it.reservation.time >= LocalTime.now() || it.reservation.date > LocalDate.now() }
-        }
-        return allMyReservations.filter { it.court.sport == sportFilter && (it.reservation.time == time || it.reservation.time.isAfter(time)) }.filter { it.reservation.time >= LocalTime.now() || it.reservation.date > LocalDate.now() }
-    }
-
-    suspend fun getReservationDetails(reservationId: Int): ReservationWithCourtAndEquipments {
-        return reservationRepository.getReservationDetails(reservationId)
-    }
 
     suspend fun getCourtAvgReviews(courtId: Int): Float {
         val review = courtReviewRepository.getAvgReviewByCourtId(courtId)

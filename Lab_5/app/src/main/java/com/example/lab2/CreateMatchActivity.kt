@@ -100,7 +100,8 @@ class CreateMatchActivity : AppCompatActivity() {
             createMatchVM.createMatch(
                 calendarVM.getSelectedDate().value!!,
                 time,
-                formattedSport
+                formattedSport,
+                userVM.userId
             )
         }
 

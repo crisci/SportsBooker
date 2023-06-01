@@ -57,8 +57,9 @@ class CreateMatchVM @Inject constructor(
 
     fun createMatch(
         date: LocalDate,
-                    time: LocalTime,
-                    sport: String
+        time: LocalTime,
+        sport: String,
+        playerId: String
     ) {
         viewModelScope.launch {
             val startTimestamp = LocalDateTime.of(date, time).toTimestamp()
@@ -88,15 +89,13 @@ class CreateMatchVM @Inject constructor(
                                             court.first().reference,
                                             1,
                                             LocalDateTime.of(date, time).toTimestamp(),
-                                            // TODO: Replace with user ID
-                                            listOf(db.collection("players").document("HhkmyV1SqjVEsVt83Ld65I0cF9x2"))
+                                            listOf(db.collection("players").document(playerId))
                                         )
                                     ).addOnSuccessListener { matchAdded ->
                                         db.collection("reservations").add(
                                             ReservationFirebase(
                                                 matchAdded,
-                                                // TODO: Replace with user ID
-                                                db.collection("players").document("HhkmyV1SqjVEsVt83Ld65I0cF9x2"),
+                                                db.collection("players").document(playerId),
                                                 emptyList(),
                                                 court.first().getLong("basePrice")!!
                                             )

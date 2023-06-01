@@ -17,7 +17,10 @@ import javax.inject.Singleton
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Singleton
 class MainVM @Inject constructor(): ViewModel() {
@@ -31,6 +34,9 @@ class MainVM @Inject constructor(): ViewModel() {
     private val _eventLogout = MutableLiveData<Unit>()
     val eventLogout: LiveData<Unit> get() = _eventLogout
     private var userListener: ListenerRegistration? = null
+
+    private val _allPlayers: MutableLiveData<List<User>> = MutableLiveData(emptyList())
+    val allPlayers: LiveData<List<User>> get() = _allPlayers
 
 
     val userId: String get() = auth.currentUser!!.uid;
@@ -114,6 +120,19 @@ class MainVM @Inject constructor(): ViewModel() {
             .addOnFailureListener { e ->
                 callback(null)
             }
+    }
+
+    fun getAllPlayers() {
+        viewModelScope.launch{
+            db.collection("players").get()
+                .addOnSuccessListener { it.documents.mapNotNull { player ->
+                    if(player.id != userId) User.fromFirebase(player) else null
+                    }.toMutableList().also { list ->
+                        _allPlayers.postValue(list)
+                    }
+                }
+        }
+
     }
 
 }

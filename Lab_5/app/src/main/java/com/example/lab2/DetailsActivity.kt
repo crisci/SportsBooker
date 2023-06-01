@@ -1,22 +1,18 @@
 package com.example.lab2
 
+import android.content.Context
+import android.content.Intent
 import android.graphics.drawable.ColorDrawable
-import android.opengl.Visibility
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.RatingBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lab2.calendar.displayText
@@ -27,13 +23,13 @@ import com.example.lab2.viewmodels.MainVM
 import com.example.lab2.viewmodels.MyReservationsVM
 import com.example.lab2.viewmodels_firebase.DetailsViewModel
 import com.example.lab2.viewmodels_firebase.MatchWithCourtAndEquipments
-import com.facebook.shimmer.Shimmer
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.textview.MaterialTextView
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
-import java.lang.Exception
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.serialization.json.Json
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -104,14 +100,19 @@ class DetailsActivity : AppCompatActivity() {
         val reservationId = intent.getStringExtra("reservationId")!!
         detailsViewModel.getReservationDetails(reservationId, applicationContext, currentPlayer = mainVM.user.value!!)
 
+
         detailsViewModel.listOfPlayers.observe(this) {
             if (detailsViewModel.listOfPlayers.value?.isNotEmpty()!!) {
-                val adapterPlayers = AdapterPlayers(detailsViewModel.listOfPlayers.value ?: emptyList())
+                val adapterPlayers = AdapterPlayers(detailsViewModel.listOfPlayers.value ?: emptyList(), this, detailsViewModel.reservation.value!!)
                 val listReservationsRecyclerView = this.findViewById<RecyclerView>(R.id.players_details)
                 listReservationsRecyclerView.adapter = adapterPlayers
                 listReservationsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true)
             } else {
-                players_details.text = "You are the first player"
+                players_details.text = "Invite other players"
+                val adapterPlayers = AdapterPlayers(emptyList(), this, detailsViewModel.reservation.value!!)
+                val listReservationsRecyclerView = this.findViewById<RecyclerView>(R.id.players_details)
+                listReservationsRecyclerView.adapter = adapterPlayers
+                listReservationsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true)
             }
         }
 
@@ -170,33 +171,63 @@ class DetailsActivity : AppCompatActivity() {
 
 
 class ViewHolderPlayers(v: View): RecyclerView.ViewHolder(v) {
-    val playerImage: ImageView = v.findViewById(R.id.player_image_details)
-    val shimmer: ShimmerFrameLayout = v.findViewById(R.id.shimmer_layout)
+    val playerImage: ImageView? = v.findViewById(R.id.player_image_details) ?: null
+    val shimmer: ShimmerFrameLayout? = v.findViewById(R.id.shimmer_layout) ?: null
+    val addBtn: Button? = v.findViewById(R.id.add_player_btn) ?: null
 }
 
-class AdapterPlayers(private var listOfPlayers: List<User>): RecyclerView.Adapter<ViewHolderPlayers>(){
+class AdapterPlayers(private var listOfPlayers: List<User>, private var mContext: Context, private var reservation: MatchWithCourtAndEquipments): RecyclerView.Adapter<ViewHolderPlayers>() {
 
-
+    private val PLAYER = 0
+    private val INVITE_BTN = 1
     var selectedPosition = 0
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderPlayers {
-        val v = LayoutInflater.from(parent.context)
-            .inflate(R.layout.player_details, parent, false)
-        return ViewHolderPlayers(v)
+        if (viewType == INVITE_BTN) {
+            val v = LayoutInflater.from(parent.context)
+                .inflate(R.layout.invite_players_btn, parent, false)
+            return ViewHolderPlayers(v)
+        }else{
+            val v = LayoutInflater.from(parent.context)
+                .inflate(R.layout.player_details, parent, false)
+            return ViewHolderPlayers(v)
+        }
     }
 
-    override fun getItemCount(): Int = listOfPlayers.size
+        override fun getItemCount(): Int = listOfPlayers.size + 1
 
-    override fun onBindViewHolder(holder: ViewHolderPlayers, position: Int) {
-        Picasso.get().load(listOfPlayers[position].image).into(holder.playerImage, object : Callback {
-            override fun onSuccess() {
-                holder.shimmer.stopShimmer()
-                holder.shimmer.hideShimmer()
+        override fun getItemViewType(position: Int): Int {
+            return if (position < itemCount - 1) {
+                PLAYER;
+            } else {
+                INVITE_BTN;
             }
-            override fun onError(e: Exception?) {
-            }
+        }
 
-        })
+        override fun onBindViewHolder(holder: ViewHolderPlayers, position: Int) {
+            if(position < itemCount - 1){
+                Picasso.get().load(listOfPlayers[position].image)
+                    .into(holder.playerImage, object : Callback {
+                        override fun onSuccess() {
+                            holder.shimmer?.stopShimmer()
+                            holder.shimmer?.hideShimmer()
+                        }
+
+                        override fun onError(e: Exception?) {
+                        }
+
+                    })
+            }else{
+                holder.addBtn?.setOnClickListener {
+                    val intentSearchPlayers =
+                        Intent(mContext, SearchPlayersActivity::class.java)
+                    val jsonRes = Json.encodeToString(MatchWithCourtAndEquipments.serializer(), reservation)
+                    intentSearchPlayers.putExtra("jsonReservation", jsonRes)
+                    mContext.startActivity(intentSearchPlayers)
+                }
+
+            }
+        }
     }
-}
+
 
 
