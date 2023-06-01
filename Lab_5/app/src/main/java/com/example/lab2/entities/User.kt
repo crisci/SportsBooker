@@ -15,6 +15,7 @@ import java.util.Date
 
 @Serializable
 data class User(
+    val userId: String,
     val full_name: String,
     val nickname: String,
     val address: String,
@@ -72,6 +73,7 @@ data class User(
             }.toMutableList()
 
             return User(
+                userId = data.id,
                 full_name = data.getString("fullName")!!,
                 nickname = data.getString("username")!!,
                 address = data.getString("location")!!,
@@ -128,6 +130,7 @@ data class User(
 
         fun default() : User {
             return User(
+                userId = "",
                 full_name = "",
                 nickname = "",
                 address = "",

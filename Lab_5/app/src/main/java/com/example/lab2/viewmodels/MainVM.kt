@@ -53,7 +53,6 @@ class MainVM @Inject constructor(): ViewModel() {
                 if (snapshot != null && snapshot.exists()) {
                     Log.d("MainVM", "Current data: ${snapshot.data}")
                     _user.value = User.fromFirebase(snapshot)
-                    _user.postValue(_user.value)
                 } else {
                     Log.d("MainVM", "Current data: null")
                 }
