@@ -250,7 +250,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="match_parent"
                                     android:scaleType="centerCrop"
-                                    android:src="@drawable/soccer_field" />
+                                    android:src="@drawable/football_field" />
                             </androidx.cardview.widget.CardView>
 
                             <androidx.constraintlayout.widget.ConstraintLayout

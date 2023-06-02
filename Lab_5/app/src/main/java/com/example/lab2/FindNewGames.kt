@@ -108,7 +108,7 @@ class NewGames : Fragment(R.layout.fragment_new_games) {
         listReservationsRecyclerView.adapter = adapterCard
         listReservationsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        val adapterCardFilters = AdapterFilters(listOf(null, "Padel", "Soccer", "Something"), vm::setSportFilter)
+        val adapterCardFilters = AdapterFilters(listOf(null, "Padel", "Football", "Something"), vm::setSportFilter)
         val listOfSportRecyclerView = view.findViewById<RecyclerView>(R.id.filters_find_game)
         listOfSportRecyclerView.adapter = adapterCardFilters
         listOfSportRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false);

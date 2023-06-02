@@ -64,13 +64,13 @@ data class User(
             val interests = data.get("interests") as List<String>
             val mappedInterests : MutableList<Sport> = interests.map {
                 when(it.lowercase()){
-                    "soccer" -> Sport.SOCCER
+                    "football" -> Sport.FOOTBALL
                     "padel" -> Sport.PADEL
                     "tennis" -> Sport.TENNIS
                     "basketball" -> Sport.BASKETBALL
                     "baseball" -> Sport.BASEBALL
                     "golf" -> Sport.GOLF
-                    else -> Sport.SOCCER// TODO can be mapped to an UNKNOWN instead
+                    else -> Sport.FOOTBALL// TODO can be mapped to an UNKNOWN instead
                 }
             }.toMutableList()
 
@@ -105,7 +105,7 @@ data class User(
 
             val mappedInterests : List<String> = user.interests.map {
                 when(it){
-                    Sport.SOCCER -> "Soccer"
+                    Sport.FOOTBALL -> "Football"
                     Sport.PADEL -> "Padel"
                     Sport.TENNIS -> "Tennis"
                     Sport.BASKETBALL -> "Basketball"

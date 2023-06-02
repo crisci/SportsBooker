@@ -3,7 +3,7 @@ package com.example.lab2.entities
 enum class Sport {
     TENNIS,
     PADEL,
-    SOCCER,
+    FOOTBALL,
     BASKETBALL,
     BASEBALL,
     GOLF
@@ -13,7 +13,7 @@ fun getSportFromString(sport: String): Sport {
     return when(sport.lowercase()) {
         "Tennis" -> Sport.TENNIS
         "Padel" -> Sport.PADEL
-        "Soccer" -> Sport.SOCCER
+        "Football" -> Sport.FOOTBALL
         "Basketball" -> Sport.BASKETBALL
         "Baseball" -> Sport.BASEBALL
         "Golf" -> Sport.GOLF

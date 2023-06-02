@@ -27,8 +27,8 @@ class EquipmentsVM @Inject constructor(
                 Equipment("Racket", 2.0),
                 Equipment("Tennis balls", 1.5)
             ),
-            "Soccer" to listOf(
-                Equipment("Soccer ball", 5.0),
+            "Football" to listOf(
+                Equipment("Football ball", 5.0),
                 Equipment("Shin guards", 3.5),
                 Equipment("Cleats", 2.5)
             ),

@@ -20,7 +20,7 @@ fun firebaseToMatchWithCourtAndEquipments (m: DocumentSnapshot, c: DocumentSnaps
         when(it.lowercase()){
             "racket" -> Equipment("Racket", 2.0)
             "tennis balls" -> Equipment("Tennis balls", 1.5)
-            "soccer ball" -> Equipment("Soccer ball", 5.0)
+            "football ball" -> Equipment("Football ball", 5.0)
             "shin guards" -> Equipment("Shin guards", 3.5)
             "cleats" -> Equipment("Cleats", 2.5)
             "golf clubs" -> Equipment("Golf clubs", 5.5)

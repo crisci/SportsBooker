@@ -46,7 +46,7 @@ class StatisticView(
          */
 
         when (statistic.sport) {
-            Sport.SOCCER -> image.setImageResource(R.drawable.sport_soccer)
+            Sport.FOOTBALL -> image.setImageResource(R.drawable.sport_football)
             Sport.GOLF ->  image.setImageResource(R.drawable.sport_golf)
             Sport.TENNIS ->  image.setImageResource(R.drawable.sport_tennis)
             Sport.BASEBALL ->  image.setImageResource(R.drawable.sport_baseball)

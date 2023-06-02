@@ -123,7 +123,7 @@ class EditProfileActivity : AppCompatActivity() {
 
         setupTags()
         tagGroup.setOnTagClickListener { tag, _ ->
-            var uppercaseTagName = tag.text.uppercase(Locale.getDefault()) // i.e. from "Soccer" to "SOCCER", which is the constant in the enum
+            var uppercaseTagName = tag.text.uppercase(Locale.getDefault()) // i.e. from "Football" to "FOOTBALL", which is the constant in the enum
             if (editedUser.interests.any { it.name == uppercaseTagName }) {
                 editedUser.interests = editedUser.interests.filterNot{it.name == uppercaseTagName}.toMutableList()
                 setupTags()
@@ -153,7 +153,7 @@ class EditProfileActivity : AppCompatActivity() {
         // We want to make a union between the interests of the user and all the other interests
         tagGroup.addTags(listAllInterests.union(editedUser.interests).map {currentInterest ->
             /*
-            * The enum constants are in uppercase, like "SOCCER". We want a tag like "Soccer".
+            * The enum constants are in uppercase, like "FOOTBALL". We want a tag like "Football".
             * The following code is equivalent to inputString.toLowerCase().capitalize(),
             * however these functions are deprecated. The IDE suggested the code below instead.
             * */

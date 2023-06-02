@@ -21,7 +21,7 @@ class InterestView(
         name = view.findViewById(R.id.interest_text)
 
         when (sport) {
-            Sport.SOCCER ->  name.text = "Soccer"
+            Sport.FOOTBALL ->  name.text = "Football"
             Sport.GOLF ->  name.text = "Golf"
             Sport.TENNIS ->  name.text = "Tennis"
             Sport.BASEBALL ->  name.text = "Baseball"

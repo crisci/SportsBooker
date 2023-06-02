@@ -106,7 +106,7 @@ class MyReservationsVM @Inject constructor(
                 "basketball" -> Statistic(sport = Sport.BASKETBALL, gamesPlayed = it.second)
                 "golf" -> Statistic(sport = Sport.GOLF, gamesPlayed = it.second)
                 "padel" -> Statistic(sport = Sport.PADEL, gamesPlayed = it.second)
-                "soccer" -> Statistic(sport = Sport.SOCCER, gamesPlayed = it.second)
+                "football" -> Statistic(sport = Sport.FOOTBALL, gamesPlayed = it.second)
                 "tennis" -> Statistic(sport = Sport.TENNIS, gamesPlayed = it.second)
                 else -> throw RuntimeException("Unknown sport name found while retrieving statistics.")
             }
