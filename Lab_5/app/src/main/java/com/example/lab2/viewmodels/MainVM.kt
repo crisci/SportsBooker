@@ -17,6 +17,7 @@ import javax.inject.Singleton
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.Dispatchers
@@ -64,6 +65,12 @@ class MainVM @Inject constructor(): ViewModel() {
         super.onCleared()
         userListener?.remove()
     }
+
+    fun logout(callback: () -> Unit) {
+        auth.signOut()
+        callback()
+    }
+
 
 
     var listBookedReservations = MutableLiveData<MutableSet<Int>>(mutableSetOf())
