@@ -1,6 +1,10 @@
 package com.example.lab2
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
@@ -14,8 +18,10 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lab2.calendar.displayText
@@ -34,6 +40,7 @@ import java.lang.Exception
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import kotlin.coroutines.coroutineContext
 
 @AndroidEntryPoint
 class NotificationsActivity: AppCompatActivity(), NotificationAdapter.OnClickListener {
@@ -49,19 +56,22 @@ class NotificationsActivity: AppCompatActivity(), NotificationAdapter.OnClickLis
 
         val recyclerViewNotifications = findViewById<RecyclerView>(R.id.recyclerViewNotifications)
         recyclerViewNotifications.layoutManager = LinearLayoutManager(this)
-        val adapterCard = NotificationAdapter(emptyList(), this)
+        val adapterCard = NotificationAdapter(mutableListOf(), this)
         recyclerViewNotifications.adapter = adapterCard
+        val swipeToDeleteCallback = SwipeToDeleteCallback(adapterCard, applicationContext)
+        val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallback)
+        itemTouchHelper.attachToRecyclerView(recyclerViewNotifications)
 
 
         notificationVM.notificationsInvitations.observe(this) {
             Log.d("NotificationsActivity", "notificationsInvitations: $it")
-            adapterCard.setNotification(it + notificationVM.notificationsMatchesToReview.value!!)
+            adapterCard.setNotification((it + notificationVM.notificationsMatchesToReview.value!!) as MutableList<Notification>)
             it.forEach { n -> notificationVM.playerHasSeenNotification(n) }
         }
 
         notificationVM.notificationsMatchesToReview.observe(this) {
             Log.d("NotificationsActivity", "notificationsMatchesToReview: $it")
-            adapterCard.setNotification(it + notificationVM.notificationsInvitations.value!!)
+            adapterCard.setNotification((it + notificationVM.notificationsInvitations.value!!) as MutableList<Notification>)
         }
 
         setSupportActionBar()
@@ -101,7 +111,7 @@ class NotificationsActivity: AppCompatActivity(), NotificationAdapter.OnClickLis
 
 
 
-class NotificationAdapter(private var list: List<Notification>, private val listener: OnClickListener) : RecyclerView.Adapter<NotificationAdapter.NotificationVH>() {
+class NotificationAdapter(private var list: MutableList<Notification>, private val listener: OnClickListener) : RecyclerView.Adapter<NotificationAdapter.NotificationVH>() {
 
     abstract class NotificationVH(v: View): RecyclerView.ViewHolder(v) {
         abstract fun bind(notification: Notification)
@@ -216,7 +226,7 @@ class NotificationAdapter(private var list: List<Notification>, private val list
         }
     }
 
-    fun setNotification(newListNotifications: List<Notification>) {
+    fun setNotification(newListNotifications: MutableList<Notification>) {
 
         val diffs = DiffUtil.calculateDiff(
             NotificationDiffCallback(list, newListNotifications)
@@ -232,4 +242,74 @@ class NotificationAdapter(private var list: List<Notification>, private val list
         return "${date.dayOfWeek.displayText()} ${date.format(DateTimeFormatter.ofPattern("dd"))} ${date.month.displayText()}"
     }
 
+    fun deleteItem(position: Int) {
+        list.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
+}
+
+class SwipeToDeleteCallback(private val adapter: NotificationAdapter, private val context: Context) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+
+    private val deleteIcon = ContextCompat.getDrawable(context, R.drawable.baseline_delete_24)
+    private val background = ColorDrawable(Color.RED)
+    private val iconMargin = 16
+
+    override fun onMove(
+        recyclerView: RecyclerView,
+        viewHolder: RecyclerView.ViewHolder,
+        target: RecyclerView.ViewHolder
+    ): Boolean {
+        // No action needed for move gesture
+        return false
+    }
+
+    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+        val position = viewHolder.absoluteAdapterPosition
+        adapter.deleteItem(position)
+    }
+
+    override fun onChildDraw(
+        c: Canvas,
+        recyclerView: RecyclerView,
+        viewHolder: RecyclerView.ViewHolder,
+        dX: Float,
+        dY: Float,
+        actionState: Int,
+        isCurrentlyActive: Boolean
+    ) {
+        super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+
+        val itemView = viewHolder.itemView
+        val itemHeight = itemView.bottom - itemView.top
+        val isCanceled = dX == 0f && !isCurrentlyActive
+
+        if (isCanceled) {
+            clearCanvas(c, itemView.right + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat())
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+            return
+        }
+
+        // Draw the background color
+        background.setBounds(itemView.right + dX.toInt(), itemView.top, itemView.right, itemView.bottom)
+        background.draw(c)
+
+        // Calculate the position to draw the delete icon
+        val iconTop = itemView.top + (itemHeight - deleteIcon?.intrinsicHeight!!) / 2
+        val iconBottom = iconTop + deleteIcon.intrinsicHeight
+        val iconLeft = itemView.right - iconMargin - deleteIcon.intrinsicWidth
+        val iconRight = itemView.right - iconMargin
+
+        // Draw the delete icon
+        deleteIcon?.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+        deleteIcon?.draw(c)
+
+        super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+    }
+
+    private fun clearCanvas(c: Canvas, left: Float, top: Float, right: Float, bottom: Float) {
+        val paint = Paint()
+        paint.color = Color.RED
+        c.drawRect(left, top, right, bottom, paint)
+    }
 }

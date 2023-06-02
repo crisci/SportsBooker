@@ -40,11 +40,13 @@ class NotificationVM @Inject constructor() : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    private val _notificationsMatchesToReview = MutableLiveData<List<MatchToReview>>(emptyList())
-    val notificationsMatchesToReview: LiveData<List<MatchToReview>> get() = _notificationsMatchesToReview
+    private val _notificationsMatchesToReview = MutableLiveData<MutableList<MatchToReview>>(
+        mutableListOf()
+    )
+    val notificationsMatchesToReview: LiveData<MutableList<MatchToReview>> get() = _notificationsMatchesToReview
 
-    private val _notificationsInvitations = MutableLiveData<List<Invitation>>(emptyList())
-    val notificationsInvitations: LiveData<List<Invitation>> get() = _notificationsInvitations
+    private val _notificationsInvitations = MutableLiveData<MutableList<Invitation>>(mutableListOf())
+    val notificationsInvitations: LiveData<MutableList<Invitation>> get() = _notificationsInvitations
 
     private var invitationsListener: ListenerRegistration? = null
 
