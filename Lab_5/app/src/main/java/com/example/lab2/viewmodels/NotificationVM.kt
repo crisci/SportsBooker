@@ -19,6 +19,7 @@ import com.example.lab2.viewmodels_firebase.invitationToFirebase
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -28,6 +29,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -36,10 +40,10 @@ class NotificationVM @Inject constructor() : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    private val _notificationsMatchesToReview = MutableLiveData<List<MatchToReview>>()
+    private val _notificationsMatchesToReview = MutableLiveData<List<MatchToReview>>(emptyList())
     val notificationsMatchesToReview: LiveData<List<MatchToReview>> get() = _notificationsMatchesToReview
 
-    private val _notificationsInvitations = MutableLiveData<List<Invitation>>()
+    private val _notificationsInvitations = MutableLiveData<List<Invitation>>(emptyList())
     val notificationsInvitations: LiveData<List<Invitation>> get() = _notificationsInvitations
 
     private var invitationsListener: ListenerRegistration? = null
@@ -47,8 +51,7 @@ class NotificationVM @Inject constructor() : ViewModel() {
     private val _numberOfUnseenNotifications = MutableLiveData<Int>(0)
     val numberOfUnseenNotifications: LiveData<Int> = _numberOfUnseenNotifications
 
-    fun startListeningForNotifications() {
-
+    init {
 
         val listInvitations = mutableListOf<Invitation>()
         var listMatchesToReview = mutableListOf<MatchToReview>()
@@ -101,51 +104,49 @@ class NotificationVM @Inject constructor() : ViewModel() {
                 }
             }
 
+        val twoHoursAgo = LocalDateTime.now().minusHours(2)
+
         db.collection("matches")
             .whereArrayContains(
                 "listOfPlayers",
-                db.collection("players").document(auth.currentUser!!.uid)
+                db.document("players/${auth.currentUser!!.uid}")
             )
-            .whereLessThan("timestamp", Timestamp.now())
+            .whereLessThan("timestamp", Timestamp(twoHoursAgo.toEpochSecond(ZoneOffset.UTC), 0))
             .orderBy("timestamp", Query.Direction.DESCENDING)
-            .limit(5)
+            .limit(3)
             .get()
             .addOnSuccessListener { snapshotMatch ->
-
                 val listMatchReferences = snapshotMatch!!.documents.map { it.reference }
+                db.collection("player_rating_mvp")
+                    .whereEqualTo("player", db.collection("players").document(auth.currentUser!!.uid))
+                    .get()
+                    .addOnSuccessListener { ratingSnapshot ->
+                        val listMatchesAlreadyRatedByThePlayer =
+                            ratingSnapshot!!.documents.map { it.getDocumentReference("match")!! }
 
-                    db.collection("player_rating_mvp")
-                        .whereEqualTo("player", db.collection("players").document(auth.currentUser!!.uid))
-                        .whereNotIn("match", listMatchReferences)
-                        .get()
-                        .addOnSuccessListener { ratingSnapshot ->
-                            val listMatchesAlreadyRatedByThePlayer = ratingSnapshot!!.documents.map { it.getDocumentReference("match")!! }
-                            val list = listMatchReferences.subtract(listMatchesAlreadyRatedByThePlayer.toSet())
-                            CoroutineScope(Dispatchers.IO).launch {
-                                for (m in list) {
-                                    val match = m.get().await()
-                                    val court = match.getDocumentReference("court")?.get()?.await()
-                                    listMatchesToReview.add(
-                                        MatchToReview(
-                                            firebaseToMatch(match),
-                                            firebaseToCourt(court!!),
-                                            match.id!!,
-                                            Timestamp.now()
-                                        )
-                                    )
-
-                                }
-                                _notificationsMatchesToReview.postValue(listMatchesToReview)
-                            }
+                        val notRatedMatches = listMatchReferences.filter { matchRef ->
+                            !listMatchesAlreadyRatedByThePlayer.any { it == matchRef }
                         }
 
-
+                        db.collection("matches")
+                            .whereIn(FieldPath.documentId(), notRatedMatches.map { it.id })
+                            .get()
+                            .addOnSuccessListener { notRatedMatchesSnapshot ->
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    // Handle the not rated matches here
+                                    for (i in notRatedMatchesSnapshot.documents) {
+                                        val match = firebaseToMatch(i)
+                                        val court = firebaseToCourt(i.getDocumentReference("court")?.get()?.await()!!)
+                                        val matchToReview = MatchToReview(match,court,match.matchId!!,Timestamp.now())
+                                        listMatchesToReview.add(matchToReview)
+                                    }
+                                    _notificationsMatchesToReview.postValue(listMatchesToReview)
+                                }
+                            }
+                    }
             }
 
 
-    }
-    fun stopListeningForNotifications() {
-        invitationsListener?.remove()
     }
 
     fun playerHasSeenNotification(notification: Invitation) {

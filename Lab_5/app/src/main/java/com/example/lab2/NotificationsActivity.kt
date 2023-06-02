@@ -54,12 +54,14 @@ class NotificationsActivity: AppCompatActivity(), NotificationAdapter.OnClickLis
         recyclerViewNotifications.adapter = adapterCard
 
         notificationVM.notificationsInvitations.observe(this) {
-            adapterCard.setNotification(it)
+            Log.d("NotificationsActivity", "notificationsInvitations: $it")
+            adapterCard.setNotification(it + notificationVM.notificationsMatchesToReview.value!!)
             it.forEach { n -> notificationVM.playerHasSeenNotification(n) }
         }
 
         notificationVM.notificationsMatchesToReview.observe(this) {
-            adapterCard.setNotification(it)
+            Log.d("NotificationsActivity", "notificationsMatchesToReview: $it")
+            adapterCard.setNotification(it + notificationVM.notificationsInvitations.value!!)
         }
 
         setSupportActionBar()
@@ -97,7 +99,13 @@ class NotificationsActivity: AppCompatActivity(), NotificationAdapter.OnClickLis
     }
 }
 
-class NotificationAdapter(private var list: List<Notification>, private val listener: OnClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+
+class NotificationAdapter(private var list: List<Notification>, private val listener: OnClickListener) : RecyclerView.Adapter<NotificationAdapter.NotificationVH>() {
+
+    abstract class NotificationVH(v: View): RecyclerView.ViewHolder(v) {
+        abstract fun bind(notification: Notification)
+    }
 
     companion object {
         private const val VIEW_TYPE_INVITATION = 0
@@ -110,25 +118,29 @@ class NotificationAdapter(private var list: List<Notification>, private val list
 
         fun onClickRateNow(matchToReview: MatchToReview)
     }
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationVH {
+        val inflater = LayoutInflater.from(parent.context)
+        val v = inflater.inflate(viewType, parent, false)
         return when (viewType) {
-            VIEW_TYPE_INVITATION -> {
-                val v = LayoutInflater.from(parent.context).inflate(R.layout.invitation_card, parent, false)
-                InvitationViewHolder(v)
-            }
-            VIEW_TYPE_MATCH_TO_REVIEW -> {
-                val v = LayoutInflater.from(parent.context).inflate(R.layout.match_to_review_card, parent, false)
-                MatchToReviewViewHolder(v)
-            }
-            else -> throw IllegalArgumentException("Invalid view type")
+            R.layout.invitation_card -> InvitationViewHolder(v)
+            R.layout.match_to_review_card -> MatchToReviewViewHolder(v)
+            else -> throw IllegalArgumentException("Invalid type of data $viewType")
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val notification = list[holder.absoluteAdapterPosition]
-        when (holder) {
-            is InvitationViewHolder -> {
-                val invitation = notification as Invitation
+    override fun getItemViewType(position: Int): Int {
+        return when (list[position]) {
+            is Invitation -> R.layout.invitation_card
+            is MatchToReview -> R.layout.match_to_review_card
+            else -> throw IllegalArgumentException("Invalid type of data $position")
+        }
+    }
+
+    override fun onBindViewHolder(holder: NotificationVH , position: Int) {
+        holder.bind(list[position])
+        /*val notification = list[holder.absoluteAdapterPosition]
+        when (notification) {
+            is Invitation -> {
                 holder.senderName.text = invitation.sender.full_name
                 Picasso.get().load(invitation.sender.image).into(holder.profileImage, object :
                     Callback {
@@ -156,10 +168,10 @@ class NotificationAdapter(private var list: List<Notification>, private val list
                     listener.onClickRateNow(matchToReview)
                 }
             }
-        }
+        }*/
     }
 
-    inner class InvitationViewHolder(v: View): RecyclerView.ViewHolder(v) {
+    inner class InvitationViewHolder(v: View): NotificationVH(v) {
         val senderName: TextView = v.findViewById(R.id.sender_name)
         val profileImage: ImageView = v.findViewById(R.id.profile_image)
         val shimmer: ShimmerFrameLayout = v.findViewById(R.id.shimmer_layout)
@@ -169,11 +181,47 @@ class NotificationAdapter(private var list: List<Notification>, private val list
         val acceptButton: Button = v.findViewById(R.id.accept_invitation_button)
         val declineButton: Button = v.findViewById(R.id.decline_invitation_button)
         val notificationTime: TextView = v.findViewById(R.id.notification_time)
+
+        override fun bind(notification: Notification) {
+            val invitation = notification as Invitation
+            senderName.text = invitation.sender.full_name
+            Picasso.get().load(invitation.sender.image).into(profileImage, object :
+                Callback {
+                override fun onSuccess() {
+                    shimmer.stopShimmer()
+                    shimmer.hideShimmer()
+                }
+                override fun onError(e: Exception?) {
+                }
+            })
+            sportName.text = invitation.court.sport
+            dateDetail.text = setupDate(invitation.match.date)
+            timeDetail.text = invitation.match.time.format(DateTimeFormatter.ofPattern("HH:mm"))
+            acceptButton.setOnClickListener() {
+                listener.onClickAccept(invitation)
+            }
+            declineButton.setOnClickListener() {
+                listener.onClickDecline(invitation.id!!)
+            }
+            notificationTime.text = getTimeAgo(invitation.timestamp)
+        }
     }
 
-    inner class MatchToReviewViewHolder(v: View): RecyclerView.ViewHolder(v) {
+    inner class MatchToReviewViewHolder(v: View): NotificationVH(v) {
         val rateNowButton: Button = v.findViewById(R.id.rate_now_button)
+        val sportName: TextView = v.findViewById(R.id.sport_name)
+        val dateDetail: TextView = v.findViewById(R.id.date_detail)
+        val hourDetail: TextView = v.findViewById(R.id.hour_detail)
         //TODO we will discuss what to show
+        override fun bind(notification: Notification) {
+            val matchToReview = notification as MatchToReview
+            sportName.text = matchToReview.court.sport
+            dateDetail.text = setupDate(matchToReview.match.date)
+            hourDetail.text = matchToReview.match.time.format(DateTimeFormatter.ofPattern("HH:mm"))
+            rateNowButton.setOnClickListener() {
+                listener.onClickRateNow(matchToReview)
+            }
+        }
     }
 
     private fun getTimeAgo(timestamp: Timestamp): String {

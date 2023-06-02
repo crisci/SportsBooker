@@ -8,7 +8,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 
-sealed class Notification(
+abstract class Notification(
     open val id: String?,
     open val timestamp: Timestamp
 )

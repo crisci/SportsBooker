@@ -49,8 +49,6 @@ class MyReservationsActivity : AppCompatActivity() {
             launcher.launch(intentNotifications)
         }
 
-        notificationVM.startListeningForNotifications()
-
         navController = (
             supportFragmentManager
                 .findFragmentById(R.id.fragmentContainerView) as NavHostFragment
@@ -90,20 +88,16 @@ class MyReservationsActivity : AppCompatActivity() {
         titleTextView?.setText(R.string.my_reservations_title)
     }
 
-    private fun setProfileImage(shimmerFrame: ShimmerFrameLayout, profilePicture: ImageView){
+    private fun setProfileImage(shimmerFrame: ShimmerFrameLayout, profilePicture: ImageView) {
         Picasso.get().load(mainVM.user.value?.image).into(profilePicture, object :
             Callback {
             override fun onSuccess() {
                 shimmerFrame.stopShimmer()
                 shimmerFrame.hideShimmer()
             }
+
             override fun onError(e: Exception?) {
             }
         })
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        notificationVM.stopListeningForNotifications()
     }
 }
