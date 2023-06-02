@@ -36,7 +36,8 @@ class MainVM @Inject constructor(): ViewModel() {
     private var userListener: ListenerRegistration? = null
 
     private val _allPlayers: MutableLiveData<List<User>> = MutableLiveData(emptyList())
-    val allPlayers: LiveData<List<User>> get() = _allPlayers
+    private val _filteredPlayers: MutableLiveData<List<User>> = MutableLiveData(emptyList())
+    val allPlayers: LiveData<List<User>> get() = _filteredPlayers
 
 
     val userId: String get() = auth.currentUser!!.uid;
@@ -128,10 +129,18 @@ class MainVM @Inject constructor(): ViewModel() {
                     if(player.id != userId) User.fromFirebase(player) else null
                     }.toMutableList().also { list ->
                         _allPlayers.postValue(list)
+                    _filteredPlayers.postValue(list)
                     }
                 }
         }
+    }
 
+    fun filterPlayers(query : String?) {
+        if(query != null){
+            _filteredPlayers.value = _allPlayers.value?.filter { it.full_name.lowercase().contains(query.lowercase()) || it.nickname.lowercase().contains(query.lowercase()) }
+        }else{
+            _filteredPlayers.value = _allPlayers.value
+        }
     }
 
 }

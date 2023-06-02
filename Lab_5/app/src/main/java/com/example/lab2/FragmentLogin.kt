@@ -79,7 +79,6 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
                     .show()
             }
         }
-
         return view
     }
 

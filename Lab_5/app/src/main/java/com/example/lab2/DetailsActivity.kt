@@ -214,11 +214,14 @@ class AdapterPlayers(private var listOfPlayers: List<User>, private var mContext
                             holder.shimmer?.stopShimmer()
                             holder.shimmer?.hideShimmer()
                         }
-
-                        override fun onError(e: Exception?) {
-                        }
-
+                        override fun onError(e: Exception?) {}
                     })
+                holder.playerImage?.setOnClickListener {
+                    val playerIntent = Intent(holder.itemView.context, PlayerProfileActivity::class.java)
+                    val playerString = Json.encodeToString(User.serializer(), listOfPlayers[holder.absoluteAdapterPosition])
+                    playerIntent.putExtra("playerString", playerString)
+                    holder.itemView.context.startActivity(playerIntent)
+                }
             }else{
                 holder.addBtn?.setOnClickListener {
                     val intentSearchPlayers =
@@ -227,7 +230,6 @@ class AdapterPlayers(private var listOfPlayers: List<User>, private var mContext
                     intentSearchPlayers.putExtra("jsonReservation", jsonRes)
                     mContext.startActivity(intentSearchPlayers)
                 }
-
             }
         }
     }
