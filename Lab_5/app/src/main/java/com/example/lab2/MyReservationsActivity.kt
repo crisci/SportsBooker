@@ -49,6 +49,8 @@ class MyReservationsActivity : AppCompatActivity() {
             launcher.launch(intentNotifications)
         }
 
+        notificationVM.startListeningForNotifications()
+
         navController = (
             supportFragmentManager
                 .findFragmentById(R.id.fragmentContainerView) as NavHostFragment
@@ -98,5 +100,10 @@ class MyReservationsActivity : AppCompatActivity() {
             override fun onError(e: Exception?) {
             }
         })
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        notificationVM.stopListeningForNotifications()
     }
 }
