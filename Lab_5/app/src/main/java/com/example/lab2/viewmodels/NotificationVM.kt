@@ -177,7 +177,6 @@ class NotificationVM @Inject constructor() : ViewModel() {
                     "finalPrice" to court!!.getDouble("basePrice"),
                 )
             )
-
             deleteNotification(notification.id!!)
         }
     }

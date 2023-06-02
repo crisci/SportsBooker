@@ -7,8 +7,6 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.view.Window
 import android.widget.Button
@@ -20,14 +18,16 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.lifecycle.ViewModelProvider
+import com.example.lab2.entities.User
 import com.example.lab2.viewmodels.MyReservationsVM
 import com.example.lab2.viewmodels.MainVM
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ShowProfileActivity : AppCompatActivity() {
+class PlayerProfileActivity : AppCompatActivity() {
 
     private lateinit var fullName: TextView
     private lateinit var nickname: TextView
@@ -38,43 +38,37 @@ class ShowProfileActivity : AppCompatActivity() {
     private lateinit var interestsLayout: LinearLayout
     private lateinit var badgesLayout: LinearLayout
     private lateinit var statisticsLayout: LinearLayout
-    private lateinit var backButton: ImageButton
+    private lateinit var backButton: ImageView
 
     @Inject
     lateinit var vm: MainVM
     lateinit var reservationVm: MyReservationsVM
 
-
-    private val launcher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) { processResponse(it) }
-
-    private fun processResponse(response: androidx.activity.result.ActivityResult) {
-        if(response.resultCode == RESULT_OK) {
-            updateContent()
-        }
-    }
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_player_profile)
         setSupportActionBar()
         findViews()
 
         // Set ViewModels & Current User Data
         reservationVm = ViewModelProvider(this)[MyReservationsVM::class.java]
 
-        // TODO : Statistics need to be retrieved from Firebase!
-        reservationVm.refreshMyStatistics(playerId = vm.userId)
+        val playerString = intent.getStringExtra("playerString")
+        val player = Json.decodeFromString(User.serializer(), playerString!!)
+
+        reservationVm.setPlayerToShow(player)
+
+        reservationVm.playerToShow.observe(this){
+            updateContent()
+            updateActionBarTitle()
+        }
+
+        reservationVm.refreshMyStatistics(playerId = player.userId)
 
         badgesLayout.setOnClickListener { showCustomDialog() }
 
-        vm.user.observe(this) {
-            updateContent()
-        }
-
         reservationVm.getMyStatistics().observe(this){
-            updateContent()
+            updateStatistics()
         }
 
         backButton.setOnClickListener {
@@ -97,17 +91,17 @@ class ShowProfileActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun updateContent() {
-        fullName.text = vm.user.value?.full_name
-        nickname.text = "@${vm.user.value?.nickname}"
-        description.text = vm.user.value?.description
-        location.text = vm.user.value?.address
-        age.text = "${vm.user.value?.getAge()}yo"
+        fullName.text = reservationVm.playerToShow.value?.full_name
+        nickname.text = "@${reservationVm.playerToShow.value?.nickname}"
+        description.text = reservationVm.playerToShow.value?.description
+        location.text = reservationVm.playerToShow.value?.address
+        age.text = "${reservationVm.playerToShow.value?.getAge()}yo"
 
-        if (vm.user.value?.image == "") {
+        if (reservationVm.playerToShow.value?.image == "") {
             profileImage.setBackgroundResource(R.drawable.profile_picture)
         }
         else {
-            val profileImageUrl = vm.user.value?.image
+            val profileImageUrl = reservationVm.playerToShow.value?.image
             Picasso.get().load(profileImageUrl).into(profileImage)
         }
 
@@ -116,12 +110,15 @@ class ShowProfileActivity : AppCompatActivity() {
         statisticsLayout.removeAllViews()
 
         // Show only 3 small badges, that's why "drop 2"
-        val badges = vm.user.value?.badges?.toList()?.dropLast(2)?.toMap()?.map {  BadgeView(this, badge = it) }
+        val badges = reservationVm.playerToShow.value?.badges?.toList()?.dropLast(2)?.toMap()?.map {  BadgeView(this, badge = it) }
         badges?.forEach { badgesLayout.addView(it) }
 
-        val interests = vm.user.value?.interests?.sortedBy { it.name }?.map {  InterestView(this, sport = it) }
+        val interests = reservationVm.playerToShow.value?.interests?.sortedBy { it.name }?.map {  InterestView(this, sport = it) }
         interests?.forEach { interestsLayout.addView(it) }
 
+    }
+
+    private fun updateStatistics(){
         val statistics = reservationVm.getMyStatistics().value?.sortedBy { it.sport.name }?.map {  StatisticView(this, statistic = it) }
 
         if (statistics.isNullOrEmpty()) {
@@ -133,16 +130,19 @@ class ShowProfileActivity : AppCompatActivity() {
     }
 
     private fun setSupportActionBar(){
-
         supportActionBar?.elevation = 0f
-
-        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
-        supportActionBar?.setCustomView(R.layout.toolbar_show_profile)
+        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
         supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.example_1_bg)))
-        val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title_show_profile)
+        supportActionBar?.setCustomView(R.layout.toolbar)
+        val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
         titleTextView?.setText(R.string.profile_title)
-        backButton = supportActionBar?.customView?.findViewById(R.id.edit_profile_back_button)!!
 
+        backButton = supportActionBar?.customView?.findViewById<ImageView>(R.id.custom_back_icon)!!
+    }
+
+    private fun updateActionBarTitle(){
+        val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
+        titleTextView?.text = reservationVm.playerToShow.value?.nickname
     }
 
     private fun showCustomDialog() {
@@ -155,7 +155,7 @@ class ShowProfileActivity : AppCompatActivity() {
 
         val exitButton = skillsDialog.findViewById<Button>(R.id.close_skills_dialog)
         val skillsContainer = skillsDialog.findViewById<GridView>(R.id.skills_container)
-        skillsContainer.adapter = SkillAdapter(this, vm.user.value?.badges!!)
+        skillsContainer.adapter = SkillAdapter(this, reservationVm.playerToShow.value?.badges!!)
 
 
         exitButton.setOnClickListener {
@@ -163,38 +163,6 @@ class ShowProfileActivity : AppCompatActivity() {
         }
 
         skillsDialog.show()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.editmenu, menu)
-        return true
-    }
-
-
-
-
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.itemEdit -> {
-                val intentEditProfile = Intent(this, EditProfileActivity::class.java).apply {
-                    addCategory(Intent.CATEGORY_SELECTED_ALTERNATIVE)
-                    putExtra("user", vm.user.value?.toJson())
-                }
-                launcher.launch(intentEditProfile)
-                true
-            }
-            R.id.itemLogout -> {
-                vm.logout {
-                    val intent = Intent(this, LauncherActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    finish()
-                }
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 
 }

@@ -1,6 +1,7 @@
 package com.example.lab2
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -44,6 +46,7 @@ class SearchPlayersActivity : AppCompatActivity(), AdapterPlayersList.OnClickLis
     lateinit var notificationVM: NotificationVM
 
     private lateinit var backButton: ImageView
+    private lateinit var searchBar: SearchView
 
     private lateinit var match: Match
 
@@ -55,6 +58,22 @@ class SearchPlayersActivity : AppCompatActivity(), AdapterPlayersList.OnClickLis
 
         val stringRes = intent.getStringExtra("jsonReservation")
         val reservation = Json.decodeFromString(MatchWithCourtAndEquipments.serializer(), stringRes!!)
+
+        searchBar = findViewById(R.id.search_view)
+
+        searchBar.setOnQueryTextListener( object : SearchView.OnQueryTextListener{
+            override fun onQueryTextChange(p0: String?): Boolean {
+                // filter visible content
+                mainVM.filterPlayers(p0)
+                return false
+            }
+
+            override fun onQueryTextSubmit(p0: String?): Boolean {
+                // Do nothing on submit
+                searchBar.clearFocus()
+                return false
+            }
+        })
 
         mainVM.getAllPlayers()
 
@@ -136,6 +155,13 @@ class AdapterPlayersList(private var list: List<User>, private val listener: OnC
                 override fun onError(e: Exception?) {
                 }
             })
+        }
+
+        holder.itemView.setOnClickListener{
+            val playerIntent = Intent(holder.itemView.context, PlayerProfileActivity::class.java)
+            val playerString = Json.encodeToString(User.serializer(), list[holder.absoluteAdapterPosition])
+            playerIntent.putExtra("playerString", playerString)
+            holder.itemView.context.startActivity(playerIntent)
         }
 
         holder.inviteButton.setOnClickListener() {

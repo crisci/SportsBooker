@@ -17,6 +17,7 @@ import javax.inject.Singleton
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +37,8 @@ class MainVM @Inject constructor(): ViewModel() {
     private var userListener: ListenerRegistration? = null
 
     private val _allPlayers: MutableLiveData<List<User>> = MutableLiveData(emptyList())
-    val allPlayers: LiveData<List<User>> get() = _allPlayers
+    private val _filteredPlayers: MutableLiveData<List<User>> = MutableLiveData(emptyList())
+    val allPlayers: LiveData<List<User>> get() = _filteredPlayers
 
 
     val userId: String get() = auth.currentUser!!.uid;
@@ -64,6 +66,12 @@ class MainVM @Inject constructor(): ViewModel() {
         super.onCleared()
         userListener?.remove()
     }
+
+    fun logout(callback: () -> Unit) {
+        auth.signOut()
+        callback()
+    }
+
 
 
     var listBookedReservations = MutableLiveData<MutableSet<Int>>(mutableSetOf())
@@ -128,10 +136,18 @@ class MainVM @Inject constructor(): ViewModel() {
                     if(player.id != userId) User.fromFirebase(player) else null
                     }.toMutableList().also { list ->
                         _allPlayers.postValue(list)
+                    _filteredPlayers.postValue(list)
                     }
                 }
         }
+    }
 
+    fun filterPlayers(query : String?) {
+        if(query != null){
+            _filteredPlayers.value = _allPlayers.value?.filter { it.full_name.lowercase().contains(query.lowercase()) || it.nickname.lowercase().contains(query.lowercase()) }
+        }else{
+            _filteredPlayers.value = _allPlayers.value
+        }
     }
 
 }

@@ -13,6 +13,7 @@ import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
 import com.example.lab2.entities.Equipment
 import com.example.lab2.entities.Sport
 import com.example.lab2.entities.Statistic
+import com.example.lab2.entities.User
 import com.example.lab2.viewmodels_firebase.Court
 import com.example.lab2.viewmodels_firebase.Match
 import com.example.lab2.viewmodels_firebase.MatchWithCourtAndEquipments
@@ -161,11 +162,11 @@ class MyReservationsVM @Inject constructor(
         }
     }
 
+    val _playerToShow : MutableLiveData<User> = MutableLiveData()
+    val playerToShow : LiveData<User> get() = _playerToShow
 
-    suspend fun getCourtAvgReviews(courtId: Int): Float {
-        val review = courtReviewRepository.getAvgReviewByCourtId(courtId)
-        return if(review != null) (review.cleanlinessRating + review.lightingRating + review.maintenanceRating)/3 else 0.toFloat()
+    fun setPlayerToShow(u: User){
+        _playerToShow.value = u
     }
-
 
 }

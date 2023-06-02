@@ -98,13 +98,12 @@ class EditReservationActivity : AppCompatActivity() {
 
 
         cancelButton.setOnClickListener {
-            try{
-                editReservationVM.cancelReservation(mainVM.userId, reservation)
-                setResult(Activity.RESULT_OK)
-                finish()
-            }catch (err: Exception){
-                Toast.makeText(applicationContext, "${err.message}", Toast.LENGTH_SHORT).show()
-            }
+            val intent = Intent(this, CancelReservationActivity::class.java)
+
+            val resString = Json.encodeToString(MatchWithCourtAndEquipments.serializer(), reservation)
+            intent.putExtra("resString", resString)
+
+            launcher.launch(intent)
         }
 
         val reservationString = intent.getStringExtra("reservationJson")
