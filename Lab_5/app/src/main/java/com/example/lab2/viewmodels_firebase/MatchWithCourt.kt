@@ -11,3 +11,9 @@ class MatchWithCourt (
     val court : Court,
 )
 
+fun firebaseToMatchWithCourt(m: DocumentSnapshot, c: DocumentSnapshot) : MatchWithCourt {
+    return MatchWithCourt(
+        firebaseToMatch(m),
+        firebaseToCourt(c)
+    )
+}

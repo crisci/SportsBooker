@@ -68,6 +68,10 @@ class DetailsActivity : AppCompatActivity() {
         reservationVM = ViewModelProvider(this)[MyReservationsVM::class.java]
         detailsViewModel = ViewModelProvider(this)[DetailsViewModel::class.java]
 
+        detailsViewModel.exceptionMessage.observe(this) {
+            Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+        }
+
         db = ReservationAppDatabase.getDatabase(this)
         sport = findViewById(R.id.sport_name_detail_reservation)
         court = findViewById(R.id.court_name_detail_reservation)
@@ -98,7 +102,7 @@ class DetailsActivity : AppCompatActivity() {
         }
 
         val reservationId = intent.getStringExtra("reservationId")!!
-        detailsViewModel.getReservationDetails(reservationId, applicationContext, currentPlayer = mainVM.user.value!!)
+        detailsViewModel.getReservationDetails(reservationId)
 
 
         detailsViewModel.listOfPlayers.observe(this) {

@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.lab2.entities.User
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
@@ -32,12 +33,19 @@ class DetailsViewModel @Inject constructor() : ViewModel() {
     private val _listOfPlayers = MutableLiveData<List<User>>()
     val listOfPlayers: LiveData<List<User>> = _listOfPlayers
 
+    private val _matchWithCourt = MutableLiveData<MatchWithCourt>()
+    val matchWithCourt: LiveData<MatchWithCourt> = _matchWithCourt
+
     private val _avg = MutableLiveData<Double>()
     val avg: LiveData<Double> = _avg
 
     private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
-    fun getReservationDetails(reservationId: String, context: Context, currentPlayer: User) {
+    private val _exceptionMessage = MutableLiveData<String>()
+    val exceptionMessage: LiveData<String> get() = _exceptionMessage
+
+    fun getReservationDetails(reservationId: String) {
         db.collection("reservations").whereEqualTo(FieldPath.documentId(), reservationId).get()
             .addOnSuccessListener { r ->
                 db.collection("matches").whereEqualTo(
@@ -51,41 +59,42 @@ class DetailsViewModel @Inject constructor() : ViewModel() {
                         avg(c)
                         val details =
                             firebaseToMatchWithCourtAndEquipments(m.first(), c.first(), r.first())
-                        Log.e("id", r.first().id)
-                        Log.e("price", r.first().getDouble("finalPrice").toString())
-                        Log.e("equipments", details.equipments.toString())
                         _reservation.postValue(details)
-                        getPlayers(m, currentPlayer)
+                        getPlayers(m)
                     }.addOnFailureListener {
-                        MainScope().launch {
-                            Toast.makeText(
-                                context,
-                                "Unable to load the details",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        _exceptionMessage.value = "Unable to load the details"
                     }
                 }.addOnFailureListener {
-                    MainScope().launch {
-                        Toast.makeText(
-                            context,
-                            "Unable to load the details",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                    _exceptionMessage.value = "Unable to load the details"
                 }
             }.addOnFailureListener {
-            MainScope().launch {
-                Toast.makeText(
-                    context,
-                    "Unable to load the details",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+                _exceptionMessage.value = "Unable to load the details"
         }
     }
 
-    private fun getPlayers(m: QuerySnapshot, currentPlayer: User) {
+    fun getMatchDetails(matchId: String) {
+        db.collection("matches").whereEqualTo(
+            FieldPath.documentId(),
+            matchId
+        ).get().addOnSuccessListener { m ->
+            db.collection("courts").whereEqualTo(
+                FieldPath.documentId(),
+                m.first().getDocumentReference("court")?.id
+            ).get().addOnSuccessListener { c ->
+                avg(c)
+                val details =
+                    firebaseToMatchWithCourt(m.first(), c.first())
+                _matchWithCourt.postValue(details)
+                getPlayers(m)
+            }.addOnFailureListener {
+                _exceptionMessage.value = "Unable to load the details"
+            }
+        }.addOnFailureListener {
+            _exceptionMessage.value = "Unable to load the details"
+        }
+    }
+
+    private fun getPlayers(m: QuerySnapshot) {
         CoroutineScope(Dispatchers.IO).launch {
             val listOfReferences = m.first().get("listOfPlayers") as List<DocumentReference>
             val list = mutableListOf<User>()
@@ -95,7 +104,7 @@ class DetailsViewModel @Inject constructor() : ViewModel() {
                         .await()
                 list.add(User.fromFirebase(user.first()))
             }
-            _listOfPlayers.postValue(list.filter { it.email != currentPlayer.email })
+            _listOfPlayers.postValue(list.filter { it.userId != auth.currentUser!!.uid})
         }
     }
 

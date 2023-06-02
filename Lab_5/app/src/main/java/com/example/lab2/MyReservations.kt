@@ -119,7 +119,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations),
             }
         }*/
 
-        ratingModalVM.getShowBanner().observe(viewLifecycleOwner) {
+/*        ratingModalVM.getShowBanner().observe(viewLifecycleOwner) {
             if (it == true) leaveRatingLayout.visibility = View.VISIBLE
             else leaveRatingLayout.visibility = View.GONE
         }
@@ -130,7 +130,7 @@ class MyReservations : Fragment(R.layout.fragment_my_reservations),
                 val modalBottomSheet = RatingModalBottomSheet()
                 modalBottomSheet.show(childFragmentManager, RatingModalBottomSheet.TAG)
             }
-        }
+        }*/
 
         navController = findNavController()
         requireActivity().actionBar?.elevation = 0f

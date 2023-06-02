@@ -42,7 +42,6 @@ class NotificationsActivity: AppCompatActivity(), NotificationAdapter.OnClickLis
     @Inject
     lateinit var notificationVM: NotificationVM
     private lateinit var backButton: ImageView
-    private lateinit var leaveRatingLayout: ConstraintLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +51,7 @@ class NotificationsActivity: AppCompatActivity(), NotificationAdapter.OnClickLis
         recyclerViewNotifications.layoutManager = LinearLayoutManager(this)
         val adapterCard = NotificationAdapter(emptyList(), this)
         recyclerViewNotifications.adapter = adapterCard
+
 
         notificationVM.notificationsInvitations.observe(this) {
             Log.d("NotificationsActivity", "notificationsInvitations: $it")
@@ -81,11 +81,11 @@ class NotificationsActivity: AppCompatActivity(), NotificationAdapter.OnClickLis
     }
 
     override fun onClickRateNow(matchToReview: MatchToReview) {
-        leaveRatingLayout.visibility = View.VISIBLE
-        leaveRatingLayout.setOnClickListener {
-            val modalBottomSheet = RatingModalBottomSheet()
-            modalBottomSheet.show(supportFragmentManager, RatingModalBottomSheet.TAG)
-        }
+        val bundle = Bundle()
+        bundle.putString("matchId",matchToReview.match.matchId)
+        val modalBottomSheet = RatingModalBottomSheet()
+        modalBottomSheet.arguments = bundle
+        modalBottomSheet.show(supportFragmentManager, RatingModalBottomSheet.TAG)
     }
 
     private fun setSupportActionBar() {
@@ -138,37 +138,6 @@ class NotificationAdapter(private var list: List<Notification>, private val list
 
     override fun onBindViewHolder(holder: NotificationVH , position: Int) {
         holder.bind(list[position])
-        /*val notification = list[holder.absoluteAdapterPosition]
-        when (notification) {
-            is Invitation -> {
-                holder.senderName.text = invitation.sender.full_name
-                Picasso.get().load(invitation.sender.image).into(holder.profileImage, object :
-                    Callback {
-                    override fun onSuccess() {
-                        holder.shimmer.stopShimmer()
-                        holder.shimmer.hideShimmer()
-                    }
-                    override fun onError(e: Exception?) {
-                    }
-                })
-                holder.sportName.text = invitation.court.sport
-                holder.dateDetail.text = setupDate(invitation.match.date)
-                holder.timeDetail.text = invitation.match.time.format(DateTimeFormatter.ofPattern("HH:mm"))
-                holder.acceptButton.setOnClickListener() {
-                    listener.onClickAccept(invitation)
-                }
-                holder.declineButton.setOnClickListener() {
-                    listener.onClickDecline(invitation.id!!)
-                }
-                holder.notificationTime.text = getTimeAgo(invitation.timestamp)
-            }
-            is MatchToReviewViewHolder -> {
-                val matchToReview = notification as MatchToReview
-                holder.rateNowButton.setOnClickListener() {
-                    listener.onClickRateNow(matchToReview)
-                }
-            }
-        }*/
     }
 
     inner class InvitationViewHolder(v: View): NotificationVH(v) {

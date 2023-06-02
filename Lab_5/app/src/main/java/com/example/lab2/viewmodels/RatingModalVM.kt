@@ -8,8 +8,18 @@ import androidx.lifecycle.viewModelScope
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.court_review.CourtReview
 import com.example.lab2.database.court_review.CourtReviewRepository
+import com.example.lab2.database.player.Player
+import com.example.lab2.entities.User
+import com.example.lab2.viewmodels_firebase.MatchToReview
+import com.example.lab2.viewmodels_firebase.firebaseToCourt
+import com.example.lab2.viewmodels_firebase.firebaseToMatch
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,34 +27,12 @@ class RatingModalVM @Inject constructor(
     private val courtReviewRepository: CourtReviewRepository,
 ): ViewModel() {
 
-    private val _courtToReview = MutableLiveData<Court?>()
-    private val courtToReview: LiveData<Court?> = _courtToReview
-    fun getCourtToReview() : LiveData<Court?> {
-        return courtToReview
-    }
+    private val db = FirebaseFirestore.getInstance()
 
-    private val showBanner = MutableLiveData<Boolean>()
-    fun getShowBanner() : LiveData<Boolean> {
-        return showBanner
-    }
-
-    fun checkIfPlayerHasAlreadyReviewed(playerId: Int) {
-        viewModelScope.launch {
-            val court = courtReviewRepository.hasReviewedMostRecentCourt(playerId)
-            if (court != null) {
-                _courtToReview.value = court
-                showBanner.value = true
-            }
-            else {
-                showBanner.value = false
-            }
-        }
-    }
-
-    fun submitReview(review: CourtReview) {
+/*    fun submitReview(review: CourtReview) {
         viewModelScope.launch {
             courtReviewRepository.saveReview(review)
             showBanner.value = false
         }
-    }
+    }*/
 }

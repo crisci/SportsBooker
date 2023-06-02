@@ -8,25 +8,20 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 
-abstract class Notification(
-    open val id: String?,
-    open val timestamp: Timestamp
-)
+abstract class Notification()
 
 data class MatchToReview(
     val match: Match,
     val court: Court,
-    override val id: String?,
-    override val timestamp: Timestamp
-) : Notification(id, timestamp)
+) : Notification()
 
 data class Invitation(
     val sender: User,
     val match: Match,
     val court: Court,
-    override val id: String?,
-    override val timestamp: Timestamp
-) : Notification(id, timestamp)
+    val id: String?,
+    val timestamp: Timestamp
+) : Notification()
 
 fun invitationToFirebase(match: Match, sentBy: String, sentTo: User) : Map<String, Any>{
 

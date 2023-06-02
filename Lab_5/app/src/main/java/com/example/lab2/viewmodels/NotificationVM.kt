@@ -112,7 +112,7 @@ class NotificationVM @Inject constructor() : ViewModel() {
                 db.document("players/${auth.currentUser!!.uid}")
             )
             .whereLessThan("timestamp", Timestamp(twoHoursAgo.toEpochSecond(ZoneOffset.UTC), 0))
-            .orderBy("timestamp", Query.Direction.DESCENDING)
+            //.orderBy("timestamp", Query.Direction.DESCENDING)
             .limit(3)
             .get()
             .addOnSuccessListener { snapshotMatch ->
@@ -137,7 +137,7 @@ class NotificationVM @Inject constructor() : ViewModel() {
                                     for (i in notRatedMatchesSnapshot.documents) {
                                         val match = firebaseToMatch(i)
                                         val court = firebaseToCourt(i.getDocumentReference("court")?.get()?.await()!!)
-                                        val matchToReview = MatchToReview(match,court,match.matchId!!,Timestamp.now())
+                                        val matchToReview = MatchToReview(match,court)
                                         listMatchesToReview.add(matchToReview)
                                     }
                                     _notificationsMatchesToReview.postValue(listMatchesToReview)

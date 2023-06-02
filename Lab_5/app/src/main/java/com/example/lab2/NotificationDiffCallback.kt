@@ -25,8 +25,7 @@ class NotificationDiffCallback(
             }
 
             oldItem is MatchToReview && newItem is MatchToReview -> {
-                (oldItem.match.matchId == newItem.match.matchId
-                        && oldItem.timestamp == newItem.timestamp)
+                oldItem.match.matchId == newItem.match.matchId
             }
             else -> false
         }
@@ -42,8 +41,7 @@ class NotificationDiffCallback(
             }
 
             oldContent is MatchToReview && newContent is MatchToReview -> {
-                (oldContent.match.matchId == newContent.match.matchId
-                        && oldContent.timestamp == newContent.timestamp)
+                oldContent.match.matchId == newContent.match.matchId
             }
             else -> false
         }
