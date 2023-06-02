@@ -36,7 +36,7 @@ class NotificationVM @Inject constructor() : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
 
     private val _notificationsMatchesToReview = MutableLiveData<List<MatchToReview>>()
-    val notificationsMatchesToReview: LiveData<List<Notification>> get() = _notificationsMatchesToReview
+    val notificationsMatchesToReview: LiveData<List<MatchToReview>> get() = _notificationsMatchesToReview
 
     private val _notificationsInvitations = MutableLiveData<List<Invitation>>()
     val notificationsInvitations: LiveData<List<Invitation>> get() = _notificationsInvitations
@@ -65,7 +65,7 @@ class NotificationVM @Inject constructor() : ViewModel() {
                 Log.d("NotificationVM", "Invitations: ${listInvitations.toString()}")
             }
 
-        matchToReviewListener = db.collection("matches")
+        db.collection("matches")
             .whereArrayContains(
                 "listOfPlayers",
                 db.collection("players").document(auth.currentUser!!.uid)
@@ -73,25 +73,34 @@ class NotificationVM @Inject constructor() : ViewModel() {
             .whereLessThan("timestamp", Timestamp.now())
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .limit(5)
-            .addSnapshotListener { snapshotMatch, error ->
+            .get()
+            .addOnSuccessListener { snapshotMatch ->
 
-                if (error != null) {
-                    // Handle the error
-                    return@addSnapshotListener
-                }
-
-                val matchIds = snapshotMatch!!.documents.map { it.reference }
-                var listLast5Matches = snapshotMatch.documents.map { firebaseToMatch(it) }
+                val listMatchReferences = snapshotMatch!!.documents.map { it.reference }
 
                     db.collection("player_rating_mvp")
                         .whereEqualTo("player", db.collection("players").document(auth.currentUser!!.uid))
-                        .whereNotIn("match", matchIds)
+                        .whereNotIn("match", listMatchReferences)
                         .get()
-                        .addOnSuccessListener {ratingSnapshot ->
-                           for (r in ratingSnapshot.documents) {
-                               listLast5Matches = listLast5Matches.filter { it.matchId != r.getDocumentReference("match")!!.id }
-                               _notificationsMatchesToReview.value = listLast5Matches
-                           }
+                        .addOnSuccessListener { ratingSnapshot ->
+                            val listMatchesAlreadyRatedByThePlayer = ratingSnapshot!!.documents.map { it.getDocumentReference("match")!! }
+                            val list = listMatchReferences.subtract(listMatchesAlreadyRatedByThePlayer.toSet())
+                            CoroutineScope(Dispatchers.IO).launch {
+                                for (m in list) {
+                                    val match = m.get().await()
+                                    val court = match.getDocumentReference("court")?.get()?.await()
+                                    listMatchesToReview.add(
+                                        MatchToReview(
+                                            firebaseToMatch(match),
+                                            firebaseToCourt(court!!),
+                                            match.id!!,
+                                            Timestamp.now()
+                                        )
+                                    )
+
+                                }
+                                _notificationsMatchesToReview.postValue(listMatchesToReview)
+                            }
                         }
 
 

@@ -53,9 +53,13 @@ class NotificationsActivity: AppCompatActivity(), NotificationAdapter.OnClickLis
         val adapterCard = NotificationAdapter(emptyList(), this)
         recyclerViewNotifications.adapter = adapterCard
 
-        notificationVM.notifications.observe(this) {
-            adapterCard.setInvitations(it)
+        notificationVM.notificationsInvitations.observe(this) {
+            adapterCard.setNotification(it)
             it.forEach { n -> notificationVM.playerHasSeenNotification(n) }
+        }
+
+        notificationVM.notificationsMatchesToReview.observe(this) {
+            adapterCard.setNotification(it)
         }
 
         setSupportActionBar()
@@ -195,20 +199,14 @@ class NotificationAdapter(private var list: List<Notification>, private val list
         }
     }
 
-    fun setInvitations(newInvitations: List<Invitation>) {
+    fun setNotification(newListNotifications: List<Notification>) {
 
         val diffs = DiffUtil.calculateDiff(
-            InvitationDiffCallback(list as List<Invitation>, newInvitations)
+            NotificationDiffCallback(list, newListNotifications)
         )
-        list = newInvitations
+        list = newListNotifications
         diffs.dispatchUpdatesTo(this)
     }
-
-    fun addRatingCardToRecyclerView(listMatchToReview: List<MatchWithCourt>) {
-        list = list + listMatchToReview
-        notifyItemInserted(list.size - 1)
-    }
-
     override fun getItemCount(): Int {
         return list.size
     }
