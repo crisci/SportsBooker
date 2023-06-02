@@ -74,6 +74,7 @@
     <string name="skip_for_now">Skip for now</string>
     <string name="finish">Finish</string>
     <string name="address">Via Giovanni Magni, 32</string>
+    <string name="no_notifications_found">No notifications found</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_search_players">SearchPlayersActivity</string>

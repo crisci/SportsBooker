@@ -13,6 +13,7 @@ import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -38,6 +39,7 @@ class NotificationsActivity: AppCompatActivity(), AdapterInvitations.OnClickList
     @Inject
     lateinit var notificationVM: NotificationVM
     private lateinit var backButton: ImageView
+    private lateinit var noNotifications: ConstraintLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,8 +50,11 @@ class NotificationsActivity: AppCompatActivity(), AdapterInvitations.OnClickList
         val adapterCard = AdapterInvitations(emptyList(), this)
         recyclerViewInvitations.adapter = adapterCard
 
+        noNotifications = findViewById(R.id.no_notifications_layout)
+
         notificationVM.invitations.observe(this) {
-            Log.d("NotificationsActivity", "invitations: $it")
+            if(it.isEmpty()) noNotifications.visibility = View.VISIBLE
+                else noNotifications.visibility = View.GONE
             adapterCard.setInvitations(it)
             it.forEach { n ->  notificationVM.playerHasSeenNotification(n) }
         }

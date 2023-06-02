@@ -20,22 +20,27 @@
             android:exported="false" />
         <activity
             android:name=".SearchPlayersActivity"
-            android:exported="false" /> <!-- LAUNCHER -->
+            android:exported="false" />
+        <!-- LAUNCHER -->
         <activity
             android:name=".LauncherActivity"
-            android:exported="true">
+            android:exported="true"
+            android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- HOME -->
-        <activity
-            android:name=".MyReservationsActivity"
-            android:exported="true" /> <!-- LOGIN -->
+        </activity>
+        <!-- LOGIN -->
         <activity
             android:name=".ui.login.LoginActivity"
-            android:exported="false"></activity>
+            android:exported="false"
+            android:noHistory="true"/>
+        <!-- HOME -->
+        <activity
+            android:name=".MyReservationsActivity"
+            android:exported="true" />
         <activity
             android:name=".CreateMatchActivity"
             android:exported="false" />

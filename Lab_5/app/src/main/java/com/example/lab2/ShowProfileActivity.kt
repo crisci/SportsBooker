@@ -7,6 +7,8 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.Window
 import android.widget.Button
@@ -37,7 +39,6 @@ class ShowProfileActivity : AppCompatActivity() {
     private lateinit var badgesLayout: LinearLayout
     private lateinit var statisticsLayout: LinearLayout
     private lateinit var backButton: ImageButton
-    private lateinit var editProfile: ImageButton
 
     @Inject
     lateinit var vm: MainVM
@@ -78,14 +79,6 @@ class ShowProfileActivity : AppCompatActivity() {
 
         backButton.setOnClickListener {
             finish()
-        }
-
-        editProfile.setOnClickListener {
-            val intentEditProfile = Intent(this, EditProfileActivity::class.java).apply {
-                addCategory(Intent.CATEGORY_SELECTED_ALTERNATIVE)
-                putExtra("user", vm.user.value?.toJson())
-            }
-            launcher.launch(intentEditProfile)
         }
 
     }
@@ -149,7 +142,6 @@ class ShowProfileActivity : AppCompatActivity() {
         val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title_show_profile)
         titleTextView?.setText(R.string.profile_title)
         backButton = supportActionBar?.customView?.findViewById(R.id.edit_profile_back_button)!!
-        editProfile = supportActionBar?.customView?.findViewById(R.id.profile_edit_button)!!
 
     }
 
@@ -171,6 +163,38 @@ class ShowProfileActivity : AppCompatActivity() {
         }
 
         skillsDialog.show()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.editmenu, menu)
+        return true
+    }
+
+
+
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.itemEdit -> {
+                val intentEditProfile = Intent(this, EditProfileActivity::class.java).apply {
+                    addCategory(Intent.CATEGORY_SELECTED_ALTERNATIVE)
+                    putExtra("user", vm.user.value?.toJson())
+                }
+                launcher.launch(intentEditProfile)
+                true
+            }
+            R.id.itemLogout -> {
+                vm.logout {
+                    val intent = Intent(this, LauncherActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish()
+                }
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
 }

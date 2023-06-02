@@ -125,6 +125,7 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
         mainVM.user.observe(lifecycleOwner) { user ->
             // Once the user data is received, navigate to HomeActivity
             val intent = Intent(requireActivity(), MyReservationsActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
         }
     }
