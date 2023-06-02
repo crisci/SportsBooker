@@ -21,6 +21,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.lab2.calendar.displayText
 import com.example.lab2.viewmodels.NotificationVM
 import com.example.lab2.viewmodels_firebase.Invitation
+import com.example.lab2.viewmodels_firebase.MatchToReview
+import com.example.lab2.viewmodels_firebase.MatchWithCourt
+import com.example.lab2.viewmodels_firebase.Notification
 import com.example.lab2.viewmodels_firebase.MatchWithCourtAndEquipments
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.firebase.Timestamp
@@ -33,30 +36,26 @@ import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class NotificationsActivity: AppCompatActivity(), AdapterInvitations.OnClickListener {
+class NotificationsActivity: AppCompatActivity(), NotificationAdapter.OnClickListener {
 
 
     @Inject
     lateinit var notificationVM: NotificationVM
     private lateinit var backButton: ImageView
-    private lateinit var noNotifications: ConstraintLayout
+    private lateinit var leaveRatingLayout: ConstraintLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_notifications)
 
-        val recyclerViewInvitations = findViewById<RecyclerView>(R.id.recyclerViewInvitations)
-        recyclerViewInvitations.layoutManager = LinearLayoutManager(this)
-        val adapterCard = AdapterInvitations(emptyList(), this)
-        recyclerViewInvitations.adapter = adapterCard
+        val recyclerViewNotifications = findViewById<RecyclerView>(R.id.recyclerViewNotifications)
+        recyclerViewNotifications.layoutManager = LinearLayoutManager(this)
+        val adapterCard = NotificationAdapter(emptyList(), this)
+        recyclerViewNotifications.adapter = adapterCard
 
-        noNotifications = findViewById(R.id.no_notifications_layout)
-
-        notificationVM.invitations.observe(this) {
-            if(it.isEmpty()) noNotifications.visibility = View.VISIBLE
-                else noNotifications.visibility = View.GONE
+        notificationVM.notifications.observe(this) {
             adapterCard.setInvitations(it)
-            it.forEach { n ->  notificationVM.playerHasSeenNotification(n) }
+            it.forEach { n -> notificationVM.playerHasSeenNotification(n) }
         }
 
         setSupportActionBar()
@@ -75,61 +74,102 @@ class NotificationsActivity: AppCompatActivity(), AdapterInvitations.OnClickList
         notificationVM.deleteNotification(invitationId)
     }
 
-    private fun setSupportActionBar(){
+    override fun onClickRateNow(matchToReview: MatchToReview) {
+        leaveRatingLayout.visibility = View.VISIBLE
+        leaveRatingLayout.setOnClickListener {
+            val modalBottomSheet = RatingModalBottomSheet()
+            modalBottomSheet.show(supportFragmentManager, RatingModalBottomSheet.TAG)
+        }
+    }
+
+    private fun setSupportActionBar() {
         supportActionBar?.elevation = 0f
         supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.example_1_bg)))
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
         supportActionBar?.setCustomView(R.layout.toolbar)
-        val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
+        val titleTextView =
+            supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
         titleTextView?.setText(R.string.notifications_title)
     }
-
 }
 
-class InvitationViewHolder(v: View): RecyclerView.ViewHolder(v) {
-    val senderName: TextView = v.findViewById(R.id.sender_name)
-    val profileImage: ImageView = v.findViewById(R.id.profile_image)
-    val shimmer: ShimmerFrameLayout = v.findViewById(R.id.shimmer_layout)
-    val sportName: TextView = v.findViewById(R.id.sport_name)
-    val dateDetail: TextView = v.findViewById(R.id.date_detail)
-    val timeDetail: TextView = v.findViewById(R.id.hour_detail)
-    val acceptButton: Button = v.findViewById(R.id.accept_invitation_button)
-    val declineButton: Button = v.findViewById(R.id.decline_invitation_button)
-    val notificationTime: TextView = v.findViewById(R.id.notification_time)
-}
+class NotificationAdapter(private var list: List<Notification>, private val listener: OnClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-class AdapterInvitations(private var list: List<Invitation>, private val listener: OnClickListener) : RecyclerView.Adapter<InvitationViewHolder>() {
+    companion object {
+        private const val VIEW_TYPE_INVITATION = 0
+        private const val VIEW_TYPE_MATCH_TO_REVIEW = 1
+    }
 
     interface OnClickListener {
         fun onClickAccept(invitation: Invitation)
         fun onClickDecline(invitationId: String)
+
+        fun onClickRateNow(matchToReview: MatchToReview)
     }
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InvitationViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.invitation_card, parent, false)
-        return InvitationViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            VIEW_TYPE_INVITATION -> {
+                val v = LayoutInflater.from(parent.context).inflate(R.layout.invitation_card, parent, false)
+                InvitationViewHolder(v)
+            }
+            VIEW_TYPE_MATCH_TO_REVIEW -> {
+                val v = LayoutInflater.from(parent.context).inflate(R.layout.match_to_review_card, parent, false)
+                MatchToReviewViewHolder(v)
+            }
+            else -> throw IllegalArgumentException("Invalid view type")
+        }
     }
 
-    override fun onBindViewHolder(holder: InvitationViewHolder, position: Int) {
-        holder.senderName.text = list[position].sender.full_name
-        Picasso.get().load(list[position].sender.image).into(holder.profileImage, object :
-            Callback {
-            override fun onSuccess() {
-                holder.shimmer.stopShimmer()
-                holder.shimmer.hideShimmer()
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val notification = list[holder.absoluteAdapterPosition]
+        when (holder) {
+            is InvitationViewHolder -> {
+                val invitation = notification as Invitation
+                holder.senderName.text = invitation.sender.full_name
+                Picasso.get().load(invitation.sender.image).into(holder.profileImage, object :
+                    Callback {
+                    override fun onSuccess() {
+                        holder.shimmer.stopShimmer()
+                        holder.shimmer.hideShimmer()
+                    }
+                    override fun onError(e: Exception?) {
+                    }
+                })
+                holder.sportName.text = invitation.court.sport
+                holder.dateDetail.text = setupDate(invitation.match.date)
+                holder.timeDetail.text = invitation.match.time.format(DateTimeFormatter.ofPattern("HH:mm"))
+                holder.acceptButton.setOnClickListener() {
+                    listener.onClickAccept(invitation)
+                }
+                holder.declineButton.setOnClickListener() {
+                    listener.onClickDecline(invitation.id!!)
+                }
+                holder.notificationTime.text = getTimeAgo(invitation.timestamp)
             }
-            override fun onError(e: Exception?) {
+            is MatchToReviewViewHolder -> {
+                val matchToReview = notification as MatchToReview
+                holder.rateNowButton.setOnClickListener() {
+                    listener.onClickRateNow(matchToReview)
+                }
             }
-        })
-        holder.sportName.text = list[position].court.sport
-        holder.dateDetail.text = setupDate(list[position].match.date)
-        holder.timeDetail.text = list[position].match.time.format(DateTimeFormatter.ofPattern("HH:mm"))
-        holder.acceptButton.setOnClickListener() {
-            listener.onClickAccept(list[holder.absoluteAdapterPosition])
         }
-        holder.declineButton.setOnClickListener() {
-            listener.onClickDecline(list[holder.absoluteAdapterPosition].id!!)
-        }
-        holder.notificationTime.text = getTimeAgo(list[position].timestamp)
+    }
+
+    inner class InvitationViewHolder(v: View): RecyclerView.ViewHolder(v) {
+        val senderName: TextView = v.findViewById(R.id.sender_name)
+        val profileImage: ImageView = v.findViewById(R.id.profile_image)
+        val shimmer: ShimmerFrameLayout = v.findViewById(R.id.shimmer_layout)
+        val sportName: TextView = v.findViewById(R.id.sport_name)
+        val dateDetail: TextView = v.findViewById(R.id.date_detail)
+        val timeDetail: TextView = v.findViewById(R.id.hour_detail)
+        val acceptButton: Button = v.findViewById(R.id.accept_invitation_button)
+        val declineButton: Button = v.findViewById(R.id.decline_invitation_button)
+        val notificationTime: TextView = v.findViewById(R.id.notification_time)
+    }
+
+    inner class MatchToReviewViewHolder(v: View): RecyclerView.ViewHolder(v) {
+        val rateNowButton: Button = v.findViewById(R.id.rate_now_button)
+        //TODO we will discuss what to show
     }
 
     private fun getTimeAgo(timestamp: Timestamp): String {
@@ -155,17 +195,22 @@ class AdapterInvitations(private var list: List<Invitation>, private val listene
         }
     }
 
-    override fun getItemCount(): Int {
-        return list.size
-    }
-
     fun setInvitations(newInvitations: List<Invitation>) {
 
         val diffs = DiffUtil.calculateDiff(
-            InvitationDiffCallback(list, newInvitations)
+            InvitationDiffCallback(list as List<Invitation>, newInvitations)
         )
         list = newInvitations
         diffs.dispatchUpdatesTo(this)
+    }
+
+    fun addRatingCardToRecyclerView(listMatchToReview: List<MatchWithCourt>) {
+        list = list + listMatchToReview
+        notifyItemInserted(list.size - 1)
+    }
+
+    override fun getItemCount(): Int {
+        return list.size
     }
 
     private fun setupDate(date: LocalDate): String {
