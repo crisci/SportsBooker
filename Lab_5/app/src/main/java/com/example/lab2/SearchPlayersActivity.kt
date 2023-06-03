@@ -48,8 +48,6 @@ class SearchPlayersActivity : AppCompatActivity(), AdapterPlayersList.OnClickLis
     private lateinit var backButton: ImageView
     private lateinit var searchBar: SearchView
 
-    private lateinit var match: Match
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -65,15 +65,20 @@ class CancelReservationActivity : AppCompatActivity() {
 
         updateContent()
 
+        editReservationVM.error.observe(this) {
+            if(it != null) {
+                Toast.makeText(applicationContext, it, Toast.LENGTH_SHORT).show()
+            }
+        }
+
         cancelButton.setOnClickListener{
-            try{
-                val result: Intent = Intent()
-                result.putExtra("result", true)
-                editReservationVM.cancelReservation(mainVM.userId, reservation)
-                setResult(Activity.RESULT_OK, result)
-                finish()
-            }catch (err: Exception){
-                Toast.makeText(applicationContext, "${err.message}", Toast.LENGTH_SHORT).show()
+            editReservationVM.cancelReservation(mainVM.userId, reservation) { result ->
+                if(result){
+                    val res: Intent = Intent()
+                    res.putExtra("result", true)
+                    setResult(Activity.RESULT_OK, res)
+                    finish()
+                }
             }
         }
     }

@@ -149,26 +149,24 @@ class EditReservationActivity : AppCompatActivity() {
             submitChanges()
         }
 
+        editReservationVM.error.observe(this){
+            if(it != null){
+                Toast.makeText(applicationContext, it, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+
     }
 
     private fun submitChanges() {
-
-        try {
             editReservationVM.setEditedEquipment(equipmentsVM.getEquipments().value!!)
             editReservationVM.setEditedPrice(equipmentsVM.getPersonalPrice().value!!)
-            editReservationVM.submitUpdate(mainVM.userId, oldReservation = reservation)
-            setResult(Activity.RESULT_OK)
-            finish()
-        } catch(err: Exception) {
-            Toast.makeText(applicationContext, "${err.message}", Toast.LENGTH_SHORT).show()
-            /* TODO: handle exceptions
-            when(err) {
-                is SQLiteConstraintException ->
-                    Toast.makeText(applicationContext, "This timeslot is already booked.", Toast.LENGTH_SHORT).show()
-                else ->
-                    Toast.makeText(applicationContext, "Unable to update your reservation.", Toast.LENGTH_SHORT).show()
-            } */
-        }
+            editReservationVM.submitUpdate(mainVM.userId, oldReservation = reservation) { result ->
+                if(result){
+                    setResult(Activity.RESULT_OK)
+                    finish()
+                }
+            }
     }
 
     private fun updateContent() {

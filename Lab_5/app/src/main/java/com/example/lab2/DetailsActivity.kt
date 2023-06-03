@@ -106,14 +106,17 @@ class DetailsActivity : AppCompatActivity() {
 
 
         detailsViewModel.listOfPlayers.observe(this) {
+
+            val hasReachedMax = detailsViewModel.reservation.value?.match?.numOfPlayers == detailsViewModel.reservation.value?.court?.maxNumberOfPlayers
+            Log.i("hasReachedMax", hasReachedMax.toString())
             if (detailsViewModel.listOfPlayers.value?.isNotEmpty()!!) {
-                val adapterPlayers = AdapterPlayers(detailsViewModel.listOfPlayers.value ?: emptyList(), this, detailsViewModel.reservation.value!!)
+                val adapterPlayers = AdapterPlayers(detailsViewModel.listOfPlayers.value ?: emptyList(), this, detailsViewModel.reservation.value!!, hasReachedMax)
                 val listReservationsRecyclerView = this.findViewById<RecyclerView>(R.id.players_details)
                 listReservationsRecyclerView.adapter = adapterPlayers
                 listReservationsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true)
             } else {
                 players_details.text = "Invite other players"
-                val adapterPlayers = AdapterPlayers(emptyList(), this, detailsViewModel.reservation.value!!)
+                val adapterPlayers = AdapterPlayers(emptyList(), this, detailsViewModel.reservation.value!!, hasReachedMax)
                 val listReservationsRecyclerView = this.findViewById<RecyclerView>(R.id.players_details)
                 listReservationsRecyclerView.adapter = adapterPlayers
                 listReservationsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true)
@@ -183,7 +186,7 @@ class ViewHolderPlayers(v: View): RecyclerView.ViewHolder(v) {
     val addBtn: Button? = v.findViewById(R.id.add_player_btn) ?: null
 }
 
-class AdapterPlayers(private var listOfPlayers: List<User>, private var mContext: Context, private var reservation: MatchWithCourtAndEquipments): RecyclerView.Adapter<ViewHolderPlayers>() {
+class AdapterPlayers(private var listOfPlayers: List<User>, private var mContext: Context, private var reservation: MatchWithCourtAndEquipments, private var hasReachedMax: Boolean): RecyclerView.Adapter<ViewHolderPlayers>() {
 
     private val PLAYER = 0
     private val INVITE_BTN = 1
@@ -193,50 +196,90 @@ class AdapterPlayers(private var listOfPlayers: List<User>, private var mContext
             val v = LayoutInflater.from(parent.context)
                 .inflate(R.layout.invite_players_btn, parent, false)
             return ViewHolderPlayers(v)
-        }else{
+        } else {
             val v = LayoutInflater.from(parent.context)
                 .inflate(R.layout.player_details, parent, false)
             return ViewHolderPlayers(v)
         }
     }
 
-        override fun getItemCount(): Int = listOfPlayers.size + 1
+    override fun getItemCount(): Int {
+        return if (hasReachedMax) {
+            listOfPlayers.size
+        } else {
+            listOfPlayers.size + 1
+        }
+    }
 
-        override fun getItemViewType(position: Int): Int {
-            return if (position < itemCount - 1) {
-                PLAYER;
+    override fun getItemViewType(position: Int): Int {
+        return if (hasReachedMax) {
+            PLAYER
+        } else {
+            if (position < itemCount - 1) {
+                PLAYER
             } else {
-                INVITE_BTN;
+                INVITE_BTN
             }
         }
+    }
 
-        override fun onBindViewHolder(holder: ViewHolderPlayers, position: Int) {
-            if(position < itemCount - 1){
+    override fun onBindViewHolder(holder: ViewHolderPlayers, position: Int) {
+        if (!hasReachedMax) {
+            if (position < itemCount - 1) {
                 Picasso.get().load(listOfPlayers[position].image)
                     .into(holder.playerImage, object : Callback {
                         override fun onSuccess() {
                             holder.shimmer?.stopShimmer()
                             holder.shimmer?.hideShimmer()
                         }
+
                         override fun onError(e: Exception?) {}
                     })
                 holder.playerImage?.setOnClickListener {
-                    val playerIntent = Intent(holder.itemView.context, PlayerProfileActivity::class.java)
-                    val playerString = Json.encodeToString(User.serializer(), listOfPlayers[holder.absoluteAdapterPosition])
+                    val playerIntent =
+                        Intent(holder.itemView.context, PlayerProfileActivity::class.java)
+                    val playerString = Json.encodeToString(
+                        User.serializer(),
+                        listOfPlayers[holder.absoluteAdapterPosition]
+                    )
                     playerIntent.putExtra("playerString", playerString)
                     holder.itemView.context.startActivity(playerIntent)
                 }
-            }else{
+            } else {
                 holder.addBtn?.setOnClickListener {
                     val intentSearchPlayers =
                         Intent(mContext, SearchPlayersActivity::class.java)
-                    val jsonRes = Json.encodeToString(MatchWithCourtAndEquipments.serializer(), reservation)
+                    val jsonRes =
+                        Json.encodeToString(MatchWithCourtAndEquipments.serializer(), reservation)
                     intentSearchPlayers.putExtra("jsonReservation", jsonRes)
                     mContext.startActivity(intentSearchPlayers)
                 }
             }
+        } else {
+            if (position < itemCount) {
+                Picasso.get().load(listOfPlayers[position].image)
+                    .into(holder.playerImage, object : Callback {
+                        override fun onSuccess() {
+                            holder.shimmer?.stopShimmer()
+                            holder.shimmer?.hideShimmer()
+                        }
+
+                        override fun onError(e: Exception?) {}
+                    })
+                holder.playerImage?.setOnClickListener {
+                    val playerIntent =
+                        Intent(holder.itemView.context, PlayerProfileActivity::class.java)
+                    val playerString = Json.encodeToString(
+                        User.serializer(),
+                        listOfPlayers[holder.absoluteAdapterPosition]
+                    )
+                    playerIntent.putExtra("playerString", playerString)
+                    holder.itemView.context.startActivity(playerIntent)
+                }
+            }
         }
     }
+}
 
 
 

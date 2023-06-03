@@ -218,6 +218,7 @@
                     app:layout_constraintStart_toStartOf="parent">
 
                     <TextView
+                        android:id="@+id/equipments_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Do you need any equipment?"

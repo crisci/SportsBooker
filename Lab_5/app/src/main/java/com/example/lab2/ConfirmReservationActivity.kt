@@ -36,7 +36,6 @@ import kotlin.concurrent.thread
 @AndroidEntryPoint
 class ConfirmReservationActivity : AppCompatActivity() {
 
-    private lateinit var db: ReservationAppDatabase
     private lateinit var matchWithCourt: MatchWithCourt
     private lateinit var match : Match
     private lateinit var court : Court
@@ -45,6 +44,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
     private lateinit var location_confirm_reservation: TextView
     private lateinit var date_confirm_reservation: TextView
     private lateinit var time_confirm_reservation: TextView
+    private lateinit var equipments_card_title: TextView
     private lateinit var confirmButton: Button
     private lateinit var priceText: TextView
     private lateinit var backButton: ImageView
@@ -56,11 +56,12 @@ class ConfirmReservationActivity : AppCompatActivity() {
     lateinit var equipmentsVM: EquipmentsVM
     @Inject
     lateinit var vm: MainVM
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_confirm_booking)
-
-        db = ReservationAppDatabase.getDatabase(this)
+        setSupportActionBar()
+        findViews()
 
         equipmentsVM = ViewModelProvider(this)[EquipmentsVM::class.java]
         confirmReservationVM = ViewModelProvider(this)[ConfirmReservationVM::class.java]
@@ -72,27 +73,6 @@ class ConfirmReservationActivity : AppCompatActivity() {
         match = matchWithCourt.match
         court = matchWithCourt.court
 
-        sport_name = findViewById(R.id.sport_name_confirm_reservation)
-        court_name_confirm_reservation = findViewById(R.id.court_name_confirm_reservation)
-        location_confirm_reservation = findViewById(R.id.location_confirm_reservation)
-        date_confirm_reservation = findViewById(R.id.date_confirm_reservation)
-        time_confirm_reservation = findViewById(R.id.time_confirm_reservation)
-        checkboxContainer = findViewById(R.id.checkbox_container)
-        confirmButton = findViewById(R.id.confirm_button_confirm_reservation)
-        priceText = findViewById(R.id.local_price_confirm_reservation2)
-
-
-        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
-        supportActionBar?.elevation = 0F
-        supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.example_1_bg)))
-        supportActionBar?.setCustomView(R.layout.toolbar)
-        val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
-        titleTextView?.text = "Confirm Reservation"
-
-        backButton = supportActionBar?.customView?.findViewById<ImageView>(R.id.custom_back_icon)!!
-        backButton.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
 
         updateContent()
 
@@ -143,10 +123,6 @@ class ConfirmReservationActivity : AppCompatActivity() {
                                 finalPrice = equipmentsVM.getPersonalPrice().value!!
                             )
                         )
-
-
-                        //db.playerReservationDAO().confirmReservation(1, reservation.reservationId, listEquipments, equipmentsVM.getPersonalPrice().value!!)
-                        //db.reservationDao().updateNumOfPlayers(reservation.reservationId)
                         setResult(Activity.RESULT_OK)
                         finish()
                     } catch (err: RuntimeException) {
@@ -163,6 +139,10 @@ class ConfirmReservationActivity : AppCompatActivity() {
 
         equipmentsVM.setPersonalPrice(startingPrice)
         val equipments = equipmentsVM.getListEquipments(court.sport!!)
+
+        if(equipments.isEmpty()){
+            equipments_card_title.text = "No additional equipment available."
+        }
 
         for (e in equipments) {
             val checkbox = CheckBox(this)
@@ -182,4 +162,31 @@ class ConfirmReservationActivity : AppCompatActivity() {
             priceText.text = "You will pay €${String.format("%.02f", equipmentsVM.getPersonalPrice().value)} locally."
         }
     }
+
+    private fun findViews() {
+        sport_name = findViewById(R.id.sport_name_confirm_reservation)
+        court_name_confirm_reservation = findViewById(R.id.court_name_confirm_reservation)
+        location_confirm_reservation = findViewById(R.id.location_confirm_reservation)
+        date_confirm_reservation = findViewById(R.id.date_confirm_reservation)
+        time_confirm_reservation = findViewById(R.id.time_confirm_reservation)
+        checkboxContainer = findViewById(R.id.checkbox_container)
+        confirmButton = findViewById(R.id.confirm_button_confirm_reservation)
+        priceText = findViewById(R.id.local_price_confirm_reservation2)
+        equipments_card_title = findViewById(R.id.equipments_title)
+    }
+
+    private fun setSupportActionBar() {
+        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM;
+        supportActionBar?.elevation = 0F
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.example_1_bg)))
+        supportActionBar?.setCustomView(R.layout.toolbar)
+        val titleTextView = supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
+        titleTextView?.text = "Confirm Reservation"
+
+        backButton = supportActionBar?.customView?.findViewById<ImageView>(R.id.custom_back_icon)!!
+        backButton.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+    }
+
 }

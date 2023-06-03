@@ -39,6 +39,8 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
     private val _editedReservation = MutableLiveData<MatchWithCourtAndEquipments>()
     private var editedReservation : LiveData<MatchWithCourtAndEquipments> = _editedReservation
 
+    var error : MutableLiveData<String?> = MutableLiveData()
+
 
     // Get available matches for the same day & court
     fun getAvailableMatches() : LiveData<MutableList<Match>> {
@@ -107,24 +109,30 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun submitUpdate(playerId: String, oldReservation: MatchWithCourtAndEquipments) {
+    fun submitUpdate(playerId: String, oldReservation: MatchWithCourtAndEquipments, callback: (Boolean) -> Unit) {
         try {
             updateReservation(playerId, oldReservation)
             if (oldReservation.match.matchId != getEditedReservation().value?.match?.matchId!!) {
                 updateOldMatch(playerId, oldReservation)
                 updateNewMatch(playerId)
             }
+            error.value = null
+            callback(true)
         }catch (err: Exception){
-            throw err
+            error.value = err.message
+            callback(false)
         }
     }
 
-    fun cancelReservation(playerId: String, oldReservation: MatchWithCourtAndEquipments) {
+    fun cancelReservation(playerId: String, oldReservation: MatchWithCourtAndEquipments, callback: (Boolean) -> Unit) {
         try{
             deleteReservation(oldReservation)
             updateOldMatch(playerId, oldReservation)
+            error.value = null
+            callback(true)
         }catch (err: Exception) {
-            throw err
+            error.value = err.message
+            callback(false)
         }
     }
 
@@ -132,8 +140,7 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
         db.collection("reservations").document(getEditedReservation().value?.reservationId!!).set(
             MatchWithCourtAndEquipmentsToFirebase(playerId, getEditedReservation().value!!)
         ).addOnFailureListener {
-            Log.i("update", "Couldn't update Reservation ${oldReservation.reservationId}")
-            throw it
+            throw Exception("Couldn't update Reservation ${oldReservation.reservationId}")
         }
     }
 
@@ -150,7 +157,7 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
         db.collection("matches").document(oldReservation.match.matchId)
             .update(oldMatchEdits)
             .addOnFailureListener {
-                throw it
+                throw Exception("Couldn't update old match ${oldReservation.match.matchId}")
             }
 
     }
@@ -168,7 +175,7 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
         db.collection("matches").document(getEditedReservation().value?.match?.matchId!!)
             .update(newMatchEdits)
             .addOnFailureListener {
-                throw it
+                throw Exception("Couldn't update new match ${getEditedReservation().value?.match?.matchId}")
             }
     }
 
@@ -176,7 +183,7 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
         // Delete reservation
         db.collection("reservations").document(oldReservation.reservationId!!).delete()
             .addOnFailureListener {
-                throw it
+                throw Exception("Couldn't delete reservation ${oldReservation.reservationId}")
             }
     }
 
