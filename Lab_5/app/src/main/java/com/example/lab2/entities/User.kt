@@ -1,15 +1,14 @@
 package com.example.lab2.entities
 
-import com.example.lab2.DateAsLongSerializer
+import com.example.lab2.utils.DateAsLongSerializer
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Exclude
-import com.google.firebase.firestore.ServerTimestamp
 import kotlinx.serialization.Serializable
-import java.time.LocalDate
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.time.LocalDate
 import java.time.Period
 import java.time.ZoneId
 import java.util.Date
@@ -27,8 +26,8 @@ data class User(
     @Serializable(with = DateAsLongSerializer::class)
     var birthday: LocalDate,
     var badges: Map<BadgeType, Int>,
-    var interests : MutableList<Sport>,
-    var score : MutableMap<String, Long>? = null
+    var interests: MutableList<Sport>,
+    var score: MutableMap<String, Long>? = null
 ) {
 
     fun getAge(): Int {
@@ -51,8 +50,8 @@ data class User(
         fun fromFirebase(data: DocumentSnapshot): User {
 
             val skills = data.get("skills") as Map<String, Int>
-            val mappedBadges : Map<BadgeType, Int> = skills.mapKeys {
-                when(it.key.lowercase()) {
+            val mappedBadges: Map<BadgeType, Int> = skills.mapKeys {
+                when (it.key.lowercase()) {
                     "speed" -> BadgeType.SPEED
                     "precision" -> BadgeType.PRECISION
                     "team work" -> BadgeType.TEAM_WORK
@@ -63,8 +62,8 @@ data class User(
             }
 
             val interests = data.get("interests") as List<String>
-            val mappedInterests : MutableList<Sport> = interests.map {
-                when(it.lowercase()){
+            val mappedInterests: MutableList<Sport> = interests.map {
+                when (it.lowercase()) {
                     "football" -> Sport.FOOTBALL
                     "padel" -> Sport.PADEL
                     "tennis" -> Sport.TENNIS
@@ -82,7 +81,8 @@ data class User(
                 address = data.getString("location")!!,
                 description = data.getString("description")!!,
                 email = data.getString("email")!!,
-                birthday = data.getTimestamp("dateOfBirth")?.toDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDate() ?: LocalDate.now(),
+                birthday = data.getTimestamp("dateOfBirth")?.toDate()?.toInstant()
+                    ?.atZone(ZoneId.systemDefault())?.toLocalDate() ?: LocalDate.now(),
                 badges = mappedBadges,
                 interests = mappedInterests,
                 image = data.getString("image")!!,
@@ -90,12 +90,13 @@ data class User(
             )
         }
 
-        fun toFirebase(user : User) : Map<String, Any> {
+        fun toFirebase(user: User): Map<String, Any> {
 
-            val mappedBirthday: Date = Date.from(user.birthday.atStartOfDay(ZoneId.systemDefault()).toInstant())
+            val mappedBirthday: Date =
+                Date.from(user.birthday.atStartOfDay(ZoneId.systemDefault()).toInstant())
 
-            val mappedBadges : Map<String, Int> = user.badges.mapKeys {
-                when(it.key) {
+            val mappedBadges: Map<String, Int> = user.badges.mapKeys {
+                when (it.key) {
                     BadgeType.SPEED -> "Speed"
                     BadgeType.PRECISION -> "Precision"
                     BadgeType.TEAM_WORK -> "Team Work"
@@ -105,8 +106,8 @@ data class User(
                 }
             }
 
-            val mappedInterests : List<String> = user.interests.map {
-                when(it){
+            val mappedInterests: List<String> = user.interests.map {
+                when (it) {
                     Sport.FOOTBALL -> "Football"
                     Sport.PADEL -> "Padel"
                     Sport.TENNIS -> "Tennis"
@@ -117,7 +118,7 @@ data class User(
                 }
             }
 
-            val map : MutableMap<String, Any> = mutableMapOf()
+            val map: MutableMap<String, Any> = mutableMapOf()
 
             map["fullName"] = user.full_name
             map["username"] = user.nickname

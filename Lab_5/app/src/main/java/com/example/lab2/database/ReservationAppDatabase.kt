@@ -5,7 +5,6 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.lab2.BitmapConverter
 import com.example.lab2.database.court.Court
 import com.example.lab2.database.court.CourtDAO
 import com.example.lab2.database.player.Player
@@ -16,16 +15,26 @@ import com.example.lab2.database.player_reservation_join.PlayerReservation
 import com.example.lab2.database.player_reservation_join.PlayerReservationDAO
 import com.example.lab2.database.reservation.Reservation
 import com.example.lab2.database.reservation.ReservationDAO
+import com.example.lab2.utils.BitmapConverter
 
 
-@Database(entities = [Player::class, Reservation::class, Court::class, PlayerBadgeRating::class, PlayerReservation::class], version = 1, exportSchema = false)
-@TypeConverters(EquipmentConverter::class, DateConverter::class, TimeConverter::class, BitmapConverter::class)
+@Database(
+    entities = [Player::class, Reservation::class, Court::class, PlayerBadgeRating::class, PlayerReservation::class],
+    version = 1,
+    exportSchema = false
+)
+@TypeConverters(
+    EquipmentConverter::class,
+    DateConverter::class,
+    TimeConverter::class,
+    BitmapConverter::class
+)
 abstract class ReservationAppDatabase : RoomDatabase() {
-    abstract fun playerDao() : PlayerDAO
-    abstract fun reservationDao() : ReservationDAO
-    abstract fun courtDao() : CourtDAO
-    abstract fun playerBadgeRatingDAO() : PlayerBadgeRatingDAO
-    abstract fun playerReservationDAO() : PlayerReservationDAO
+    abstract fun playerDao(): PlayerDAO
+    abstract fun reservationDao(): ReservationDAO
+    abstract fun courtDao(): CourtDAO
+    abstract fun playerBadgeRatingDAO(): PlayerBadgeRatingDAO
+    abstract fun playerReservationDAO(): PlayerReservationDAO
 
     //abstract fun courtReviewDao() : CourtReviewDAO
 
@@ -34,9 +43,8 @@ abstract class ReservationAppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: ReservationAppDatabase? = null
 
-        fun getDatabase(context: Context) : ReservationAppDatabase =
-            (INSTANCE ?:
-            synchronized(this){
+        fun getDatabase(context: Context): ReservationAppDatabase =
+            (INSTANCE ?: synchronized(this) {
                 val i = INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     ReservationAppDatabase::class.java,

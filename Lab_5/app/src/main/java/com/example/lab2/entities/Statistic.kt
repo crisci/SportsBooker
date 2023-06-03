@@ -9,4 +9,4 @@ data class Statistic(
     //val gamesWon: Int,
     //val gamesLost: Int,
     //val gamesDrawn: Int? = null
-) {}
+)

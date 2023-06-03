@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/login"
-        android:name="com.example.lab2.FragmentLogin"
+        android:name="com.example.lab2.login.FragmentLogin"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login">
 
@@ -20,7 +20,7 @@
 
     <fragment
         android:id="@+id/signup"
-        android:name="com.example.lab2.FragmentSignup"
+        android:name="com.example.lab2.login.FragmentSignup"
         android:label="fragment_signup"
         tools:layout="@layout/fragment_signup">
 
@@ -39,7 +39,7 @@
 
     <fragment
         android:id="@+id/select_interests"
-        android:name="com.example.lab2.FragmentSignupSelectInterests"
+        android:name="com.example.lab2.login.FragmentSignupSelectInterests"
         android:label="fragment_signup_select_interests"
         tools:layout="@layout/fragment_signup_select_interests">
         <action

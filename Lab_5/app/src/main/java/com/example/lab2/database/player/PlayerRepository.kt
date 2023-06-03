@@ -1,18 +1,8 @@
 package com.example.lab2.database.player
 
-import androidx.lifecycle.LiveData
-import androidx.room.Query
-import com.example.lab2.database.ReservationAppDatabase
-import com.example.lab2.database.player_reservation_join.ReservationWithPlayers
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
-import java.time.LocalTime
 import javax.inject.Inject
 
 /*  The repository depends on a PlayerDAO instance, which is responsible for data access operations.

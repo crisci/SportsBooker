@@ -14,7 +14,11 @@ class CourtRepository @Inject constructor(private val database: CourtDAO) {
 
     suspend fun save(court: Court) = database.save(court)
 
-    suspend fun getFirstAvailableCourtForSportDateTime(sport: String, date: LocalDate, time: LocalTime) =
+    suspend fun getFirstAvailableCourtForSportDateTime(
+        sport: String,
+        date: LocalDate,
+        time: LocalTime
+    ) =
         withContext(Dispatchers.IO) {
             database.getFirstAvailableCourtForSportDateTime(sport, date, time)
         }

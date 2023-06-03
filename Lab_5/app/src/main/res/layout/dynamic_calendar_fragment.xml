@@ -16,7 +16,7 @@
         android:focusable="true"
         android:orientation="vertical"
         android:paddingHorizontal="10dp"
-        tools:context=".calendar.MonthCalendar">
+        tools:context=".common.calendar.MonthCalendar">
 
 
         <com.google.android.material.appbar.AppBarLayout

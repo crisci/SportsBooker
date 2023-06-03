@@ -16,6 +16,6 @@ class DateConverter {
 
     @TypeConverter
     fun toLocalDate(sqlDate: String?): LocalDate? {
-        return sqlDate?.let { LocalDate.parse(it,formatterDate)}
+        return sqlDate?.let { LocalDate.parse(it, formatterDate) }
     }
 }

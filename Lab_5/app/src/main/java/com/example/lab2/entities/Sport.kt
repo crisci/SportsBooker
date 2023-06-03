@@ -10,7 +10,7 @@ enum class Sport {
 }
 
 fun getSportFromString(sport: String): Sport {
-    return when(sport.lowercase()) {
+    return when (sport.lowercase()) {
         "Tennis" -> Sport.TENNIS
         "Padel" -> Sport.PADEL
         "Football" -> Sport.FOOTBALL

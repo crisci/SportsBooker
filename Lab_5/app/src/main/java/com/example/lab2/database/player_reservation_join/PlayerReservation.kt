@@ -12,13 +12,17 @@ import com.example.lab2.entities.Equipment
     tableName = "players_reservations",
     primaryKeys = ["playerId", "reservationId"],
     foreignKeys = [
-            ForeignKey(Player::class, parentColumns = ["playerId"], childColumns = ["playerId"]),
-            ForeignKey(Reservation::class, parentColumns = ["reservationId"], childColumns = ["reservationId"])
-        ]
-    )
-data class PlayerReservation (
+        ForeignKey(Player::class, parentColumns = ["playerId"], childColumns = ["playerId"]),
+        ForeignKey(
+            Reservation::class,
+            parentColumns = ["reservationId"],
+            childColumns = ["reservationId"]
+        )
+    ]
+)
+data class PlayerReservation(
     val playerId: Int,
-    val reservationId : Int,
+    val reservationId: Int,
     @TypeConverters(EquipmentConverter::class)
     val equipments: List<Equipment>,
     val finalPrice: Double

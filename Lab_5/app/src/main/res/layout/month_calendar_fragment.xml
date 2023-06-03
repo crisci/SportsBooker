@@ -17,7 +17,7 @@
     android:orientation="vertical"
     android:paddingHorizontal="10dp"
     android:paddingTop="15dp"
-    tools:context=".calendar.MonthCalendar">
+    tools:context=".common.calendar.MonthCalendar">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/exOneAppBarLayout"

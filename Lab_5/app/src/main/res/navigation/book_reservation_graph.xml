@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/findNewGames"
-        android:name="com.example.lab2.NewGames"
+        android:name="com.example.lab2.reservation.my_reservations.NewGames"
         android:label="fragment_new_games"
         tools:layout="@layout/fragment_new_games" >
     </fragment>
     <fragment
         android:id="@+id/fullScreenCalendar"
-        android:name="com.example.lab2.calendar.MonthCalendar"
+        android:name="com.example.lab2.common.calendar.MonthCalendar"
         android:label="fragment_full_screen_calendar"
         tools:layout="@layout/month_calendar_fragment">
         <action

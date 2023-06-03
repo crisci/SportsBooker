@@ -1,7 +1,6 @@
 package com.example.lab2.database
 
 import androidx.room.TypeConverter
-import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
@@ -17,6 +16,6 @@ class TimeConverter {
 
     @TypeConverter
     fun toLocalTime(sqlTime: String?): LocalTime? {
-        return sqlTime?.let { LocalTime.parse(it,formatterTime)}
+        return sqlTime?.let { LocalTime.parse(it, formatterTime) }
     }
 }

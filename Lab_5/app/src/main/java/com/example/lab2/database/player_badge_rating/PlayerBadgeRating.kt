@@ -6,10 +6,14 @@ import com.example.lab2.database.player.Player
 
 @Entity(
     tableName = "player_badge_ratings",
-    primaryKeys = ["playerId","badge","sport"],
-    foreignKeys = [ForeignKey(entity = Player::class, parentColumns = ["playerId"], childColumns = ["playerId"])]
-    )
-data class PlayerBadgeRating (
+    primaryKeys = ["playerId", "badge", "sport"],
+    foreignKeys = [ForeignKey(
+        entity = Player::class,
+        parentColumns = ["playerId"],
+        childColumns = ["playerId"]
+    )]
+)
+data class PlayerBadgeRating(
     val playerId: Int,
     val badge: String,
     val rating: Int,

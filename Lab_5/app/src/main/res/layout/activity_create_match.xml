@@ -75,7 +75,7 @@
 
                 <androidx.fragment.app.FragmentContainerView
                     android:id="@+id/weekCalendarFragment"
-                    android:name="com.example.lab2.calendar.DynamicCalendar"
+                    android:name="com.example.lab2.common.calendar.DynamicCalendar"
                     android:paddingTop="10dp"
                     android:paddingBottom="20dp"
                     android:layout_width="match_parent"

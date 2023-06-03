@@ -11,8 +11,15 @@ import com.example.lab2.database.court.Court
 import java.time.LocalDate
 import java.time.LocalTime
 
-@Entity(tableName = "reservations", foreignKeys = [ForeignKey(entity = Court::class, parentColumns = ["courtId"], childColumns = ["courtId"])])
-data class Reservation (
+@Entity(
+    tableName = "reservations",
+    foreignKeys = [ForeignKey(
+        entity = Court::class,
+        parentColumns = ["courtId"],
+        childColumns = ["courtId"]
+    )]
+)
+data class Reservation(
     @PrimaryKey(autoGenerate = true)
     val reservationId: Int = 0,
     @ColumnInfo(name = "courtId", index = true)

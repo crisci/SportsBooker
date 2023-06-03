@@ -4,9 +4,6 @@ import androidx.room.TypeConverter
 import com.example.lab2.entities.Equipment
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 
 class EquipmentConverter {

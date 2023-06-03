@@ -2,13 +2,8 @@ package com.example.lab2.database.reservation
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
-import com.example.lab2.database.court.Court
-import com.example.lab2.database.court.CourtWithReservations
 import com.example.lab2.database.player_reservation_join.ReservationWithPlayers
 import java.time.LocalDate
 import java.time.LocalTime
@@ -36,39 +31,55 @@ interface ReservationDAO {
 
     @Query(
         "SELECT r.*, pr.* " +
-            "FROM reservations r" +
-            " JOIN players_reservations pr ON pr.reservationId = r.reservationId" +
-            " WHERE r.reservationId = (:reservationId)"
+                "FROM reservations r" +
+                " JOIN players_reservations pr ON pr.reservationId = r.reservationId" +
+                " WHERE r.reservationId = (:reservationId)"
     )
-    fun loadPlayersByReservationId(reservationId: Int) : ReservationWithPlayers
+    fun loadPlayersByReservationId(reservationId: Int): ReservationWithPlayers
 
-    @Query("UPDATE reservations " +
-            "SET numOfPlayers = (SELECT COUNT(*) FROM players_reservations WHERE reservationId = :reservationId)" +
-            "WHERE reservationId = :reservationId")
+    @Query(
+        "UPDATE reservations " +
+                "SET numOfPlayers = (SELECT COUNT(*) FROM players_reservations WHERE reservationId = :reservationId)" +
+                "WHERE reservationId = :reservationId"
+    )
     fun updateNumOfPlayers(reservationId: Int)
 
 
-    @Query("SELECT c.*, r.* FROM courts c JOIN reservations r" +
-            " ON c.courtId = r.courtId AND r.date = :date AND time >= :time AND r.numOfPlayers < c.maxNumOfPlayers" +
-            " LEFT JOIN players_reservations pr ON r.reservationId = pr.reservationId AND pr.playerId = :playerId" +
-            " WHERE pr.reservationId IS NULL" +
-            " GROUP BY c.courtId, r.reservationId")
-    fun getAvailableReservationsByDate(date: LocalDate, time: LocalTime, playerId: Int): List<ReservationWithCourt>
-
-    @Query("SELECT c.*, r.* FROM courts c JOIN reservations r" +
-            " ON c.courtId = r.courtId AND r.date = :date AND time >= :time AND r.numOfPlayers < c.maxNumOfPlayers AND c.sport = :sport" +
-            " LEFT JOIN players_reservations pr ON r.reservationId = pr.reservationId AND pr.playerId = :playerId" +
-            " WHERE pr.reservationId IS NULL" +
-            " GROUP BY c.courtId, r.reservationId")
-    fun getAvailableReservationsByDateAndSport(date: LocalDate, time: LocalTime, sport: String, playerId: Int): List<ReservationWithCourt>
-
-    @Query("SELECT r.*, c.*, pr.equipments, pr.finalPrice FROM reservations r" +
-            " JOIN courts c" +
-            " ON c.courtId = r.courtId" +
-            " JOIN players_reservations pr" +
-            " ON pr.reservationId = r.reservationId" +
-            " WHERE r.reservationId = :reservationId"
+    @Query(
+        "SELECT c.*, r.* FROM courts c JOIN reservations r" +
+                " ON c.courtId = r.courtId AND r.date = :date AND time >= :time AND r.numOfPlayers < c.maxNumOfPlayers" +
+                " LEFT JOIN players_reservations pr ON r.reservationId = pr.reservationId AND pr.playerId = :playerId" +
+                " WHERE pr.reservationId IS NULL" +
+                " GROUP BY c.courtId, r.reservationId"
     )
-    fun loadReservationsByReservationId(reservationId: Int) : ReservationWithCourtAndEquipments
+    fun getAvailableReservationsByDate(
+        date: LocalDate,
+        time: LocalTime,
+        playerId: Int
+    ): List<ReservationWithCourt>
+
+    @Query(
+        "SELECT c.*, r.* FROM courts c JOIN reservations r" +
+                " ON c.courtId = r.courtId AND r.date = :date AND time >= :time AND r.numOfPlayers < c.maxNumOfPlayers AND c.sport = :sport" +
+                " LEFT JOIN players_reservations pr ON r.reservationId = pr.reservationId AND pr.playerId = :playerId" +
+                " WHERE pr.reservationId IS NULL" +
+                " GROUP BY c.courtId, r.reservationId"
+    )
+    fun getAvailableReservationsByDateAndSport(
+        date: LocalDate,
+        time: LocalTime,
+        sport: String,
+        playerId: Int
+    ): List<ReservationWithCourt>
+
+    @Query(
+        "SELECT r.*, c.*, pr.equipments, pr.finalPrice FROM reservations r" +
+                " JOIN courts c" +
+                " ON c.courtId = r.courtId" +
+                " JOIN players_reservations pr" +
+                " ON pr.reservationId = r.reservationId" +
+                " WHERE r.reservationId = :reservationId"
+    )
+    fun loadReservationsByReservationId(reservationId: Int): ReservationWithCourtAndEquipments
 
 }

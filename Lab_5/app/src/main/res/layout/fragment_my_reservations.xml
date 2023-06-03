@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MyReservations">
+    tools:context=".reservation.my_reservations.MyReservationsFragment">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
@@ -26,7 +26,7 @@
 
                 <androidx.fragment.app.FragmentContainerView
                     android:id="@+id/weekCalendarFragment"
-                    android:name="com.example.lab2.calendar.DynamicCalendar"
+                    android:name="com.example.lab2.common.calendar.DynamicCalendar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingTop="15dp"

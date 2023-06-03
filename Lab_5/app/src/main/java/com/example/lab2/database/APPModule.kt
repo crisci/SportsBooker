@@ -18,37 +18,37 @@ object APPModule {
 
     @Singleton
     @Provides
-    fun getAppDB(context: Application) : ReservationAppDatabase {
+    fun getAppDB(context: Application): ReservationAppDatabase {
         return ReservationAppDatabase.getDatabase(context)
     }
 
     @Singleton
     @Provides
-    fun getPlayerDAO(appDB: ReservationAppDatabase) : PlayerDAO {
+    fun getPlayerDAO(appDB: ReservationAppDatabase): PlayerDAO {
         return appDB.playerDao()
     }
 
     @Singleton
     @Provides
-    fun getCourtDAO(appDB: ReservationAppDatabase) : CourtDAO {
+    fun getCourtDAO(appDB: ReservationAppDatabase): CourtDAO {
         return appDB.courtDao()
     }
 
     @Singleton
     @Provides
-    fun getPlayerBadgeRatingDAO(appDB: ReservationAppDatabase) : PlayerBadgeRatingDAO {
+    fun getPlayerBadgeRatingDAO(appDB: ReservationAppDatabase): PlayerBadgeRatingDAO {
         return appDB.playerBadgeRatingDAO()
     }
 
     @Singleton
     @Provides
-    fun getPlayerReservationDAO(appDB: ReservationAppDatabase) : PlayerReservationDAO {
+    fun getPlayerReservationDAO(appDB: ReservationAppDatabase): PlayerReservationDAO {
         return appDB.playerReservationDAO()
     }
 
     @Singleton
     @Provides
-    fun getReservationDAO(appDB: ReservationAppDatabase) : ReservationDAO {
+    fun getReservationDAO(appDB: ReservationAppDatabase): ReservationDAO {
         return appDB.reservationDao()
     }
 

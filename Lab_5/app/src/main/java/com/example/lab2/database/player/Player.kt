@@ -9,7 +9,7 @@ import java.time.LocalDate
 //TODO: Player view model with all the information about the current player
 
 @Entity(tableName = "players")
-data class Player (
+data class Player(
     @PrimaryKey(autoGenerate = true)
     val playerId: Int = 0,
     val fullName: String,
