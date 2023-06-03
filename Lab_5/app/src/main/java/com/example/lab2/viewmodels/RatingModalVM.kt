@@ -63,8 +63,39 @@ class RatingModalVM @Inject constructor(): ViewModel() {
                         val numberOfVotes = it.documents.size.toLong()
                         if (numberOfVotes == match.numOfPlayers) {
                             Log.d("RatingModalVM", "All votes received")
-                            //TODO update mvp field in the collection matches
-                            // the mvp is the player with the most votes
+
+                            // Count the votes for each player
+                            val voteCountMap = mutableMapOf<String, Long>()
+                            for (voteDoc in it.documents) {
+                                val playerId = voteDoc.getString("mvpUserId")
+                                if (playerId != null) {
+                                    voteCountMap[playerId] = voteCountMap.getOrDefault(playerId, 0) + 1
+                                }
+                            }
+
+                            // Find the player with the most votes
+                            var maxVotes = 0L
+                            var mvpPlayerId: String? = null
+                            for ((playerId, voteCount) in voteCountMap) {
+                                if (voteCount > maxVotes) {
+                                    maxVotes = voteCount
+                                    mvpPlayerId = playerId
+                                }
+                            }
+
+                            if (mvpPlayerId != null) {
+                                // Update the "mvp" field in the "matches" collection
+                                val matchRef = db.collection("matches").document(match.matchId)
+                                matchRef.update("mvp", db.document("players/$mvpPlayerId"))
+                                    .addOnSuccessListener {
+                                        Log.d("RatingModalVM", "MVP updated successfully")
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.e("RatingModalVM", "Failed to update MVP: $e")
+                                    }
+                            }
+
+
                         }
                     }
             }
