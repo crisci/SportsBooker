@@ -73,20 +73,19 @@ class RatingModalVM @Inject constructor(): ViewModel() {
                                 }
                             }
 
-                            // Find the player with the most votes
-                            var maxVotes = 0L
-                            var mvpPlayerId: String? = null
-                            for ((playerId, voteCount) in voteCountMap) {
-                                if (voteCount > maxVotes) {
-                                    maxVotes = voteCount
-                                    mvpPlayerId = playerId
-                                }
-                            }
+                            // Find the players with the maximum votes
+                            val maxVotes = voteCountMap.maxByOrNull { it.value }?.value ?: 0L
+                            val mvpPlayerIds = voteCountMap.filter { it.value == maxVotes }.keys.toList()
 
-                            if (mvpPlayerId != null) {
-                                // Update the "mvp" field in the "matches" collection
+                            if (mvpPlayerIds.isNotEmpty()) {
+                                // Convert player IDs to document references
+                                val mvpPlayerRefs = mvpPlayerIds.map { playerId ->
+                                    db.document("players/$playerId")
+                                }
+
+                                // Update the "mvp" field in the "matches" collection with the array of player references
                                 val matchRef = db.collection("matches").document(match.matchId)
-                                matchRef.update("mvp", db.document("players/$mvpPlayerId"))
+                                matchRef.update("mvp", mvpPlayerRefs)
                                     .addOnSuccessListener {
                                         Log.d("RatingModalVM", "MVP updated successfully")
                                     }
