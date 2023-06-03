@@ -64,6 +64,7 @@ class RatingModalVM @Inject constructor(): ViewModel() {
                         if (numberOfVotes == match.numOfPlayers) {
                             Log.d("RatingModalVM", "All votes received")
                             //TODO update mvp field in the collection matches
+                            // the mvp is the player with the most votes
                         }
                     }
             }
