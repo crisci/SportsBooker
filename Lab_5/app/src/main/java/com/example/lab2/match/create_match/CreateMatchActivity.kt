@@ -14,7 +14,6 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.R
-import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.view_models.CalendarVM
 import com.example.lab2.view_models.CreateMatchVM
 import com.example.lab2.view_models.MainVM
@@ -40,7 +39,6 @@ class CreateMatchActivity : AppCompatActivity() {
     lateinit var userVM: MainVM
 
     lateinit var createMatchVM: CreateMatchVM
-    private lateinit var db: ReservationAppDatabase
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +53,6 @@ class CreateMatchActivity : AppCompatActivity() {
             supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
         titleTextView?.text = "Create a match"
 
-        db = ReservationAppDatabase.getDatabase(this)
 
         calendarVM = ViewModelProvider(this)[CalendarVM::class.java]
         createMatchVM = ViewModelProvider(this)[CreateMatchVM::class.java]

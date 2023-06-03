@@ -22,8 +22,8 @@ import com.example.lab2.entities.User
 import com.example.lab2.profile.player_profile.PlayerProfileActivity
 import com.example.lab2.view_models.MainVM
 import com.example.lab2.view_models.NotificationVM
-import com.example.lab2.firebase_models.Match
-import com.example.lab2.firebase_models.MatchWithCourtAndEquipments
+import com.example.lab2.entities.firebase.Match
+import com.example.lab2.entities.firebase.MatchWithCourtAndEquipments
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso

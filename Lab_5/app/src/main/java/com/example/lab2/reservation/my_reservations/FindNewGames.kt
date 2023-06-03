@@ -22,15 +22,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.lab2.R
-import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.match.create_match.CreateMatchActivity
 import com.example.lab2.reservation.confirm_reservation.ConfirmReservationActivity
 import com.example.lab2.view_models.CalendarVM
 import com.example.lab2.view_models.MainVM
 import com.example.lab2.view_models.NewMatchesVM
-import com.example.lab2.firebase_models.Court
-import com.example.lab2.firebase_models.Match
-import com.example.lab2.firebase_models.MatchWithCourt
+import com.example.lab2.entities.firebase.Court
+import com.example.lab2.entities.firebase.Match
+import com.example.lab2.entities.firebase.MatchWithCourt
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.json.Json
@@ -51,8 +50,6 @@ class NewGames : Fragment(R.layout.fragment_new_games) {
     lateinit var userVM: MainVM
     lateinit var vm: NewMatchesVM
 
-
-    private lateinit var db: ReservationAppDatabase
 
     private lateinit var noResults: ConstraintLayout
     private lateinit var addMatchButton: FloatingActionButton
@@ -85,7 +82,6 @@ class NewGames : Fragment(R.layout.fragment_new_games) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        db = ReservationAppDatabase.getDatabase(requireContext())
         navController = findNavController()
 
         vm = ViewModelProvider(requireActivity())[NewMatchesVM::class.java]

@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.lab2.database.court_review.CourtReview
-import com.example.lab2.firebase_models.Court
+import com.example.lab2.entities.database.CourtReview
+import com.example.lab2.entities.firebase.Court
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore

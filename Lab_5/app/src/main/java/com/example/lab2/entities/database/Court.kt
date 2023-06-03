@@ -1,14 +1,11 @@
-package com.example.lab2.database.court
+package com.example.lab2.entities.database
 
 import android.graphics.Bitmap
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import com.example.lab2.database.BitmapConverter
 
-@Entity(tableName = "courts")
+import com.example.lab2.utils.BitmapConverter
+
 data class Court(
-    @PrimaryKey(autoGenerate = true)
     val courtId: Int = 0,
     val name: String,
     val sport: String,

@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.lab2.R
 import com.example.lab2.common.calendar.setTextColorRes
-import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.reservation.book_reservation.BookReservationActivity
 import com.example.lab2.reservation.details.DetailsActivity
 import com.example.lab2.reservation.edit_reservation.EditReservationActivity
@@ -31,9 +30,9 @@ import com.example.lab2.view_models.CalendarVM
 import com.example.lab2.view_models.MainVM
 import com.example.lab2.view_models.MyReservationsVM
 import com.example.lab2.view_models.RatingModalVM
-import com.example.lab2.firebase_models.MatchWithCourtAndEquipments
+import com.example.lab2.entities.firebase.MatchWithCourtAndEquipments
 import com.example.lab2.view_models.ReservationVM
-import com.example.lab2.firebase_models.formatPrice
+import com.example.lab2.entities.firebase.formatPrice
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.json.Json
 import java.time.format.DateTimeFormatter
@@ -57,8 +56,6 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
     lateinit var resVM: ReservationVM
 
     private lateinit var adapterCardFilters: AdapterFilterReservation
-
-    private lateinit var db: ReservationAppDatabase
 
     private lateinit var noResults: ConstraintLayout
     private lateinit var findNewGamesButton: Button
@@ -86,8 +83,6 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        db = ReservationAppDatabase.getDatabase(requireContext())
 
         vm = ViewModelProvider(requireActivity())[MyReservationsVM::class.java]
         calendarVM = ViewModelProvider(requireActivity())[CalendarVM::class.java]

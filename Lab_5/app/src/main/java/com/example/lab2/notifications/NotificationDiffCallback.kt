@@ -1,9 +1,9 @@
 package com.example.lab2.notifications
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.lab2.firebase_models.Invitation
-import com.example.lab2.firebase_models.MatchToReview
-import com.example.lab2.firebase_models.Notification
+import com.example.lab2.entities.firebase.Invitation
+import com.example.lab2.entities.firebase.MatchToReview
+import com.example.lab2.entities.firebase.Notification
 
 class NotificationDiffCallback(
     private val notifications: List<Notification>,

@@ -8,8 +8,8 @@ import androidx.lifecycle.ViewModel
 import com.example.lab2.entities.Sport
 import com.example.lab2.entities.Statistic
 import com.example.lab2.entities.User
-import com.example.lab2.firebase_models.MatchWithCourtAndEquipments
-import com.example.lab2.firebase_models.firebaseToMatchWithCourtAndEquipments
+import com.example.lab2.entities.firebase.MatchWithCourtAndEquipments
+import com.example.lab2.entities.firebase.firebaseToMatchWithCourtAndEquipments
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot

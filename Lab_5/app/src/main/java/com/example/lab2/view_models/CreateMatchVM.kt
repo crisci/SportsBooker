@@ -1,16 +1,11 @@
 package com.example.lab2.view_models
 
-import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.lab2.database.court.CourtRepository
-import com.example.lab2.database.player_reservation_join.PlayerReservationRepository
-import com.example.lab2.database.reservation.Reservation
-import com.example.lab2.database.reservation.ReservationRepository
-import com.example.lab2.firebase_models.MatchFirebase
-import com.example.lab2.firebase_models.ReservationFirebase
+import com.example.lab2.entities.firebase.MatchFirebase
+import com.example.lab2.entities.firebase.ReservationFirebase
 import com.example.lab2.utils.toTimestamp
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
@@ -26,11 +21,7 @@ import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
-class CreateMatchVM @Inject constructor(
-    private val reservationRepository: ReservationRepository,
-    private val playerReservationRepository: PlayerReservationRepository,
-    private val courtRepository: CourtRepository
-) : ViewModel() {
+class CreateMatchVM @Inject constructor() : ViewModel() {
 
     val db = FirebaseFirestore.getInstance()
 
@@ -103,60 +94,6 @@ class CreateMatchVM @Inject constructor(
                             }
                     }
                 }
-        }
-    }
-
-
-    fun createMatchOld(
-        date: LocalDate,
-        time: LocalTime,
-        sport: String
-    ) {
-
-        viewModelScope.launch {
-            val newMatchId: Long
-            val availableCourtId: Int
-
-            availableCourtId = courtRepository.getFirstAvailableCourtForSportDateTime(
-                sport,
-                date,
-                time
-            )
-
-            if (availableCourtId == 0) {
-                exceptionMessage.value = "No available courts at this time"
-                return@launch
-            }
-
-            var match = Reservation(
-                date = date,
-                time = time,
-                courtId = availableCourtId,
-                numOfPlayers = 1,
-                price = 7.0
-            )
-
-            try {
-                newMatchId = reservationRepository.saveReservation(match)
-            } catch (e: SQLiteConstraintException) {
-                exceptionMessage.value = "There is already a match at this time"
-                return@launch
-            }
-
-
-            try {
-                playerReservationRepository.confirmReservation(
-                    1,
-                    newMatchId.toInt(),
-                    emptyList(),
-                    7.0
-                )
-            } catch (e: SQLiteConstraintException) {
-                exceptionMessage.value = "You already have a reservation at this time"
-                return@launch
-            }
-
-            exceptionMessage.value = "Match created successfully"
         }
     }
 

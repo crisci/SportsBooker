@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
+import com.example.lab2.entities.database.ReservationWithCourtAndEquipments
 import com.google.firebase.firestore.FirebaseFirestore
 import javax.inject.Singleton
 

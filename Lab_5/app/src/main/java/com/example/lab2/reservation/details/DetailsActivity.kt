@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lab2.R
 import com.example.lab2.common.calendar.displayText
-import com.example.lab2.database.ReservationAppDatabase
 import com.example.lab2.entities.Equipment
 import com.example.lab2.entities.User
 import com.example.lab2.profile.player_profile.PlayerProfileActivity
@@ -30,7 +29,7 @@ import com.example.lab2.reservation.search_player.SearchPlayersActivity
 import com.example.lab2.view_models.MainVM
 import com.example.lab2.view_models.MyReservationsVM
 import com.example.lab2.view_models.DetailsVM
-import com.example.lab2.firebase_models.MatchWithCourtAndEquipments
+import com.example.lab2.entities.firebase.MatchWithCourtAndEquipments
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.textview.MaterialTextView
 import com.squareup.picasso.Callback
@@ -52,7 +51,6 @@ class DetailsActivity : AppCompatActivity() {
 
     private lateinit var backButton: ImageView
 
-    private lateinit var db: ReservationAppDatabase
     private lateinit var sport: TextView
     private lateinit var court: TextView
     private lateinit var location: TextView
@@ -79,7 +77,6 @@ class DetailsActivity : AppCompatActivity() {
             Toast.makeText(this, it, Toast.LENGTH_LONG).show()
         }
 
-        db = ReservationAppDatabase.getDatabase(this)
         sport = findViewById(R.id.sport_name_detail_reservation)
         court = findViewById(R.id.court_name_detail_reservation)
         location = findViewById(R.id.location_detail_reservation)

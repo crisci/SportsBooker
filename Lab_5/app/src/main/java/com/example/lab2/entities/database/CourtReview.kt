@@ -1,4 +1,4 @@
-package com.example.lab2.database.court_review
+package com.example.lab2.entities.database
 
 data class CourtReview(
     val courtId: String,

@@ -10,7 +10,7 @@ import java.time.ZoneOffset
 class TimestampUtil {
     companion object {
         fun timestampToLocalDate(timestamp: Timestamp): LocalDate {
-            val instant = timestamp.toDate()?.toInstant()
+            val instant = timestamp.toDate().toInstant()
             val zoneId = ZoneId.systemDefault() // Or choose a specific ZoneId
             val zonedDateTime = instant?.atZone(zoneId)
             val localDate = zonedDateTime?.toLocalDate()
@@ -18,7 +18,7 @@ class TimestampUtil {
         }
 
         fun timestampToLocalTime(timestamp: Timestamp): LocalTime {
-            val instant = timestamp.toDate()?.toInstant()
+            val instant = timestamp.toDate().toInstant()
             val zoneId = ZoneId.systemDefault() // Or choose a specific ZoneId
             val zonedDateTime = instant?.atZone(zoneId)
             val localTime = zonedDateTime?.toLocalTime()

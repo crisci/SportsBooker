@@ -13,7 +13,6 @@ import androidx.navigation.fragment.findNavController
 import com.example.lab2.R
 import com.example.lab2.databinding.FragmentSignupSelectInterestsBinding
 import com.example.lab2.entities.Sport
-import com.example.lab2.view_models.FragmentSignupViewModel
 import com.example.lab2.view_models.MainVM
 import com.example.lab2.view_models.SignupVM
 import com.google.android.material.chip.Chip
@@ -36,7 +35,6 @@ class FragmentSignupSelectInterests : Fragment(R.layout.fragment_signup_select_i
 
     private lateinit var signupVM: SignupVM
 
-    private lateinit var viewModel: FragmentSignupViewModel
     private lateinit var binding: FragmentSignupSelectInterestsBinding
 
     override fun onCreateView(

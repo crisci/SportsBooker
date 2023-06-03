@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.lab2.firebase_models.MatchWithCourtAndEquipments
-import com.example.lab2.firebase_models.MatchWithCourtAndEquipmentsToFirebase
+import com.example.lab2.entities.firebase.MatchWithCourtAndEquipments
+import com.example.lab2.entities.firebase.MatchWithCourtAndEquipmentsToFirebase
 import com.example.lab2.utils.toTimestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue

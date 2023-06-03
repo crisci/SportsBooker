@@ -17,12 +17,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lab2.R
-import com.example.lab2.database.court_review.CourtReview
 import com.example.lab2.entities.User
+import com.example.lab2.entities.database.CourtReview
+import com.example.lab2.entities.firebase.MatchWithCourt
 import com.example.lab2.utils.AppPreferences
-import com.example.lab2.view_models.RatingModalVM
 import com.example.lab2.view_models.DetailsVM
-import com.example.lab2.firebase_models.MatchWithCourt
+import com.example.lab2.view_models.RatingModalVM
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputEditText

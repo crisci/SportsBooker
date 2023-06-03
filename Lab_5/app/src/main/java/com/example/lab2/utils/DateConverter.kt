@@ -1,4 +1,4 @@
-package com.example.lab2.database
+package com.example.lab2.utils
 
 import androidx.room.TypeConverter
 import java.time.LocalDate

@@ -1,4 +1,4 @@
-package com.example.lab2.firebase_models
+package com.example.lab2.entities.firebase
 
 import com.example.lab2.utils.DateTimeSerializers
 import com.example.lab2.utils.TimestampUtil

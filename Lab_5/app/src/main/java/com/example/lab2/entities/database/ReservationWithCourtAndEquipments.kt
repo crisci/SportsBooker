@@ -1,17 +1,9 @@
-package com.example.lab2.database.reservation
+package com.example.lab2.entities.database
 
-import androidx.room.Embedded
-import androidx.room.Relation
-import com.example.lab2.database.court.Court
 import com.example.lab2.entities.Equipment
 
 data class ReservationWithCourtAndEquipments(
-    @Embedded val reservation: Reservation,
-
-    @Relation(
-        parentColumn = "courtId",
-        entityColumn = "courtId"
-    )
+    val reservation: Reservation,
     val court: Court,
     val equipments: List<Equipment>,
     val finalPrice: Double

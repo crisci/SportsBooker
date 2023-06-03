@@ -15,13 +15,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.R
 import com.example.lab2.entities.Equipment
+import com.example.lab2.entities.firebase.Court
+import com.example.lab2.entities.firebase.Match
+import com.example.lab2.entities.firebase.MatchWithCourt
+import com.example.lab2.entities.firebase.MatchWithCourtAndEquipments
 import com.example.lab2.view_models.ConfirmReservationVM
 import com.example.lab2.view_models.EquipmentsVM
 import com.example.lab2.view_models.MainVM
-import com.example.lab2.firebase_models.Court
-import com.example.lab2.firebase_models.Match
-import com.example.lab2.firebase_models.MatchWithCourt
-import com.example.lab2.firebase_models.MatchWithCourtAndEquipments
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch

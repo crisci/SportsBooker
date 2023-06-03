@@ -23,10 +23,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.lab2.R
 import com.example.lab2.common.RatingModalBottomSheet
 import com.example.lab2.common.calendar.displayText
+import com.example.lab2.entities.firebase.Invitation
+import com.example.lab2.entities.firebase.MatchToReview
+import com.example.lab2.entities.firebase.Notification
 import com.example.lab2.view_models.NotificationVM
-import com.example.lab2.firebase_models.Invitation
-import com.example.lab2.firebase_models.MatchToReview
-import com.example.lab2.firebase_models.Notification
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.firebase.Timestamp
 import com.squareup.picasso.Callback
