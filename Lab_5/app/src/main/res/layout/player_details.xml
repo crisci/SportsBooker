@@ -25,6 +25,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+
             <ImageView
                 android:id="@+id/player_image_details"
                 android:layout_width="49dp"
@@ -33,6 +34,27 @@
                 android:background="@drawable/circle_shape"
                 android:scaleType="centerCrop"
                 app:srcCompat="@drawable/baseline_my_profile" />
+
+                <FrameLayout
+                    android:id="@+id/selectedPlayerLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
+
+                <View
+                    android:id="@+id/overlayView"
+                    android:layout_width="49dp"
+                    android:layout_height="49dp"
+                    android:background="#5231A05E" />
+
+                <ImageView
+                    android:id="@+id/tickImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/baseline_check_24" />
+
+            </FrameLayout>
         </androidx.cardview.widget.CardView>
 
 

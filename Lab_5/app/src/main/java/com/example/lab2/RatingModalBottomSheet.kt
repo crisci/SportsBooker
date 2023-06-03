@@ -10,10 +10,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -156,9 +158,13 @@ class RatingModalBottomSheet : BottomSheetDialogFragment() {
 class ViewHolderPlayersMVP(v: View): RecyclerView.ViewHolder(v) {
     val playerImage: ImageView? = v.findViewById(R.id.player_image_details) ?: null
     val shimmer: ShimmerFrameLayout? = v.findViewById(R.id.shimmer_layout) ?: null
+    val selectedMVPLayout: FrameLayout? = v.findViewById(R.id.selectedPlayerLayout) ?: null
 }
 
 class AdapterPlayersMVP(private var listOfPlayers: List<User>): RecyclerView.Adapter<ViewHolderPlayersMVP>() {
+
+    val selectedMVP = MutableLiveData<User>()
+    private var selectedPosition = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderPlayersMVP {
         val v = LayoutInflater.from(parent.context)
@@ -180,5 +186,16 @@ class AdapterPlayersMVP(private var listOfPlayers: List<User>): RecyclerView.Ada
                 }
 
             })
+
+        holder.playerImage?.setOnClickListener {
+            val previousSelectedPosition = selectedPosition
+            selectedPosition = holder.bindingAdapterPosition
+            notifyItemChanged(previousSelectedPosition)
+            notifyItemChanged(selectedPosition)
+            selectedMVP.value = listOfPlayers[position]
+        }
+
+        holder.selectedMVPLayout?.visibility =
+            if (selectedPosition == holder.bindingAdapterPosition) View.VISIBLE else View.GONE
     }
 }
