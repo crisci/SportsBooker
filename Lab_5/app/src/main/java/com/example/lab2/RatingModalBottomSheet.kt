@@ -58,7 +58,6 @@ class RatingModalBottomSheet : BottomSheetDialogFragment() {
 
         private fun submit() {
 
-            val match = detailsVM.matchWithCourt.value!!.match
             val court = detailsVM.matchWithCourt.value!!.court
 
             val ratingParametersMap = mapOf(
@@ -73,7 +72,7 @@ class RatingModalBottomSheet : BottomSheetDialogFragment() {
                 ratingParametersMap
             )
             ratingModalVM.submitReview(courtReview)
-            ratingModalVM.submitMVP(match = match)
+            ratingModalVM.incrementMVPScore(court)
     }
 
     override fun onCreateView(

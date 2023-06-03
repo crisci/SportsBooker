@@ -6,9 +6,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.lab2.database.court_review.CourtReview
 import com.example.lab2.entities.User
+import com.example.lab2.viewmodels_firebase.Court
 import com.example.lab2.viewmodels_firebase.Match
+import com.example.lab2.viewmodels_firebase.MatchWithCourt
 import com.example.lab2.viewmodels_firebase.playerMVPVoteToFirebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -52,51 +55,16 @@ class RatingModalVM @Inject constructor(): ViewModel() {
             }
     }
 
-    fun submitMVP(match: Match) {
-        val playerVote = playerMVPVoteToFirebase(mvpUserId = _selectedMVP.value!!, match = match)
-        db.collection("player_rating_mvp")
-            .add(playerVote).addOnSuccessListener {
-                db.collection("player_rating_mvp")
-                    .whereEqualTo("match", db.document("matches/${match.matchId}"))
-                    .get()
-                    .addOnSuccessListener {
-                        val numberOfVotes = it.documents.size.toLong()
-                        if (numberOfVotes == match.numOfPlayers) {
-                            Log.d("RatingModalVM", "All votes received")
+    fun incrementMVPScore(court: Court) {
+        val mvpId = _selectedMVP.value ?: return
+        val sportFieldPath = "score.${court.sport}"
 
-                            // Count the votes for each player
-                            val voteCountMap = mutableMapOf<String, Long>()
-                            for (voteDoc in it.documents) {
-                                val playerId = voteDoc.getString("mvpUserId")
-                                if (playerId != null) {
-                                    voteCountMap[playerId] = voteCountMap.getOrDefault(playerId, 0) + 1
-                                }
-                            }
+        val updateMap = hashMapOf<String, Any>(
+            sportFieldPath to FieldValue.increment(3)
+        )
 
-                            // Find the players with the maximum votes
-                            val maxVotes = voteCountMap.maxByOrNull { it.value }?.value ?: 0L
-                            val mvpPlayerIds = voteCountMap.filter { it.value == maxVotes }.keys.toList()
-
-                            if (mvpPlayerIds.isNotEmpty()) {
-                                // Convert player IDs to document references
-                                val mvpPlayerRefs = mvpPlayerIds.map { playerId ->
-                                    db.document("players/$playerId")
-                                }
-
-                                // Update the "mvp" field in the "matches" collection with the array of player references
-                                val matchRef = db.collection("matches").document(match.matchId)
-                                matchRef.update("mvp", mvpPlayerRefs)
-                                    .addOnSuccessListener {
-                                        Log.d("RatingModalVM", "MVP updated successfully")
-                                    }
-                                    .addOnFailureListener { e ->
-                                        Log.e("RatingModalVM", "Failed to update MVP: $e")
-                                    }
-                            }
-
-
-                        }
-                    }
-            }
+        db.collection("players")
+            .document(mvpId)
+            .update(updateMap)
     }
 }
