@@ -1,9 +1,7 @@
 package com.example.lab2.database
 
 import android.app.Application
-import android.content.Context
 import com.example.lab2.database.court.CourtDAO
-import com.example.lab2.database.court_review.CourtReviewDAO
 import com.example.lab2.database.player.PlayerDAO
 import com.example.lab2.database.player_badge_rating.PlayerBadgeRatingDAO
 import com.example.lab2.database.player_reservation_join.PlayerReservationDAO
@@ -52,12 +50,6 @@ object APPModule {
     @Provides
     fun getReservationDAO(appDB: ReservationAppDatabase) : ReservationDAO {
         return appDB.reservationDao()
-    }
-
-    @Singleton
-    @Provides
-    fun getCourtReviewDAO(appDB: ReservationAppDatabase) : CourtReviewDAO {
-        return appDB.courtReviewDao()
     }
 
 }

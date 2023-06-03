@@ -52,20 +52,29 @@ class RatingModalBottomSheet : BottomSheetDialogFragment() {
     private lateinit var hourDetail: TextView
     private lateinit var playersRecyclerView: RecyclerView
 
+
     private lateinit var appPreferences: AppPreferences
 
 
-    /*    private fun submitReview() {
-        val courtReview = CourtReview(
-            1,
-            ratingModalVM.getCourtToReview().value!!.courtId,
-            textReview.text.toString(),
-            cleanlinessCourtRatingBar.rating,
-            playingSurfaceQualityRatingBar.rating,
-            lightingRatingBar.rating
-        )
-        ratingModalVM.submitReview(courtReview)
-    }*/
+        private fun submit() {
+
+            val match = detailsVM.matchWithCourt.value!!.match
+            val court = detailsVM.matchWithCourt.value!!.court
+
+            val ratingParametersMap = mapOf(
+                "cleanliness" to cleanlinessCourtRatingBar.rating,
+                "playingSurfaceQuality" to playingSurfaceQualityRatingBar.rating,
+                "lighting" to lightingRatingBar.rating
+            )
+
+            val courtReview = CourtReview(
+                court.courtId,
+                textReview.text.toString(),
+                ratingParametersMap
+            )
+            ratingModalVM.submitReview(courtReview)
+            ratingModalVM.submitMVP(match = match)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -99,8 +108,8 @@ class RatingModalBottomSheet : BottomSheetDialogFragment() {
         playersRecyclerView = view.findViewById(R.id.recycler_view_mvp)
 
         detailsVM.listOfPlayers.observe(viewLifecycleOwner) {
-            playersRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, true)
-            playersRecyclerView.adapter = AdapterPlayersMVP(it)
+            playersRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            playersRecyclerView.adapter = AdapterPlayersMVP(it, ratingModalVM)
         }
 
         courtName = view.findViewById(R.id.courtName)
@@ -109,9 +118,9 @@ class RatingModalBottomSheet : BottomSheetDialogFragment() {
         //courtImageView.setImageBitmap(ratingModalVM.getCourtToReview().value!!.courtPhoto)
 
         val sendReviewButton = view.findViewById<Button>(R.id.send_review)
-        /*        sendReviewButton.setOnClickListener {
+        sendReviewButton.setOnClickListener {
             // courtId
-            submitReview()
+            submit()
             dismiss()
             val dialog = Dialog(requireContext(),R.style.RoundedDialog)
             dialog.setContentView(R.layout.thank_you_review_layout)
@@ -122,7 +131,7 @@ class RatingModalBottomSheet : BottomSheetDialogFragment() {
             handler.postDelayed({
                 dialog.dismiss()
             }, 2500)
-        }*/
+        }
 
         return view
     }
@@ -161,9 +170,9 @@ class ViewHolderPlayersMVP(v: View): RecyclerView.ViewHolder(v) {
     val selectedMVPLayout: FrameLayout? = v.findViewById(R.id.selectedPlayerLayout) ?: null
 }
 
-class AdapterPlayersMVP(private var listOfPlayers: List<User>): RecyclerView.Adapter<ViewHolderPlayersMVP>() {
+class AdapterPlayersMVP(private var listOfPlayers: List<User>, private val ratingModalVM: RatingModalVM): RecyclerView.Adapter<ViewHolderPlayersMVP>() {
 
-    val selectedMVP = MutableLiveData<User>()
+
     private var selectedPosition = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderPlayersMVP {
@@ -175,27 +184,30 @@ class AdapterPlayersMVP(private var listOfPlayers: List<User>): RecyclerView.Ada
     override fun getItemCount(): Int = listOfPlayers.size
 
     override fun onBindViewHolder(holder: ViewHolderPlayersMVP, position: Int) {
-        Picasso.get().load(listOfPlayers[position].image)
-            .into(holder.playerImage, object : Callback {
-                override fun onSuccess() {
-                    holder.shimmer?.stopShimmer()
-                    holder.shimmer?.hideShimmer()
-                }
 
-                override fun onError(e: Exception?) {
-                }
+            ratingModalVM.setSelectedMVP(listOfPlayers[0].userId)
 
-            })
+            Picasso.get().load(listOfPlayers[position].image)
+                .into(holder.playerImage, object : Callback {
+                    override fun onSuccess() {
+                        holder.shimmer?.stopShimmer()
+                        holder.shimmer?.hideShimmer()
+                    }
 
-        holder.playerImage?.setOnClickListener {
-            val previousSelectedPosition = selectedPosition
-            selectedPosition = holder.bindingAdapterPosition
-            notifyItemChanged(previousSelectedPosition)
-            notifyItemChanged(selectedPosition)
-            selectedMVP.value = listOfPlayers[position]
-        }
+                    override fun onError(e: Exception?) {
+                    }
 
-        holder.selectedMVPLayout?.visibility =
-            if (selectedPosition == holder.bindingAdapterPosition) View.VISIBLE else View.GONE
+                })
+
+            holder.playerImage?.setOnClickListener {
+                val previousSelectedPosition = selectedPosition
+                selectedPosition = holder.bindingAdapterPosition
+                notifyItemChanged(previousSelectedPosition)
+                notifyItemChanged(selectedPosition)
+                ratingModalVM.setSelectedMVP(listOfPlayers[position].userId)
+            }
+
+            holder.selectedMVPLayout?.visibility =
+                if (selectedPosition == holder.bindingAdapterPosition) View.VISIBLE else View.GONE
     }
 }

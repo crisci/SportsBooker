@@ -5,21 +5,10 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.lab2.database.court_review.CourtReviewRepository
-import com.example.lab2.database.player.PlayerRepository
-import com.example.lab2.database.reservation.ReservationRepository
-import com.example.lab2.database.reservation.ReservationWithCourtAndEquipments
-import com.example.lab2.entities.Equipment
 import com.example.lab2.entities.Sport
 import com.example.lab2.entities.Statistic
 import com.example.lab2.entities.User
-import com.example.lab2.viewmodels_firebase.Court
-import com.example.lab2.viewmodels_firebase.Match
 import com.example.lab2.viewmodels_firebase.MatchWithCourtAndEquipments
-import com.example.lab2.viewmodels_firebase.TimestampUtil
-import com.example.lab2.viewmodels_firebase.firebaseToCourt
-import com.example.lab2.viewmodels_firebase.firebaseToMatch
 import com.example.lab2.viewmodels_firebase.firebaseToMatchWithCourtAndEquipments
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -34,9 +23,7 @@ import java.time.LocalTime
 import javax.inject.Inject
 
 @HiltViewModel
-class MyReservationsVM @Inject constructor(
-    private val courtReviewRepository: CourtReviewRepository,
-    ): ViewModel() {
+class MyReservationsVM @Inject constructor(): ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
 

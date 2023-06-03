@@ -114,13 +114,13 @@ class NotificationVM @Inject constructor() : ViewModel() {
                 db.document("players/${auth.currentUser!!.uid}")
             )
             .whereLessThan("timestamp", Timestamp(twoHoursAgo.toEpochSecond(ZoneOffset.UTC), 0))
-            //.orderBy("timestamp", Query.Direction.DESCENDING)
+            .orderBy("timestamp", Query.Direction.DESCENDING)
             .limit(3)
             .get()
             .addOnSuccessListener { snapshotMatch ->
                 val listMatchReferences = snapshotMatch!!.documents.map { it.reference }
                 db.collection("player_rating_mvp")
-                    .whereEqualTo("player", db.collection("players").document(auth.currentUser!!.uid))
+                    .whereEqualTo("reviewer", db.document("players/${auth.currentUser!!.uid}"))
                     .get()
                     .addOnSuccessListener { ratingSnapshot ->
                         val listMatchesAlreadyRatedByThePlayer =
@@ -146,6 +146,9 @@ class NotificationVM @Inject constructor() : ViewModel() {
                                 }
                             }
                     }
+            }
+            .addOnFailureListener {
+                Log.d("NotificationVM", "${it.message}")
             }
 
 

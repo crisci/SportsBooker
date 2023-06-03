@@ -55,7 +55,7 @@ class NotificationsActivity: AppCompatActivity(), NotificationAdapter.OnClickLis
         setContentView(R.layout.activity_notifications)
 
         val recyclerViewNotifications = findViewById<RecyclerView>(R.id.recyclerViewNotifications)
-        recyclerViewNotifications.layoutManager = LinearLayoutManager(this)
+        recyclerViewNotifications.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true)
         val adapterCard = NotificationAdapter(mutableListOf(), this)
         recyclerViewNotifications.adapter = adapterCard
         val swipeToDeleteCallback = SwipeToDeleteCallback(adapterCard, applicationContext)
