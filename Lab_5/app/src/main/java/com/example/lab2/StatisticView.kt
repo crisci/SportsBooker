@@ -2,6 +2,7 @@ package com.example.lab2
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -14,11 +15,10 @@ class StatisticView(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     private val statistic: Statistic,
+    private val score: Long?
 ) : LinearLayout(context, attrs, defStyleAttr) {
     private val playedCount: TextView
-    //private val victoriesCount: TextView
-    //private val drawCount: TextView
-    //private val drawLayout: LinearLayout
+    private val scoreCount: TextView
     private val image:ImageView
 
 
@@ -27,23 +27,13 @@ class StatisticView(
         val view = inflater.inflate(R.layout.statistic_layout, this, true)
 
         playedCount = view.findViewById(R.id.statistic_played_count)
-        //victoriesCount = view.findViewById(R.id.statistic_victories_count)
-        //drawCount = view.findViewById(R.id.statistic_draws_count)
-        //drawLayout = view.findViewById(R.id.statistic_draw_layout)
+        scoreCount = view.findViewById(R.id.mvp_count)
         image = view.findViewById(R.id.statistic_image)
 
+        Log.i("score", score.toString())
         playedCount.text = "${statistic.gamesPlayed}"
-        //victoriesCount.text = "${statistic.gamesWon}"
+        scoreCount.text = "${score ?: 0}pt"
 
-        /*
-        if (statistic.gamesDrawn == null){
-            val parent: LinearLayout = view.findViewById(R.id.statistic_layout_parent)
-            parent.removeView(drawLayout)
-        } else {
-            drawCount.text = "${statistic.gamesDrawn}"
-        }
-
-         */
 
         when (statistic.sport) {
             Sport.FOOTBALL -> image.setImageResource(R.drawable.sport_football)

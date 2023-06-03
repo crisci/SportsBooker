@@ -133,7 +133,7 @@ class MainVM @Inject constructor(): ViewModel() {
         viewModelScope.launch{
             db.collection("players").get()
                 .addOnSuccessListener { it.documents.mapNotNull { player ->
-                    if(player.id != userId) User.fromFirebase(player) else null
+                    User.fromFirebase(player)
                     }.toMutableList().also { list ->
                         _allPlayers.postValue(list)
                     _filteredPlayers.postValue(list)

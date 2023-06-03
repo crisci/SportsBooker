@@ -119,7 +119,8 @@ class PlayerProfileActivity : AppCompatActivity() {
     }
 
     private fun updateStatistics(){
-        val statistics = reservationVm.getMyStatistics().value?.sortedBy { it.sport.name }?.map {  StatisticView(this, statistic = it) }
+        val scores = reservationVm.getMyStatistics().value?.second
+        val statistics = reservationVm.getMyStatistics().value?.first?.sortedBy { it.sport.name }?.map {  StatisticView(this, statistic = it, score = scores?.get(it.sport.name.lowercase().replaceFirstChar(Char::titlecase))) }
 
         if (statistics.isNullOrEmpty()) {
             findViewById<TextView>(R.id.no_stats).visibility = View.VISIBLE

@@ -42,7 +42,10 @@ class MyReservationsVM @Inject constructor(): ViewModel() {
 
 
     //private val myReservations = MutableLiveData<List<ReservationWithCourtAndEquipments>>()
-    private val myStatistics = MutableLiveData<List<Statistic>>()
+    private val myStatistics =
+        MutableLiveData<
+                Pair<List<Statistic>, MutableMap<String, Long>?>
+                >()
 
 
     private var _myReservations = MutableLiveData<List<MatchWithCourtAndEquipments>>()
@@ -54,7 +57,7 @@ class MyReservationsVM @Inject constructor(): ViewModel() {
         return res
     }
 
-    fun getMyStatistics() : LiveData<List<Statistic>> {
+    fun getMyStatistics() : LiveData<Pair<List<Statistic>, MutableMap<String, Long>?>> {
         return myStatistics
     }
 
@@ -64,13 +67,20 @@ class MyReservationsVM @Inject constructor(): ViewModel() {
             .whereEqualTo("player", db.document("players/$playerId"))
             .get().addOnSuccessListener { documents ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    val list = processStatistics(documents)
-                    myStatistics.postValue(list)
+                    val list = processStatistics(documents, playerId)
+
+                    val playerRef = db.document("players/$playerId")
+                        .get().await()
+                    val player = User.fromFirebase(playerRef)
+
+                    myStatistics.postValue(Pair(list, player.score))
                 }
             }
+
+
     }
 
-    private suspend fun processStatistics(documents: QuerySnapshot?) : List<Statistic> {
+    private suspend fun processStatistics(documents: QuerySnapshot?, playerId: String) : List<Statistic> {
 
         val statistics = documents?.documents?.mapNotNull { reservation ->
             val matchRef = reservation.getDocumentReference("match")?.get()?.await()

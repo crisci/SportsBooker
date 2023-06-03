@@ -28,6 +28,7 @@ data class User(
     var birthday: LocalDate,
     var badges: Map<BadgeType, Int>,
     var interests : MutableList<Sport>,
+    var score : MutableMap<String, Long>? = null
 ) {
 
     fun getAge(): Int {
@@ -84,7 +85,8 @@ data class User(
                 birthday = data.getTimestamp("dateOfBirth")?.toDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDate() ?: LocalDate.now(),
                 badges = mappedBadges,
                 interests = mappedInterests,
-                image = data.getString("image")!!
+                image = data.getString("image")!!,
+                score = data.get("score") as MutableMap<String, Long>?
             )
         }
 
@@ -126,25 +128,10 @@ data class User(
             map["skills"] = mappedBadges
             map["interests"] = mappedInterests
             map["image"] = user.image
+            map["score"] = user.score ?: mutableMapOf<String, Long>()
 
             return map
         }
-
-        fun default() : User {
-            return User(
-                userId = "",
-                full_name = "",
-                nickname = "",
-                address = "",
-                description = "",
-                email = "",
-                birthday = LocalDate.now(),
-                badges = emptyMap(),
-                interests = mutableListOf(),
-                image = ""
-            )
-        }
-
 
     }
 }

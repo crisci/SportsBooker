@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -77,8 +78,14 @@ class ShowProfileActivity : AppCompatActivity() {
             updateContent()
         }
 
+
         backButton.setOnClickListener {
             finish()
+        }
+
+        statisticsLayout.setOnClickListener {
+            val rankingIntent = Intent(this, RankingActivity::class.java)
+            launcher.launch(rankingIntent)
         }
 
     }
@@ -122,7 +129,9 @@ class ShowProfileActivity : AppCompatActivity() {
         val interests = vm.user.value?.interests?.sortedBy { it.name }?.map {  InterestView(this, sport = it) }
         interests?.forEach { interestsLayout.addView(it) }
 
-        val statistics = reservationVm.getMyStatistics().value?.sortedBy { it.sport.name }?.map {  StatisticView(this, statistic = it) }
+        val scores = reservationVm.getMyStatistics().value?.second
+        Log.i("scoreProfile", scores.toString())
+        val statistics = reservationVm.getMyStatistics().value?.first?.sortedBy { it.sport.name }?.map {  StatisticView(this, statistic = it, score = scores?.get(it.sport.name.lowercase().replaceFirstChar(Char::titlecase))) }
 
         if (statistics.isNullOrEmpty()) {
             findViewById<TextView>(R.id.no_stats).visibility = View.VISIBLE
@@ -169,9 +178,6 @@ class ShowProfileActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.editmenu, menu)
         return true
     }
-
-
-
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

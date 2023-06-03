@@ -25,4 +25,7 @@
     <color name="dull_red">#900000</color>
     <color name="bright_red">#B50202</color>
     <color name="error">#900000</color>
+    <color name="gold">#FFD700</color>
+    <color name="silver">#BEC2CB</color>
+    <color name="bronze">#CD7F32</color>
 </resources>
