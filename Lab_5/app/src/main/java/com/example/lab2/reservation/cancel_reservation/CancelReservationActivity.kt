@@ -4,12 +4,15 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.R
@@ -17,6 +20,9 @@ import com.example.lab2.view_models.EditReservationViewModel
 import com.example.lab2.view_models.MainVM
 import com.example.lab2.entities.MatchWithCourtAndEquipments
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -25,7 +31,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class CancelReservationActivity : AppCompatActivity() {
 
-    private lateinit var editReservationVM: EditReservationViewModel
 
     private lateinit var reservation: MatchWithCourtAndEquipments
 
@@ -38,8 +43,15 @@ class CancelReservationActivity : AppCompatActivity() {
     private lateinit var menuItem: MenuItem
     private lateinit var backButton: ImageView
 
+    private lateinit var cancelContainer: ConstraintLayout
+    private lateinit var loadingContainer: ConstraintLayout
+    private lateinit var spinningLoader: ProgressBar
+
+
     @Inject
     lateinit var mainVM: MainVM
+
+    private lateinit var editReservationVM: EditReservationViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,8 +63,7 @@ class CancelReservationActivity : AppCompatActivity() {
         editReservationVM = ViewModelProvider(this)[EditReservationViewModel::class.java]
 
         val reservationString = intent.getStringExtra("resString")
-        reservation =
-            Json.decodeFromString(MatchWithCourtAndEquipments.serializer(), reservationString!!)
+        reservation = Json.decodeFromString(MatchWithCourtAndEquipments.serializer(), reservationString!!)
 
         updateContent()
 
@@ -63,14 +74,32 @@ class CancelReservationActivity : AppCompatActivity() {
         }
 
         cancelButton.setOnClickListener {
-            editReservationVM.cancelReservation(mainVM.userId, reservation) { result ->
-                if (result) {
-                    val res: Intent = Intent()
-                    res.putExtra("result", true)
-                    setResult(Activity.RESULT_OK, res)
-                    finish()
-                }
+            MainScope().launch {
+                editReservationVM.cancelReservation(mainVM.userId, reservation)
             }
+        }
+
+        editReservationVM.submitEditSuccess.observe(this){
+            if(it) {
+                val res: Intent = Intent()
+                res.putExtra("result", true)
+                setResult(Activity.RESULT_OK, res)
+                finish()
+            }
+        }
+
+        editReservationVM.loadingState.observe(this){
+            setLoadingScreen(it)
+        }
+    }
+
+    private fun setLoadingScreen(state: Boolean) {
+        if(state) { //is Loading
+            cancelContainer.visibility = View.GONE
+            loadingContainer.visibility = View.VISIBLE
+        }else{ // is not loading
+            loadingContainer.visibility = View.GONE
+            cancelContainer.visibility = View.VISIBLE
         }
     }
 
@@ -81,6 +110,10 @@ class CancelReservationActivity : AppCompatActivity() {
         date_cancel_reservation = findViewById(R.id.date_cancel_reservation)
         time_cancel_reservation = findViewById(R.id.time_cancel_reservation)
         cancelButton = findViewById(R.id.cancel_button_cancel_reservation)
+
+        cancelContainer = findViewById(R.id.cancel_container)
+        loadingContainer = findViewById(R.id.loading_cancel)
+        spinningLoader = findViewById(R.id.progressBar)
     }
 
     private fun setSupportActionBar() {

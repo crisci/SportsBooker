@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ImageView
@@ -14,6 +15,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.R
 import com.example.lab2.entities.Equipment
@@ -47,6 +49,9 @@ class EditReservationActivity : AppCompatActivity() {
     private lateinit var priceText: TextView
     private lateinit var sport_name: TextView
 
+    private lateinit var editContainer: ConstraintLayout
+    private lateinit var loadingContainer: ConstraintLayout
+
     private lateinit var chipGroup: ChipGroup
     var selectedText: String = ""
     var time: String? = ""
@@ -75,18 +80,10 @@ class EditReservationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_reservation)
         setSupportActionBar()
+        findViews()
 
         equipmentsVM = ViewModelProvider(this)[EquipmentsVM::class.java]
         editReservationVM = ViewModelProvider(this)[EditReservationViewModel::class.java]
-
-        //db = ReservationAppDatabase.getDatabase(this)
-        sport_name = findViewById(R.id.sport_name_edit_reservation)
-        court_name_edit_reservation = findViewById(R.id.court_name_edit_reservation)
-        location_edit_reservation = findViewById(R.id.location_edit_reservation)
-        priceText = findViewById(R.id.local_price_edit_reservation)
-        saveButton = findViewById(R.id.save_button_edit_reservation)
-        chipGroup = findViewById(R.id.time_slots_chip_group_edit_reservation)
-        cancelButton = findViewById(R.id.cancel_button_edit_reservation)
 
 
         cancelButton.setOnClickListener {
@@ -151,18 +148,45 @@ class EditReservationActivity : AppCompatActivity() {
             }
         }
 
+        editReservationVM.submitEditSuccess.observe(this){
+            if(it) {
+                setResult(Activity.RESULT_OK)
+                finish()
+            }
+        }
 
+        editReservationVM.loadingState.observe(this){
+            setLoadingScreen(it)
+        }
+
+    }
+
+    private fun findViews() {
+        sport_name = findViewById(R.id.sport_name_edit_reservation)
+        court_name_edit_reservation = findViewById(R.id.court_name_edit_reservation)
+        location_edit_reservation = findViewById(R.id.location_edit_reservation)
+        priceText = findViewById(R.id.local_price_edit_reservation)
+        saveButton = findViewById(R.id.save_button_edit_reservation)
+        chipGroup = findViewById(R.id.time_slots_chip_group_edit_reservation)
+        cancelButton = findViewById(R.id.cancel_button_edit_reservation)
+        editContainer = findViewById(R.id.edit_container)
+        loadingContainer = findViewById(R.id.loading_edit)
+    }
+
+    private fun setLoadingScreen(state: Boolean) {
+        if(state) { //is Loading
+            editContainer.visibility = View.GONE
+            loadingContainer.visibility = View.VISIBLE
+        }else{ // is not loading
+            loadingContainer.visibility = View.GONE
+            editContainer.visibility = View.VISIBLE
+        }
     }
 
     private fun submitChanges() {
         editReservationVM.setEditedEquipment(equipmentsVM.getEquipments().value!!)
         editReservationVM.setEditedPrice(equipmentsVM.getPersonalPrice().value!!)
-        editReservationVM.submitUpdate(mainVM.userId, oldReservation = reservation) { result ->
-            if (result) {
-                setResult(Activity.RESULT_OK)
-                finish()
-            }
-        }
+        editReservationVM.submitUpdate(mainVM.userId, oldReservation = reservation)
     }
 
     private fun updateContent() {

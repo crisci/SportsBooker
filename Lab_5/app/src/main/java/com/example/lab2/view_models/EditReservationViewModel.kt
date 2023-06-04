@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.lab2.entities.Equipment
 import com.example.lab2.entities.Match
 import com.example.lab2.entities.MatchWithCourtAndEquipments
@@ -14,13 +15,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
+import com.example.lab2.entities.Result
 
 @HiltViewModel
 class EditReservationViewModel @Inject constructor() : ViewModel() {
@@ -35,6 +35,8 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
     private var editedReservation: LiveData<MatchWithCourtAndEquipments> = _editedReservation
 
     var error: MutableLiveData<String?> = MutableLiveData()
+    var loadingState: MutableLiveData<Boolean> = MutableLiveData(false)
+    var submitEditSuccess: MutableLiveData<Boolean> = MutableLiveData(false)
 
 
     // Get available matches for the same day & court
@@ -120,39 +122,63 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
     fun submitUpdate(
         playerId: String,
         oldReservation: MatchWithCourtAndEquipments,
-        callback: (Boolean) -> Unit
     ) {
-        try {
-            updateReservation(playerId, oldReservation)
-            if (oldReservation.match.matchId != getEditedReservation().value?.match?.matchId!!) {
-                updateOldMatch(playerId, oldReservation)
-                updateNewMatch(playerId)
+        viewModelScope.launch {
+            loadingState.value = true
+            val result = withContext(Dispatchers.IO) {
+                try {
+                    updateReservation(playerId, oldReservation)
+                    if (oldReservation.match.matchId != getEditedReservation().value?.match?.matchId!!) {
+                        updateOldMatch(playerId, oldReservation)
+                        updateNewMatch(playerId)
+                    }
+                    Result(true, null)
+                } catch (err: Exception) {
+                    Result(false, err)
+                }
             }
-            error.value = null
-            callback(true)
-        } catch (err: Exception) {
-            error.value = err.message
-            callback(false)
+
+            if(result.value!!){
+                error.value = null
+                submitEditSuccess.value = true
+            }else{
+                error.value = result.throwable?.message
+                submitEditSuccess.value = false
+            }
+
+            loadingState.value = false
         }
     }
 
-    fun cancelReservation(
+    suspend fun cancelReservation(
         playerId: String,
         oldReservation: MatchWithCourtAndEquipments,
-        callback: (Boolean) -> Unit
-    ) {
-        try {
-            deleteReservation(oldReservation)
-            updateOldMatch(playerId, oldReservation)
-            error.value = null
-            callback(true)
-        } catch (err: Exception) {
-            error.value = err.message
-            callback(false)
+    )  {
+        viewModelScope.launch {
+            loadingState.value = true
+                val result = withContext(Dispatchers.IO){
+                    try {
+                        deleteReservation(oldReservation)
+                        updateOldMatch(playerId, oldReservation)
+                        Result(value = true, throwable = null)
+                    } catch (err: Exception) {
+                        Result(value = false, throwable = err)
+                    }
+                }
+
+            if(result.value!!){
+                submitEditSuccess.value = true
+                error.value = null
+            }else{
+                submitEditSuccess.value = false
+                error.value = result.throwable?.message
+            }
+
+            loadingState.value = false
         }
     }
 
-    private fun updateReservation(playerId: String, oldReservation: MatchWithCourtAndEquipments) {
+    private suspend fun updateReservation(playerId: String, oldReservation: MatchWithCourtAndEquipments) {
         db.collection("reservations").document(getEditedReservation().value?.reservationId!!).set(
             MatchWithCourtAndEquipmentsToFirebase(playerId, getEditedReservation().value!!)
         ).addOnFailureListener {
@@ -160,7 +186,7 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    private fun updateOldMatch(playerId: String, oldReservation: MatchWithCourtAndEquipments) {
+    private suspend fun updateOldMatch(playerId: String, oldReservation: MatchWithCourtAndEquipments) {
 
         val oldMatchEdits = mutableMapOf<String, Any>()
         oldMatchEdits["numOfPlayers"] = FieldValue.increment(-1)
@@ -179,7 +205,7 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
 
     }
 
-    private fun updateNewMatch(playerId: String) {
+    private suspend fun updateNewMatch(playerId: String) {
         val newMatchEdits = mutableMapOf<String, Any>()
         newMatchEdits["numOfPlayers"] = FieldValue.increment(1)
         Log.i("new match before", getEditedReservation().value?.match?.listOfPlayers!!.toString())
@@ -197,7 +223,7 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
             }
     }
 
-    private fun deleteReservation(oldReservation: MatchWithCourtAndEquipments) {
+    private suspend fun deleteReservation(oldReservation: MatchWithCourtAndEquipments) {
         // Delete reservation
         db.collection("reservations").document(oldReservation.reservationId!!).delete()
             .addOnFailureListener {
