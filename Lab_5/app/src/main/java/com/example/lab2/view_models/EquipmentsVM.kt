@@ -37,6 +37,20 @@ class EquipmentsVM @Inject constructor(
                 Equipment("Golf clubs", 5.5),
                 Equipment("Golf balls", 1.5),
                 Equipment("Golf cart", 30.0)
+            ),
+            "Baseball" to listOf(
+                Equipment("Baseball bat", 10.0),
+                Equipment("Baseball gloves", 2.0),
+                Equipment("Baseballs", 2.0)
+            ),
+            "Basketball" to listOf(
+                Equipment("Basketball shoes", 5.0),
+                Equipment("Basketball jersey", 5.0),
+                Equipment("Basketballs", 1.0)
+            ),
+            "Padel" to listOf(
+                Equipment("Padel racket", 5.0),
+                Equipment("Padel balls", 1.0)
             )
         )
     }
