@@ -11,9 +11,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
@@ -27,9 +30,11 @@ import com.example.lab2.entities.User
 import com.example.lab2.profile.player_profile.PlayerProfileActivity
 import com.example.lab2.reservation.search_player.UserDiffCallback
 import com.example.lab2.reservation.utils.AdapterRVSportFilter
+import com.example.lab2.reservation.utils.FilterDiffCallback
 import com.example.lab2.view_models.MainVM
 import com.example.lab2.view_models.NewMatchesVM
 import com.example.lab2.view_models.NotificationVM
+import com.example.lab2.view_models.RankingVM
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.card.MaterialCardView
 import com.squareup.picasso.Callback
@@ -44,69 +49,63 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class RankingActivity : AppCompatActivity() {
 
-    @Inject
-    lateinit var mainVM: MainVM
-
-    @Inject
-    lateinit var notificationVM: NotificationVM
-
     private lateinit var backButton: ImageView
     private lateinit var filterView: RecyclerView
+    private lateinit var rankingContainer: LinearLayout
+    private lateinit var loadingContainer: ConstraintLayout
 
-    lateinit var vm: NewMatchesVM
+    lateinit var vm: RankingVM
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ranking)
         setSupportActionBar()
 
-        vm = ViewModelProvider(this)[NewMatchesVM::class.java]
+        vm = ViewModelProvider(this)[RankingVM::class.java]
 
         filterView = findViewById(R.id.ranking_filter)
+        rankingContainer = findViewById(R.id.ranking_container)
+        loadingContainer = findViewById(R.id.loading_ranking)
+
         val adapterCardFilters = AdapterRVSportFilter(
             Sport.values().map { it.name.lowercase().replaceFirstChar(Char::titlecase) }.toList(),
-            vm::setSportFilter
+            vm::setRanking
         )
         filterView.adapter = adapterCardFilters
         filterView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
-        mainVM.getAllPlayers()
+        vm.getAllPlayers()
 
         val recyclerViewPlayers = findViewById<RecyclerView>(R.id.recyclerViewRanking)
         recyclerViewPlayers.layoutManager = LinearLayoutManager(this)
         val adapterCard = AdapterPlayersRankList(emptyList())
         recyclerViewPlayers.adapter = adapterCard
 
-        mainVM.allPlayers.observe(this) {
-            // TODO sport filter change
-            if(vm.getSportFilter().value != null){
-
-                val filteredRank = it
-                    .map { u -> Pair(u, u.score?.get(vm.getSportFilter().value) ?: 0) }.toList()
-                    .sortedByDescending { pair -> pair.second }
-
-                adapterCard.setPlayers(filteredRank)
+        vm.ranking.observe(this) {
+            if (it != null){
+                    adapterCard.setPlayers(it)
                 recyclerViewPlayers.quickScrollToTop()
-
-            }else{
-
-                val noPoints : Long = 0
-
-                val filteredRank = it
-                    .map { u -> Pair(u, noPoints) }.toList()
-
-                adapterCard.setPlayers(filteredRank)
             }
         }
 
-        vm.getSportFilter().observe(this) {
-            if (it != null){
-                    mainVM.allPlayers.value
-                    ?.map { u -> Pair(u, u.score?.get(it) ?: 0) }?.toList()
-                        ?.sortedByDescending { pair -> pair.second }
-                    ?.also { list -> adapterCard.setPlayers(list) }
-                recyclerViewPlayers.quickScrollToTop()
+        vm.error.observe(this){
+            if(it != null) {
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
             }
+        }
+
+        vm.loadingState.observe(this){
+            setLoadingScreen(it)
+        }
+    }
+
+    private fun setLoadingScreen(state: Boolean) {
+        if(state) { //is Loading
+            rankingContainer.visibility = View.GONE
+            loadingContainer.visibility = View.VISIBLE
+        }else{ // is not loading
+            loadingContainer.visibility = View.GONE
+            rankingContainer.visibility = View.VISIBLE
         }
     }
 
@@ -260,4 +259,43 @@ fun RecyclerView.quickScrollToTop(
     }
 
     layoutManager.startSmoothScroll(smoothScroller)
+}
+
+
+class AdapterRankingFilter(
+    private var listOfSport: List<String?>,
+    val setRanking: (input: String?) -> Unit
+) : RecyclerView.Adapter<AdapterRankingFilter.ViewHolderRankFilter>() {
+
+    var selectedPosition = 0
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderRankFilter {
+        val v = LayoutInflater.from(parent.context)
+            .inflate(R.layout.filter_button, parent, false)
+        return ViewHolderRankFilter(v)
+    }
+
+    override fun getItemCount(): Int = listOfSport.size
+
+    override fun onBindViewHolder(holder: ViewHolderRankFilter, position: Int) {
+        val filterName = listOfSport[position]
+
+        holder.selectionIndicator.visibility =
+            if (selectedPosition == position) View.VISIBLE else View.INVISIBLE
+
+        holder.name.text = filterName
+        holder.layout.setOnClickListener {
+            val previousPosition = selectedPosition
+            selectedPosition = holder.bindingAdapterPosition
+            notifyItemChanged(previousPosition)
+            notifyItemChanged(selectedPosition)
+            setRanking(filterName)
+        }
+    }
+
+    inner class ViewHolderRankFilter(v: View) : RecyclerView.ViewHolder(v) {
+        val name: TextView = v.findViewById(R.id.filter_name)
+        val layout: ConstraintLayout = v.findViewById(R.id.filter_button_layout)
+        val selectionIndicator: View = v.findViewById(R.id.selectionIndicator)
+    }
+
 }
