@@ -10,6 +10,7 @@ import com.example.lab2.entities.Statistic
 import com.example.lab2.entities.User
 import com.example.lab2.entities.MatchWithCourtAndEquipments
 import com.example.lab2.entities.firebaseToMatchWithCourtAndEquipments
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
@@ -26,6 +27,7 @@ import javax.inject.Inject
 class MyReservationsVM @Inject constructor() : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
     private var sportFilter = MutableLiveData<String?>(null)
     fun getSportFilter(): LiveData<String?> {
@@ -48,7 +50,26 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
     private var _myReservations = MutableLiveData<List<MatchWithCourtAndEquipments>>()
     val res: LiveData<List<MatchWithCourtAndEquipments>> = _myReservations
 
-    private var _listener: ListenerRegistration? = null
+    private lateinit var _listener: ListenerRegistration
+
+    init {
+        startListener()
+    }
+
+    private fun startListener() {
+        _listener = FirebaseFirestore.getInstance().collection("reservations")
+            .whereEqualTo("player", db.document("players/${auth.currentUser!!.uid}"))
+            .addSnapshotListener { documents, error ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    val list = processDocuments(documents)
+                    _myReservations.postValue(list)
+                }
+            }
+    }
+
+    fun stopListener() {
+        _listener.remove()
+    }
 
     fun getMyReservations(): LiveData<List<MatchWithCourtAndEquipments>> {
         return res
@@ -114,27 +135,7 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
 
     }
 
-    fun refreshMyReservations(
-        userID: String,
-        date: LocalDate,
-        time: LocalTime,
-        interests: List<Sport>
-    ) {
-        _listener?.remove()
 
-        val formattedInterests = formatInterests(interests)
-
-        _listener = FirebaseFirestore.getInstance().collection("reservations")
-            .whereEqualTo("player", db.document("players/$userID"))
-            .addSnapshotListener { documents, error ->
-                CoroutineScope(Dispatchers.IO).launch {
-                    val list = processDocuments(documents)
-                    Log.i("Reservations", list.toString())
-                    Log.e("sport", formattedInterests.toString())
-                    _myReservations.postValue(filterList(list, date))
-                }
-            }
-    }
 
     private fun formatInterests(interests: List<Sport>): List<String> {
         return interests.map { i ->
@@ -152,23 +153,6 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
         } ?: emptyList()
     }
 
-    private fun filterList(
-        list: List<MatchWithCourtAndEquipments>,
-        date: LocalDate
-    ): List<MatchWithCourtAndEquipments> {
-        val sportFilter = getSportFilter().value
-        if (sportFilter.isNullOrEmpty()) {
-            return list.filter {
-                it.match.date == date &&
-                        it.match.time >= if (date == LocalDate.now()) LocalTime.now() else LocalTime.of(8, 0)
-            }
-        }
-        return list.filter {
-            it.match.date == date &&
-                    it.match.time >= if (date == LocalDate.now()) LocalTime.now() else LocalTime.of(8, 0)
-        }
-    }
-
     val _playerToShow: MutableLiveData<User> = MutableLiveData()
     val playerToShow: LiveData<User> get() = _playerToShow
 
@@ -176,15 +160,30 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
         _playerToShow.value = u
     }
 
-    fun filterList(sport: String?, time: LocalTime?): List<MatchWithCourtAndEquipments> {
+    fun filterList(sport: String?, date: LocalDate, time: LocalTime?): List<MatchWithCourtAndEquipments> {
         return when(_myReservations.value) {
             null -> listOf()
-            else -> if (sport != null && time != null) {
+            else -> if (sport != null && time != null && date != null) {
+                _myReservations.value!!.filter { it.court.sport == sport && it.match.time >= time && it.match.date == date }
+            }
+            else if (sport != null && time == null && date != null) {
+                _myReservations.value!!.filter { it.court.sport == sport && it.match.date == date }
+            }
+            else if (sport != null && time != null && date == null) {
                 _myReservations.value!!.filter { it.court.sport == sport && it.match.time >= time }
-            } else if (sport == null && time != null) {
-                _myReservations.value!!.filter { it.match.time >= time  }
-            } else if (sport != null && time == null) {
+
+            }
+            else if (sport != null && time == null && date == null) {
                 _myReservations.value!!.filter { it.court.sport == sport }
+            }
+            else if (sport == null && time != null && date != null) {
+                _myReservations.value!!.filter { it.match.time >= time && it.match.date == date }
+            }
+            else if (sport == null && time != null && date == null) {
+                _myReservations.value!!.filter { it.match.time >= time }
+            }
+            else if (sport == null && time == null && date != null) {
+                _myReservations.value!!.filter { it.match.date == date }
             }
             else _myReservations.value!!
         }
