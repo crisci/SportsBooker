@@ -37,7 +37,7 @@
                     android:fontFamily="@font/montserrat_bold"
                     android:inputType="none"
                     android:text="Select a sport"
-                    android:textColor="@color/timeslot" />
+                    android:textColor="@color/grey" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -57,6 +57,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Choose a date:"
+                    android:textColor="@color/grey"
                     android:textSize="18sp"
                     app:layout_constraintBottom_toTopOf="@+id/week_calendar_card_view"
                     app:layout_constraintStart_toStartOf="@+id/week_calendar_card_view" />
@@ -92,6 +93,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:icon="@drawable/baseline_access_time_24"
+                app:helperTextTextColor="@color/grey"
                 app:layout_constraintBottom_toTopOf="@+id/confirm_button_confirm_reservation"
                 app:layout_constraintStart_toStartOf="@id/guideline2"
                 app:layout_constraintTop_toBottomOf="@+id/calendar_container">
@@ -104,7 +106,7 @@
                     android:inputType="none"
                     android:text="Select a timeslot"
                     android:textAlignment="center"
-                    android:textColor="@color/timeslot"
+                    android:textColor="@color/grey"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -122,6 +124,7 @@
                 android:fontFamily="@font/montserrat_semibold"
                 android:text="Confirm"
                 android:textAllCaps="false"
+                android:textColor="@color/permanent_white"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:backgroundTint="@color/example_1_bg"

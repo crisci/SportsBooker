@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.ProgressBar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -24,6 +25,8 @@ import com.example.lab2.view_models.MainVM
 import com.example.lab2.view_models.NewMatchesVM
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.LocalDate
+import java.time.LocalTime
 import javax.inject.Inject
 
 
@@ -42,6 +45,7 @@ class BookReservationFragment : Fragment(R.layout.fragment_book_reservation) {
 
     private lateinit var noResults: ConstraintLayout
     private lateinit var addMatchButton: FloatingActionButton
+    private lateinit var loading: ProgressBar
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -76,6 +80,7 @@ class BookReservationFragment : Fragment(R.layout.fragment_book_reservation) {
         vm = ViewModelProvider(requireActivity())[NewMatchesVM::class.java]
         calendarVM = ViewModelProvider(requireActivity())[CalendarVM::class.java]
 
+        loading = view.findViewById(R.id.loading_find_new_game)
         addMatchButton = view.findViewById(R.id.add_match)
         addMatchButton.setOnClickListener {
             val intent = Intent(requireContext(), CreateMatchActivity::class.java)
@@ -111,21 +116,19 @@ class BookReservationFragment : Fragment(R.layout.fragment_book_reservation) {
         }
 
         vm.getNewMatches().observe(requireActivity()) {
+            loading.visibility = View.GONE
+            //calendarVM.selectedTime.value = if(LocalDate.now() == calendarVM.getSelectedDate().value) LocalTime.now() else LocalTime.of(8, 0)
             showOrHideNoResultImage()
             adapterCard.setListCourts(it)
         }
 
         calendarVM.getSelectedDate().observe(viewLifecycleOwner) {
             Log.d("DATETIME", "Date changed to $it")
-            vm.loadNewMatches(
-                playerId = userVM.userId,
-                date = it,
-                time = calendarVM.getSelectedTime().value!!,
-                interests = userVM.user.value!!.interests.toList()
-            )
+            calendarVM.selectedTime.value = if(LocalDate.now() == calendarVM.getSelectedDate().value) LocalTime.now() else LocalTime.of(8, 0)
         }
 
         vm.getSportFilter().observe(viewLifecycleOwner) {
+            loading.visibility = View.VISIBLE
             vm.loadNewMatches(
                 playerId = userVM.userId,
                 date = calendarVM.getSelectedDate().value!!,
@@ -136,6 +139,7 @@ class BookReservationFragment : Fragment(R.layout.fragment_book_reservation) {
 
         calendarVM.getSelectedTime().observe(viewLifecycleOwner) {
             Log.d("DATETIME", "Time changed to $it")
+            loading.visibility = View.VISIBLE
             vm.loadNewMatches(
                 playerId = userVM.userId,
                 date = calendarVM.getSelectedDate().value!!,

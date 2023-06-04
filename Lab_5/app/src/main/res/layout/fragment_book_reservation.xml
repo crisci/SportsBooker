@@ -49,6 +49,15 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/week_calendar_card_view">
 
+                <ProgressBar
+                    android:id="@+id/loading_find_new_game"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:elevation="20dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/filters_find_game" />
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/filters_find_game"
                     android:layout_width="match_parent"

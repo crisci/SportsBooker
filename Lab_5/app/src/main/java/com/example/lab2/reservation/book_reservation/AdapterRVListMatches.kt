@@ -15,10 +15,17 @@ import com.example.lab2.entities.MatchWithCourt
 import kotlinx.serialization.json.Json
 import java.time.LocalTime
 
-class AdapterRVListMatches(private var mapNewMatches: Map<Court, List<Match>>) :
+class AdapterRVListMatches(private var mapMatches: Map<Court, List<Match>>) :
     RecyclerView.Adapter<AdapterRVListMatches.ViewHolderBookReservation>() {
 
     private lateinit var listener: OnClickReservation
+
+    private var _mapMatches: MutableMap<Court, List<Match>>;
+
+    init {
+        _mapMatches = mutableMapOf()
+        _mapMatches.putAll(mapMatches)
+    }
 
     interface OnClickReservation {
         fun onClickReservation(bundle: Bundle)
@@ -31,12 +38,12 @@ class AdapterRVListMatches(private var mapNewMatches: Map<Court, List<Match>>) :
     }
 
     override fun getItemCount(): Int {
-        return mapNewMatches.size
+        return _mapMatches.size
     }
 
     override fun onBindViewHolder(holder: ViewHolderBookReservation, position: Int) {
-        val court = mapNewMatches.entries.elementAt(position).key
-        val matches = mapNewMatches.entries.elementAt(position).value
+        val court = _mapMatches.entries.elementAt(position).key
+        val matches = _mapMatches.entries.elementAt(position).value
         holder.timeslots.layoutManager =
             LinearLayoutManager(holder.itemView.context, LinearLayoutManager.HORIZONTAL, false)
         holder.timeslots.adapter =
@@ -64,11 +71,10 @@ class AdapterRVListMatches(private var mapNewMatches: Map<Court, List<Match>>) :
     }
 
     fun setListCourts(newListCourts: Map<Court, List<Match>>) {
-
         val diffs = DiffUtil.calculateDiff(
-            CourtTimeslotDiffCallback(mapNewMatches, newListCourts)
+            CourtTimeslotDiffCallback(_mapMatches, newListCourts)
         )
-        mapNewMatches = newListCourts
+        _mapMatches = deepCopy(newListCourts)
         diffs.dispatchUpdatesTo(this)
     }
 
@@ -79,5 +85,20 @@ class AdapterRVListMatches(private var mapNewMatches: Map<Court, List<Match>>) :
         val timeslots: RecyclerView = v.findViewById(R.id.timeslotsRecyclerView)
         val sport_name: TextView = v.findViewById(R.id.sport_name)
 
+    }
+
+    ///This performs a deep copy without keeping the reference
+    fun deepCopy(map: Map<Court, List<Match>>): MutableMap<Court, List<Match>> {
+        return map.mapValues {
+            it.value.map { m ->
+                Match(
+                    m.matchId,
+                    m.numOfPlayers,
+                    m.date,
+                    m.time,
+                    m.listOfPlayers,
+                )
+            }
+        }.toMutableMap()
     }
 }

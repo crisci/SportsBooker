@@ -51,23 +51,27 @@ class NotificationsActivity : AppCompatActivity(), NotificationAdapter.OnClickLi
 
         val recyclerViewNotifications = findViewById<RecyclerView>(R.id.recyclerViewNotifications)
         recyclerViewNotifications.layoutManager =
-            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true)
+            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         val adapterCard = NotificationAdapter(mutableListOf(), this)
         recyclerViewNotifications.adapter = adapterCard
         val swipeToDeleteCallback = SwipeToDeleteCallback(adapterCard, applicationContext)
         val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallback)
         itemTouchHelper.attachToRecyclerView(recyclerViewNotifications)
+        recyclerViewNotifications.scrollToPosition(0)
+
 
 
         notificationVM.notificationsInvitations.observe(this) {
             Log.d("NotificationsActivity", "notificationsInvitations: $it")
             adapterCard.setNotification((it + notificationVM.notificationsMatchesToReview.value!!) as MutableList<Notification>)
+            recyclerViewNotifications.scrollToPosition(0)
             it.forEach { n -> notificationVM.playerHasSeenNotification(n) }
         }
 
         notificationVM.notificationsMatchesToReview.observe(this) {
             Log.d("NotificationsActivity", "notificationsMatchesToReview: $it")
             adapterCard.setNotification((it + notificationVM.notificationsInvitations.value!!) as MutableList<Notification>)
+            recyclerViewNotifications.scrollToPosition(0)
         }
 
         setSupportActionBar()
@@ -191,13 +195,14 @@ class NotificationAdapter(
         val sportName: TextView = v.findViewById(R.id.sport_name)
         val dateDetail: TextView = v.findViewById(R.id.date_detail)
         val hourDetail: TextView = v.findViewById(R.id.hour_detail)
+        val notificationTime: TextView = v.findViewById(R.id.notification_time)
 
-        //TODO we will discuss what to show
         override fun bind(notification: Notification) {
             val matchToReview = notification as MatchToReview
             sportName.text = matchToReview.court.sport
             dateDetail.text = setupDate(matchToReview.match.date)
             hourDetail.text = matchToReview.match.time.format(DateTimeFormatter.ofPattern("HH:mm"))
+            notificationTime.text = getTimeAgo(matchToReview.timestamp)
             rateNowButton.setOnClickListener {
                 listener.onClickRateNow(matchToReview)
             }

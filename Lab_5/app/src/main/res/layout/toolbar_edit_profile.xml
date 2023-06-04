@@ -5,12 +5,12 @@
     android:id="@+id/toolbar_cancel"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:contentInsetStart="0dp"
-    app:contentInsetEnd="0dp"
-    android:background="?attr/colorPrimary"
+    android:background="@color/example_1_bg"
     android:minHeight="?attr/actionBarSize"
-
     android:theme="?attr/actionBarTheme"
+    app:contentInsetEnd="0dp"
+
+    app:contentInsetStart="0dp"
     tools:layout_editor_absoluteX="0dp"
     tools:layout_editor_absoluteY="0dp">
 
@@ -26,7 +26,7 @@
             android:layout_marginBottom="9dp"
             android:fontFamily="@font/montserrat_bold"
             android:text="Edit Profile"
-            android:textColor="@color/white"
+            android:textColor="@color/permanent_white"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

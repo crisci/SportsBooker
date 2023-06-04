@@ -68,11 +68,16 @@ class NewMatchesVM @Inject constructor() : ViewModel() {
                                 matchDocument.getDocumentReference("court")?.get()?.await()
                             val court = firebaseToCourt(courtRef!!)
                             if (!participatingMatchIds.contains(matchDocument.id)) {
-                                val match = firebaseToMatch(matchDocument)
+                                val newMatch = firebaseToMatch(matchDocument)
                                 if (mapCourtMatches.containsKey(court)) {
-                                    mapCourtMatches[court]?.add(match)
+                                    val index = mapCourtMatches[court]!!.indexOfFirst { it.matchId == newMatch.matchId }
+                                    if (index != -1) {
+                                        mapCourtMatches[court]!![index] = newMatch
+                                    } else {
+                                        mapCourtMatches[court]!!.add(newMatch)
+                                    }
                                 } else {
-                                    mapCourtMatches[court] = mutableListOf(match)
+                                    mapCourtMatches[court] = mutableListOf(newMatch)
                                 }
                             }
                         }
@@ -97,9 +102,7 @@ class NewMatchesVM @Inject constructor() : ViewModel() {
         if (sportFilter.isNullOrEmpty())
             return mapCourtMatches
         return mapCourtMatches.filter { entry ->
-            entry.key.sport == sportFilter && interests.contains(
-                sportFilter
-            )
+            entry.key.sport == sportFilter
         }
     }
 

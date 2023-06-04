@@ -12,6 +12,7 @@ import com.example.lab2.entities.MatchToReview
 import com.example.lab2.entities.firebaseToCourt
 import com.example.lab2.entities.firebaseToMatch
 import com.example.lab2.entities.invitationToFirebase
+import com.example.lab2.utils.toTimestamp
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
@@ -24,6 +25,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import javax.inject.Inject
@@ -93,23 +96,24 @@ class NotificationVM @Inject constructor() : ViewModel() {
                                 )
                             )
                         }
-                        listInvitations.addAll(invitations)
-                        _notificationsInvitations.postValue(listInvitations)
+                        _notificationsInvitations.postValue(invitations)
                         Log.d("NotificationVM", "Invitations: $listInvitations")
                     }
                 }
             }
 
+        val startOfPreviousWeek = LocalDate.now().minusWeeks(1).with(DayOfWeek.MONDAY).atStartOfDay()
         val twoHoursAgo = LocalDateTime.now().minusHours(2)
+        val startOfPreviousWeekTimestamp = Timestamp(startOfPreviousWeek.toEpochSecond(ZoneOffset.UTC), 0)
+        val twoHoursAgoTimestamp = Timestamp(twoHoursAgo.toEpochSecond(ZoneOffset.UTC), 0)
 
         db.collection("matches")
             .whereArrayContains(
                 "listOfPlayers",
                 db.document("players/${auth.currentUser!!.uid}")
             )
-            .whereLessThan("timestamp", Timestamp(twoHoursAgo.toEpochSecond(ZoneOffset.UTC), 0))
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .limit(3)
+            .whereLessThan("timestamp", twoHoursAgoTimestamp)
+            .whereGreaterThan("timestamp", startOfPreviousWeekTimestamp)
             .get()
             .addOnSuccessListener { snapshotMatch ->
                 val listMatchReferences = snapshotMatch!!.documents.map { it.reference }
@@ -135,7 +139,9 @@ class NotificationVM @Inject constructor() : ViewModel() {
                                         val court = firebaseToCourt(
                                             i.getDocumentReference("court")?.get()?.await()!!
                                         )
-                                        val matchToReview = MatchToReview(match, court)
+                                        val matchDateTime = LocalDateTime.of(match.date, match.time)
+                                        val dateTimeNotification = matchDateTime.plusHours(1).plusMinutes(30)
+                                        val matchToReview = MatchToReview(match, court, match.matchId, dateTimeNotification.toTimestamp())
                                         listMatchesToReview.add(matchToReview)
                                     }
                                     _notificationsMatchesToReview.postValue(listMatchesToReview)

@@ -83,13 +83,6 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
         noResults = view.findViewById(R.id.no_results)
         val listOfSportRecyclerView = view.findViewById<RecyclerView>(R.id.my_reservation_filter)
 
-        vm.refreshMyReservations(
-            userVM.userId,
-            calendarVM.getSelectedDate().value!!,
-            calendarVM.getSelectedTime().value!!,
-            userVM.user.value!!.interests
-        )
-
         leaveRatingLayout = view.findViewById(R.id.leave_rating_banner)
 
         /*        CoroutineScope(Dispatchers.IO).launch {
@@ -151,32 +144,33 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
         vm.getMyReservations().observe(viewLifecycleOwner) {
             loading.visibility = View.GONE
             calendarVM.selectedTime.value = if(LocalDate.now() == calendarVM.getSelectedDate().value) LocalTime.now() else LocalTime.of(8, 0)
-            val list = vm.filterList(vm.getSportFilter().value,calendarVM.getSelectedTime().value)
-            adapterCard.setReservations(list)
-            if (list.isNotEmpty()) listReservationsRecyclerView.scrollToPosition(0)
-            showOrHideNoResultImage(list)
-            Log.e("test", vm.getMyReservations().value.toString())
         }
 
         calendarVM.getSelectedDate().observe(requireActivity()) {
-            loading.visibility = View.VISIBLE
-            vm.refreshMyReservations(
-                userVM.userId,
+            if(it == LocalDate.now()) {
+                calendarVM.selectedTime.value = LocalTime.now()
+            } else {
+                calendarVM.selectedTime.value = LocalTime.of(8, 0)
+            }
+            val list = vm.filterList(
+                vm.getSportFilter().value,
                 calendarVM.getSelectedDate().value!!,
-                calendarVM.getSelectedTime().value!!,
-                userVM.user.value!!.interests.toList()
+                calendarVM.getSelectedTime().value
             )
+            if (list.isNotEmpty()) listReservationsRecyclerView.scrollToPosition(0)
+            adapterCard.setReservations(list)
+            showOrHideNoResultImage(list)
         }
 
         vm.getSportFilter().observe(viewLifecycleOwner) {
-            val list = vm.filterList(it, calendarVM.getSelectedTime().value)
+            val list = vm.filterList(it, calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value)
             if (list.isNotEmpty()) listReservationsRecyclerView.scrollToPosition(0)
             adapterCard.setReservations(list)
             showOrHideNoResultImage(list)
         }
 
         calendarVM.getSelectedTime().observe(viewLifecycleOwner) {
-            val list = vm.filterList(vm.getSportFilter().value, calendarVM.getSelectedTime().value)
+            val list = vm.filterList(vm.getSportFilter().value, calendarVM.getSelectedDate().value!!, calendarVM.getSelectedTime().value)
             if (list.isNotEmpty()) listReservationsRecyclerView.scrollToPosition(0)
             adapterCard.setReservations(list)
             showOrHideNoResultImage(list)
@@ -190,7 +184,7 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
             launcher.launch(intentBookReservation)
         }
 
-        val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
+        /*val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
         swipeRefreshLayout.setOnRefreshListener {
             vm.refreshMyReservations(
                 userVM.userId,
@@ -199,7 +193,7 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
                 userVM.user.value!!.interests.toList()
             )
             swipeRefreshLayout.isRefreshing = false
-        }
+        }*/
 
         //TODO this tutorial must show after the user has registered theirselves, so at first login
         /* calendarVM.getShowTutorial().observe(viewLifecycleOwner) {
@@ -232,5 +226,10 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
             putExtra("reservationJson", jsonString)
         }
         launcher.launch(intentEditReservation)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        vm.stopListener()
     }
 }
