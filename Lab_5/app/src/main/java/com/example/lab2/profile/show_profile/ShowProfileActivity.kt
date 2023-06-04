@@ -92,11 +92,6 @@ class ShowProfileActivity : AppCompatActivity() {
             finish()
         }
 
-        statisticsLayout.setOnClickListener {
-            val rankingIntent = Intent(this, RankingActivity::class.java)
-            launcher.launch(rankingIntent)
-        }
-
     }
 
     private fun findViews() {

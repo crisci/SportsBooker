@@ -26,6 +26,7 @@ import com.example.lab2.common.calendar.displayText
 import com.example.lab2.entities.Invitation
 import com.example.lab2.entities.MatchToReview
 import com.example.lab2.entities.Notification
+import com.example.lab2.ranking.quickScrollToTop
 import com.example.lab2.view_models.NotificationVM
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.firebase.Timestamp
