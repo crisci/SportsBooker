@@ -151,11 +151,6 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
         vm.getMyReservations().observe(viewLifecycleOwner) {
             loading.visibility = View.GONE
             calendarVM.selectedTime.value = if(LocalDate.now() == calendarVM.getSelectedDate().value) LocalTime.now() else LocalTime.of(8, 0)
-            val list = vm.filterList(vm.getSportFilter().value,calendarVM.getSelectedTime().value)
-            adapterCard.setReservations(list)
-            if (list.isNotEmpty()) listReservationsRecyclerView.scrollToPosition(0)
-            showOrHideNoResultImage(list)
-            Log.e("test", vm.getMyReservations().value.toString())
         }
 
         calendarVM.getSelectedDate().observe(requireActivity()) {

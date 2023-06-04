@@ -61,12 +61,14 @@ class NotificationsActivity : AppCompatActivity(), NotificationAdapter.OnClickLi
         notificationVM.notificationsInvitations.observe(this) {
             Log.d("NotificationsActivity", "notificationsInvitations: $it")
             adapterCard.setNotification((it + notificationVM.notificationsMatchesToReview.value!!) as MutableList<Notification>)
+            recyclerViewNotifications.scrollToPosition(0)
             it.forEach { n -> notificationVM.playerHasSeenNotification(n) }
         }
 
         notificationVM.notificationsMatchesToReview.observe(this) {
             Log.d("NotificationsActivity", "notificationsMatchesToReview: $it")
             adapterCard.setNotification((it + notificationVM.notificationsInvitations.value!!) as MutableList<Notification>)
+            recyclerViewNotifications.scrollToPosition(0)
         }
 
         setSupportActionBar()

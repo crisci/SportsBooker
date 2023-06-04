@@ -28,6 +28,14 @@ fun firebaseToMatchWithCourtAndEquipments(
             "golf clubs" -> Equipment("Golf clubs", 5.5)
             "golf balls" -> Equipment("Golf balls", 1.5)
             "golf cart" -> Equipment("Golf cart", 30.0)
+            "baseball bat" -> Equipment("Baseball bat", 10.0)
+            "baseball gloves" -> Equipment("Baseball gloves", 2.0)
+            "baseballs" -> Equipment("Baseballs", 2.0)
+            "basketball shoes" -> Equipment("Basketball shoes", 5.0)
+            "basketball jersey" -> Equipment("Basketball jersey", 5.0)
+            "basketballs" -> Equipment("Basketballs", 1.0)
+            "padel racket" -> Equipment("Padel racket", 5.0)
+            "padel balls" -> Equipment("Padel balls", 1.0)
             else -> Equipment("Unknown", 0.0)
         }
     }

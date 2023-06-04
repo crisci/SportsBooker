@@ -97,9 +97,7 @@ class NewMatchesVM @Inject constructor() : ViewModel() {
         if (sportFilter.isNullOrEmpty())
             return mapCourtMatches
         return mapCourtMatches.filter { entry ->
-            entry.key.sport == sportFilter && interests.contains(
-                sportFilter
-            )
+            entry.key.sport == sportFilter
         }
     }
 

@@ -93,8 +93,7 @@ class NotificationVM @Inject constructor() : ViewModel() {
                                 )
                             )
                         }
-                        listInvitations.addAll(invitations)
-                        _notificationsInvitations.postValue(listInvitations)
+                        _notificationsInvitations.postValue(invitations)
                         Log.d("NotificationVM", "Invitations: $listInvitations")
                     }
                 }

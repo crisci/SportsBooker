@@ -23,6 +23,15 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <ProgressBar
+                android:id="@+id/loading_find_new_game"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:elevation="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/no_results" />
+
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/weekCalendarFragment"
                 android:name="com.example.lab2.calendar.WeekCalendar"
