@@ -9,7 +9,6 @@
     android:minHeight="?attr/actionBarSize"
     android:theme="?attr/actionBarTheme"
     app:contentInsetEnd="0dp"
-
     app:contentInsetStart="0dp"
     tools:layout_editor_absoluteX="0dp"
     tools:layout_editor_absoluteY="0dp">
