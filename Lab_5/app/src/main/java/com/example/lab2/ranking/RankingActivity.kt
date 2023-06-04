@@ -51,7 +51,7 @@ class RankingActivity : AppCompatActivity() {
 
     private lateinit var backButton: ImageView
     private lateinit var filterView: RecyclerView
-    private lateinit var rankingContainer: LinearLayout
+    private lateinit var rankingContainer: ConstraintLayout
     private lateinit var loadingContainer: ConstraintLayout
 
     lateinit var vm: RankingVM

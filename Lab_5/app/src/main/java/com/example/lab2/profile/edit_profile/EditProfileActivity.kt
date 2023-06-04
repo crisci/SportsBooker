@@ -479,7 +479,8 @@ class EditProfileActivity : AppCompatActivity() {
             image = editedUser.image,
             birthday = editedUser.birthday,
             interests = editedUser.interests,
-            badges = skills_m
+            badges = skills_m,
+            score = vm.user.value?.score!!
         )
 
         vm.updateUser(editedUser)
