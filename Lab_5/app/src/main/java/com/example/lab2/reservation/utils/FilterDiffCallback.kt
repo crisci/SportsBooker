@@ -1,4 +1,4 @@
-package com.example.lab2.reservation.my_reservations
+package com.example.lab2.reservation.utils
 
 import androidx.recyclerview.widget.DiffUtil
 

@@ -1,4 +1,4 @@
-package com.example.lab2.entities.firebase
+package com.example.lab2.entities
 
 import com.google.firebase.firestore.DocumentSnapshot
 

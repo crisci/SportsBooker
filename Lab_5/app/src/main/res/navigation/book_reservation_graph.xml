@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/book_reservation_graph"
-    app:startDestination="@id/findNewGames">
+    app:startDestination="@id/findBookReservation">
 
     <fragment
-        android:id="@+id/findNewGames"
-        android:name="com.example.lab2.reservation.my_reservations.NewGames"
-        android:label="fragment_new_games"
-        tools:layout="@layout/fragment_new_games" >
+        android:id="@+id/findBookReservation"
+        android:name="com.example.lab2.reservation.book_reservation.BookReservationFragment"
+        android:label="fragment_book_reservation"
+        tools:layout="@layout/fragment_book_reservation" >
     </fragment>
     <fragment
         android:id="@+id/fullScreenCalendar"
@@ -17,11 +17,11 @@
         android:label="fragment_full_screen_calendar"
         tools:layout="@layout/month_calendar_fragment">
         <action
-            android:id="@+id/action_fullScreenCalendar_to_findNewGames"
-            app:destination="@id/findNewGames"
+            android:id="@+id/action_fullScreenCalendar_to_findBookReservation"
+            app:destination="@id/findBookReservation"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
-            app:popUpTo="@id/findNewGames"
+            app:popUpTo="@id/findBookReservation"
             app:popUpToInclusive="true" />
     </fragment>
     <action

@@ -20,8 +20,8 @@ import com.example.lab2.R
 import com.example.lab2.entities.Sport
 import com.example.lab2.entities.User
 import com.example.lab2.profile.player_profile.PlayerProfileActivity
-import com.example.lab2.reservation.my_reservations.AdapterFilters
 import com.example.lab2.reservation.search_player.UserDiffCallback
+import com.example.lab2.reservation.utils.AdapterRVSportFilter
 import com.example.lab2.view_models.MainVM
 import com.example.lab2.view_models.NewMatchesVM
 import com.example.lab2.view_models.NotificationVM
@@ -59,7 +59,7 @@ class RankingActivity : AppCompatActivity() {
         // TODO filter view as done in myReservations and Find New Match
         filterView = findViewById(R.id.ranking_filter)
 
-        val adapterCardFilters = AdapterFilters(
+        val adapterCardFilters = AdapterRVSportFilter(
             Sport.values().map { it.name.lowercase().replaceFirstChar(Char::titlecase) }.toList(),
             vm::setSportFilter
         )

@@ -15,7 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.R
 import com.example.lab2.view_models.EditReservationViewModel
 import com.example.lab2.view_models.MainVM
-import com.example.lab2.entities.firebase.MatchWithCourtAndEquipments
+import com.example.lab2.entities.MatchWithCourtAndEquipments
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.json.Json
 import java.time.format.DateTimeFormatter

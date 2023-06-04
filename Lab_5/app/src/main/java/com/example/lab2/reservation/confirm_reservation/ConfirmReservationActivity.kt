@@ -15,10 +15,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.R
 import com.example.lab2.entities.Equipment
-import com.example.lab2.entities.firebase.Court
-import com.example.lab2.entities.firebase.Match
-import com.example.lab2.entities.firebase.MatchWithCourt
-import com.example.lab2.entities.firebase.MatchWithCourtAndEquipments
+import com.example.lab2.entities.Court
+import com.example.lab2.entities.Match
+import com.example.lab2.entities.MatchWithCourt
+import com.example.lab2.entities.MatchWithCourtAndEquipments
 import com.example.lab2.view_models.ConfirmReservationVM
 import com.example.lab2.view_models.EquipmentsVM
 import com.example.lab2.view_models.MainVM

@@ -21,7 +21,7 @@ import com.example.lab2.reservation.cancel_reservation.CancelReservationActivity
 import com.example.lab2.view_models.EditReservationViewModel
 import com.example.lab2.view_models.EquipmentsVM
 import com.example.lab2.view_models.MainVM
-import com.example.lab2.entities.firebase.MatchWithCourtAndEquipments
+import com.example.lab2.entities.MatchWithCourtAndEquipments
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import dagger.hilt.android.AndroidEntryPoint

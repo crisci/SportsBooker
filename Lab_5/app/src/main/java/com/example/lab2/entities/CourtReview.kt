@@ -1,4 +1,4 @@
-package com.example.lab2.entities.database
+package com.example.lab2.entities
 
 data class CourtReview(
     val courtId: String,

@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.lab2.entities.User
-import com.example.lab2.entities.firebase.MatchWithCourt
-import com.example.lab2.entities.firebase.MatchWithCourtAndEquipments
-import com.example.lab2.entities.firebase.firebaseToMatchWithCourt
-import com.example.lab2.entities.firebase.firebaseToMatchWithCourtAndEquipments
+import com.example.lab2.entities.MatchWithCourt
+import com.example.lab2.entities.MatchWithCourtAndEquipments
+import com.example.lab2.entities.firebaseToMatchWithCourt
+import com.example.lab2.entities.firebaseToMatchWithCourtAndEquipments
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldPath

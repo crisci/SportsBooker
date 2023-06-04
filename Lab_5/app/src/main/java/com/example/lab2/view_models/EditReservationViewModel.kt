@@ -5,10 +5,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.lab2.entities.Equipment
-import com.example.lab2.entities.firebase.Match
-import com.example.lab2.entities.firebase.MatchWithCourtAndEquipments
-import com.example.lab2.entities.firebase.MatchWithCourtAndEquipmentsToFirebase
-import com.example.lab2.entities.firebase.firebaseToMatch
+import com.example.lab2.entities.Match
+import com.example.lab2.entities.MatchWithCourtAndEquipments
+import com.example.lab2.entities.MatchWithCourtAndEquipmentsToFirebase
+import com.example.lab2.entities.firebaseToMatch
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration

@@ -8,8 +8,8 @@ import androidx.lifecycle.ViewModel
 import com.example.lab2.entities.Sport
 import com.example.lab2.entities.Statistic
 import com.example.lab2.entities.User
-import com.example.lab2.entities.firebase.MatchWithCourtAndEquipments
-import com.example.lab2.entities.firebase.firebaseToMatchWithCourtAndEquipments
+import com.example.lab2.entities.MatchWithCourtAndEquipments
+import com.example.lab2.entities.firebaseToMatchWithCourtAndEquipments
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
@@ -37,12 +37,7 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
     }
 
     private var timeSlotFilter = MutableLiveData<LocalDate?>(null)
-    fun getTimeslotFilter(): LocalDate? {
-        return timeSlotFilter.value
-    }
 
-
-    //private val myReservations = MutableLiveData<List<ReservationWithCourtAndEquipments>>()
     private val myStatistics =
         MutableLiveData<
                 Pair<List<Statistic>, MutableMap<String, Long>?>

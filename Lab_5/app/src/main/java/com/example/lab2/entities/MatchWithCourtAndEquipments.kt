@@ -1,6 +1,5 @@
-package com.example.lab2.entities.firebase
+package com.example.lab2.entities
 
-import com.example.lab2.entities.Equipment
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 

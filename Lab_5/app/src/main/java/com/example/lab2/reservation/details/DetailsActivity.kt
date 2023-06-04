@@ -29,7 +29,7 @@ import com.example.lab2.reservation.search_player.SearchPlayersActivity
 import com.example.lab2.view_models.MainVM
 import com.example.lab2.view_models.MyReservationsVM
 import com.example.lab2.view_models.DetailsVM
-import com.example.lab2.entities.firebase.MatchWithCourtAndEquipments
+import com.example.lab2.entities.MatchWithCourtAndEquipments
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.textview.MaterialTextView
 import com.squareup.picasso.Callback

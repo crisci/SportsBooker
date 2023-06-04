@@ -1,9 +1,9 @@
 package com.example.lab2.reservation.my_reservations
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.lab2.entities.firebase.Court
-import com.example.lab2.entities.firebase.Match
-import com.example.lab2.entities.firebase.MatchWithCourtAndEquipments
+import com.example.lab2.entities.Court
+import com.example.lab2.entities.Match
+import com.example.lab2.entities.MatchWithCourtAndEquipments
 
 class ReservationDiffCallback(
     private val reservations: List<MatchWithCourtAndEquipments>,

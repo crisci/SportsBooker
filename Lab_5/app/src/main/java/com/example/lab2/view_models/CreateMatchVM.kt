@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.lab2.entities.firebase.MatchFirebase
-import com.example.lab2.entities.firebase.ReservationFirebase
+import com.example.lab2.entities.MatchFirebase
+import com.example.lab2.entities.ReservationFirebase
 import com.example.lab2.utils.toTimestamp
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
