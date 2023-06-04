@@ -44,7 +44,6 @@ class SearchPlayersActivity : AppCompatActivity(), AdapterPlayersList.OnClickLis
     private lateinit var backButton: ImageView
     private lateinit var searchBar: SearchView
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_players)

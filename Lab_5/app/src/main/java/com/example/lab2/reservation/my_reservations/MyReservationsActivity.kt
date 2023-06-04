@@ -15,6 +15,7 @@ import androidx.navigation.fragment.NavHostFragment
 import com.example.lab2.R
 import com.example.lab2.notifications.NotificationsActivity
 import com.example.lab2.profile.show_profile.ShowProfileActivity
+import com.example.lab2.ranking.RankingActivity
 import com.example.lab2.view_models.MainVM
 import com.example.lab2.view_models.NotificationVM
 import com.facebook.shimmer.ShimmerFrameLayout
@@ -29,6 +30,7 @@ class MyReservationsActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var myProfileButton: ShimmerFrameLayout
     private lateinit var notificationsButton: FrameLayout
+    private lateinit var rankingButton: ImageView
 
     @Inject
     lateinit var mainVM: MainVM
@@ -78,6 +80,7 @@ class MyReservationsActivity : AppCompatActivity() {
         }
 
 
+
     }
 
     private fun setSupportActionBar() {
@@ -91,6 +94,13 @@ class MyReservationsActivity : AppCompatActivity() {
             supportActionBar?.customView?.findViewById<ShimmerFrameLayout>(R.id.custom_my_profile)
         val profilePicture =
             supportActionBar?.customView?.findViewById<ImageView>(R.id.toolbar_profile_image)
+
+        rankingButton = supportActionBar?.customView?.findViewById(R.id.ranking_icon)!!
+
+        rankingButton.setOnClickListener {
+            val rankingIntent = Intent(this, RankingActivity::class.java)
+            launcher.launch(rankingIntent)
+        }
 
         setProfileImage(shimmerFrame!!, profilePicture!!)
 
