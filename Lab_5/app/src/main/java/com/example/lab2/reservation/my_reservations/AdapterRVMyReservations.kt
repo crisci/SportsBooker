@@ -39,7 +39,7 @@ class AdapterRVMyReservations(
     override fun onBindViewHolder(holder: ViewHolderCard, position: Int) {
         holder.name.text = "${list[position].court.name}"
         holder.location.text = "Via Giovanni Magni, 32"
-        holder.price.text = "${list[position].formatPrice()}"
+        holder.price.text = "€ ${list[position].formatPrice()}"
         if (list[position].match.numOfPlayers == list[position].court.maxNumberOfPlayers) {
             holder.currentNumberOfPlayers.setTextColorRes(R.color.darker_blue)
         } else {
