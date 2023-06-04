@@ -130,7 +130,7 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
                     val list = processDocuments(documents)
                     Log.i("Reservations", list.toString())
                     Log.e("sport", formattedInterests.toString())
-                    _myReservations.postValue(filterList(list, date, time, formattedInterests))
+                    _myReservations.postValue(filterList(list, date, time))
                 }
             }
     }
@@ -154,8 +154,7 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
     private fun filterList(
         list: List<MatchWithCourtAndEquipments>,
         date: LocalDate,
-        time: LocalTime,
-        interests: List<String>
+        time: LocalTime
     ): List<MatchWithCourtAndEquipments> {
         val sportFilter = getSportFilter().value
         if (sportFilter.isNullOrEmpty()) {
@@ -166,9 +165,7 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
         }
         return list.filter {
             it.match.date == date &&
-                    it.match.time >= time &&
-                    interests.contains(it.court.sport)
-                    && sportFilter == it.court.sport
+                    it.match.time >= time
         }
     }
 
@@ -177,6 +174,20 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
 
     fun setPlayerToShow(u: User) {
         _playerToShow.value = u
+    }
+
+    fun filterList(sport: String?, time: LocalTime?): List<MatchWithCourtAndEquipments> {
+        return when(_myReservations.value) {
+            null -> listOf()
+            else -> if (sport != null && time != null) {
+                _myReservations.value!!.filter { it.court.sport == sport && it.match.time >= time }
+            } else if (sport == null && time != null) {
+                _myReservations.value!!.filter { it.match.time >= time  }
+            } else if (sport != null && time == null) {
+                _myReservations.value!!.filter { it.court.sport == sport }
+            }
+            else _myReservations.value!!
+        }
     }
 
 }

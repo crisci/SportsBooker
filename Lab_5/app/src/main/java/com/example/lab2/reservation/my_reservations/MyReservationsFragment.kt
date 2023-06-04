@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -45,11 +46,11 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
 
     private lateinit var adapterCardFilters: AdapterRVSportFilter
 
+    private lateinit var loading: ProgressBar
     private lateinit var noResults: ConstraintLayout
     private lateinit var findBookReservationButton: Button
     private lateinit var leaveRatingLayout: ConstraintLayout
     var showBanner = false
-
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -61,8 +62,8 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
         }
     }
 
-    private fun showOrHideNoResultImage() {
-        if (vm.getMyReservations().value.isNullOrEmpty()) {
+    private fun showOrHideNoResultImage(list: List<MatchWithCourtAndEquipments>) {
+        if (list.isEmpty()) {
             noResults.visibility = View.VISIBLE
         } else {
             noResults.visibility = View.GONE
@@ -75,6 +76,10 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
         vm = ViewModelProvider(requireActivity())[MyReservationsVM::class.java]
         calendarVM = ViewModelProvider(requireActivity())[CalendarVM::class.java]
         ratingModalVM = ViewModelProvider(requireActivity())[RatingModalVM::class.java]
+
+        loading = view.findViewById(R.id.loading_my_reservation)
+        noResults = view.findViewById(R.id.no_results)
+        val listOfSportRecyclerView = view.findViewById<RecyclerView>(R.id.my_reservation_filter)
 
         vm.refreshMyReservations(
             userVM.userId,
@@ -125,12 +130,11 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
                     }),
             vm::setSportFilter
         )
-        val listOfSportRecyclerView = view.findViewById<RecyclerView>(R.id.my_reservation_filter)
+
         listOfSportRecyclerView.adapter = adapterCardFilters
         listOfSportRecyclerView.layoutManager =
             LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
 
-        noResults = view.findViewById(R.id.no_results)
 
         userVM.user.observe(viewLifecycleOwner) {
             adapterCardFilters.setFilters(
@@ -143,12 +147,16 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
         }
 
         vm.getMyReservations().observe(viewLifecycleOwner) {
-            adapterCard.setReservations(it)
-            showOrHideNoResultImage()
+            loading.visibility = View.GONE
+            val list = vm.filterList(vm.getSportFilter().value,calendarVM.getSelectedTime().value)
+            adapterCard.setReservations(list)
+            if (list.isNotEmpty()) listReservationsRecyclerView.scrollToPosition(0)
+            showOrHideNoResultImage(list)
             Log.e("test", vm.getMyReservations().value.toString())
         }
 
         calendarVM.getSelectedDate().observe(requireActivity()) {
+            loading.visibility = View.VISIBLE
             vm.refreshMyReservations(
                 userVM.userId,
                 calendarVM.getSelectedDate().value!!,
@@ -158,25 +166,17 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
         }
 
         vm.getSportFilter().observe(viewLifecycleOwner) {
-            if (it == null) {
-                adapterCardFilters.selectedPosition = 0
-                adapterCardFilters.notifyDataSetChanged()
-            }
-            vm.refreshMyReservations(
-                userVM.userId,
-                calendarVM.getSelectedDate().value!!,
-                calendarVM.getSelectedTime().value!!,
-                userVM.user.value!!.interests.toList()
-            )
+            val list = vm.filterList(it, calendarVM.getSelectedTime().value)
+            if (list.isNotEmpty()) listReservationsRecyclerView.scrollToPosition(0)
+            adapterCard.setReservations(list)
+            showOrHideNoResultImage(list)
         }
 
         calendarVM.getSelectedTime().observe(viewLifecycleOwner) {
-            vm.refreshMyReservations(
-                userVM.userId,
-                calendarVM.getSelectedDate().value!!,
-                calendarVM.getSelectedTime().value!!,
-                userVM.user.value!!.interests.toList()
-            )
+            val list = vm.filterList(vm.getSportFilter().value, calendarVM.getSelectedTime().value)
+            if (list.isNotEmpty()) listReservationsRecyclerView.scrollToPosition(0)
+            adapterCard.setReservations(list)
+            showOrHideNoResultImage(list)
         }
 
 

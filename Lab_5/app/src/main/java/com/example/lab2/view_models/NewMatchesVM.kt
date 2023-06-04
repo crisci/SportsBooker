@@ -89,7 +89,7 @@ class NewMatchesVM @Inject constructor() : ViewModel() {
         }
     }
 
-    fun filterNewMatches(
+    private fun filterNewMatches(
         mapCourtMatches: Map<Court, List<Match>>,
         interests: List<String>
     ): Map<Court, List<Match>> {
