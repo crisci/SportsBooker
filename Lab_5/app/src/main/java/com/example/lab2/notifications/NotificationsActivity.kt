@@ -193,13 +193,14 @@ class NotificationAdapter(
         val sportName: TextView = v.findViewById(R.id.sport_name)
         val dateDetail: TextView = v.findViewById(R.id.date_detail)
         val hourDetail: TextView = v.findViewById(R.id.hour_detail)
+        val notificationTime: TextView = v.findViewById(R.id.notification_time)
 
-        //TODO we will discuss what to show
         override fun bind(notification: Notification) {
             val matchToReview = notification as MatchToReview
             sportName.text = matchToReview.court.sport
             dateDetail.text = setupDate(matchToReview.match.date)
             hourDetail.text = matchToReview.match.time.format(DateTimeFormatter.ofPattern("HH:mm"))
+            notificationTime.text = getTimeAgo(matchToReview.timestamp)
             rateNowButton.setOnClickListener {
                 listener.onClickRateNow(matchToReview)
             }

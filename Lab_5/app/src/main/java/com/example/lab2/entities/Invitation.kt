@@ -4,19 +4,24 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 
 
-abstract class Notification
+abstract class Notification(
+    open val id: String? = null,
+    open val timestamp: Timestamp = Timestamp.now()
+)
 
 data class MatchToReview(
     val match: Match,
     val court: Court,
+    override val id: String?,
+    override val timestamp: Timestamp
 ) : Notification()
 
 data class Invitation(
     val sender: User,
     val match: Match,
     val court: Court,
-    val id: String?,
-    val timestamp: Timestamp
+    override val id: String?,
+    override val timestamp: Timestamp
 ) : Notification()
 
 fun invitationToFirebase(match: Match, sentBy: String, sentTo: User): Map<String, Any> {
