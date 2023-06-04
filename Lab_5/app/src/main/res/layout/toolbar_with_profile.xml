@@ -25,12 +25,12 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat_bold"
             android:text="My reservations"
+            android:textColor="@color/permanent_white"
             android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:textColor="@color/white"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.facebook.shimmer.ShimmerFrameLayout
             android:id="@+id/custom_my_profile"
@@ -71,15 +71,16 @@
 
         <ImageView
             android:id="@+id/ranking_icon"
-            android:padding="1dp"
-            android:foreground="@drawable/rounded_white_shape"
             android:layout_width="28dp"
             android:layout_height="28dp"
+            android:backgroundTint="@color/permanent_white"
+            android:foreground="@drawable/rounded_white_shape"
+            android:padding="1dp"
             android:src="@drawable/rank"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toEndOf="@+id/notifications"
-            />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/permanent_white" />
 
 
         <FrameLayout
@@ -95,6 +96,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/rounded_notifications"
+                app:tint="@color/permanent_white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 

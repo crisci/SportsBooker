@@ -5,7 +5,7 @@
     android:id="@+id/toolbar_cancel"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/colorPrimary"
+    android:background="@color/example_1_bg"
 
     android:minHeight="?attr/actionBarSize"
     android:theme="?attr/actionBarTheme"
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat_bold"
             android:text="My reservations"
-            android:textColor="@color/white"
+            android:textColor="@color/permanent_white"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

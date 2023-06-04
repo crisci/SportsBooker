@@ -71,22 +71,24 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:id="@+id/location_edit_reservation"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Location"
-                        app:layout_constraintStart_toEndOf="@+id/imageView"
-                        app:layout_constraintTop_toBottomOf="@+id/court_name_edit_reservation" />
+                <TextView
+                    android:id="@+id/location_edit_reservation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Location"
+                    android:textColor="@color/grey"
+                    app:layout_constraintStart_toEndOf="@+id/imageView"
+                    app:layout_constraintTop_toBottomOf="@+id/court_name_edit_reservation" />
 
-                    <ImageView
-                        android:id="@+id/imageView"
-                        android:layout_width="19dp"
-                        android:layout_height="20dp"
-                        android:layout_marginLeft="20dp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/court_name_edit_reservation"
-                        app:srcCompat="@drawable/baseline_location_on_24" />
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="19dp"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:tint="@android:color/darker_gray"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/court_name_edit_reservation"
+                    app:srcCompat="@drawable/baseline_location_on_24" />
 
                 <HorizontalScrollView
                     android:layout_marginLeft="20dp"
@@ -128,9 +130,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Do you need any equipment?"
+                    android:layout_marginBottom="5dp"
                     android:fontFamily="@font/montserrat_bold"
-                    android:layout_marginBottom="5dp"/>
+                    android:text="Do you need any equipment?"
+                    android:textColor="@color/grey" />
 
                 <LinearLayout
                     android:id="@+id/checkbox_container"
@@ -183,6 +186,7 @@
                 android:fontFamily="@font/montserrat_semibold"
                 android:text="Save"
                 android:textAllCaps="false"
+                android:textColor="@color/permanent_white"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:backgroundTint="@color/example_1_bg"
@@ -206,6 +210,7 @@
                 android:fontFamily="@font/montserrat_semibold"
                 android:text="Cancel reservation"
                 android:textAllCaps="false"
+                android:textColor="@color/permanent_white"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:backgroundTint="@color/bright_red"
