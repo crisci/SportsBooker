@@ -16,6 +16,12 @@
             app:destination="@id/signup"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left" />
+
+        <action
+            android:id="@+id/action_login_to_complete_registration_google"
+            app:destination="@id/complete_registration_google"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left" />
     </fragment>
 
     <fragment
@@ -47,5 +53,23 @@
             app:destination="@id/login"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/complete_registration_google"
+        android:name="com.example.lab2.login.FragmentCompleteRegistrationGoogle"
+        android:label="fragment_complete_registration_google"
+        tools:layout="@layout/fragment_complete_registration_google">
+        <action
+            android:id="@+id/action_complete_registration_google_to_login"
+            app:destination="@id/login"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_complete_registration_google_to_select_interests"
+            app:destination="@id/select_interests"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left" />
     </fragment>
 </navigation>
