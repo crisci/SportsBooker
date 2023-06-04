@@ -20,7 +20,6 @@ import com.example.lab2.view_models.EditReservationViewModel
 import com.example.lab2.view_models.MainVM
 import com.example.lab2.entities.MatchWithCourtAndEquipments
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -45,7 +44,6 @@ class CancelReservationActivity : AppCompatActivity() {
 
     private lateinit var cancelContainer: ConstraintLayout
     private lateinit var loadingContainer: ConstraintLayout
-    private lateinit var spinningLoader: ProgressBar
 
 
     @Inject
@@ -74,9 +72,7 @@ class CancelReservationActivity : AppCompatActivity() {
         }
 
         cancelButton.setOnClickListener {
-            MainScope().launch {
                 editReservationVM.cancelReservation(mainVM.userId, reservation)
-            }
         }
 
         editReservationVM.submitEditSuccess.observe(this){
@@ -113,7 +109,6 @@ class CancelReservationActivity : AppCompatActivity() {
 
         cancelContainer = findViewById(R.id.cancel_container)
         loadingContainer = findViewById(R.id.loading_cancel)
-        spinningLoader = findViewById(R.id.progressBar)
     }
 
     private fun setSupportActionBar() {

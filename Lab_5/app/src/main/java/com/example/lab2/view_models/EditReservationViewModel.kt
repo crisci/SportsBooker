@@ -150,7 +150,7 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    suspend fun cancelReservation(
+    fun cancelReservation(
         playerId: String,
         oldReservation: MatchWithCourtAndEquipments,
     )  {
