@@ -51,12 +51,14 @@ class NotificationsActivity : AppCompatActivity(), NotificationAdapter.OnClickLi
 
         val recyclerViewNotifications = findViewById<RecyclerView>(R.id.recyclerViewNotifications)
         recyclerViewNotifications.layoutManager =
-            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true)
+            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         val adapterCard = NotificationAdapter(mutableListOf(), this)
         recyclerViewNotifications.adapter = adapterCard
         val swipeToDeleteCallback = SwipeToDeleteCallback(adapterCard, applicationContext)
         val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallback)
         itemTouchHelper.attachToRecyclerView(recyclerViewNotifications)
+        recyclerViewNotifications.scrollToPosition(0)
+
 
 
         notificationVM.notificationsInvitations.observe(this) {
