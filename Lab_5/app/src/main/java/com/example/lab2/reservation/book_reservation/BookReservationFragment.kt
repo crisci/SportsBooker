@@ -125,7 +125,6 @@ class BookReservationFragment : Fragment(R.layout.fragment_book_reservation) {
         calendarVM.getSelectedDate().observe(viewLifecycleOwner) {
             Log.d("DATETIME", "Date changed to $it")
             calendarVM.selectedTime.value = if(LocalDate.now() == calendarVM.getSelectedDate().value) LocalTime.now() else LocalTime.of(8, 0)
-
         }
 
         vm.getSportFilter().observe(viewLifecycleOwner) {
