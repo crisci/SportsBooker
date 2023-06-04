@@ -88,8 +88,8 @@ class DynamicCalendar : Fragment(R.layout.dynamic_calendar_fragment) {
         )
 
         vm.getSelectedDate().observe(viewLifecycleOwner) {
-            vm.selectedTime.value =
-                if (it == LocalDate.now()) LocalTime.now() else LocalTime.of(8, 0)
+            /*vm.selectedTime.value =
+                if (it == LocalDate.now()) LocalTime.now() else LocalTime.of(8, 0)*/
             monthCalendarView.scrollToDate(it)
             weekCalendarView.scrollToDate(it)
         }

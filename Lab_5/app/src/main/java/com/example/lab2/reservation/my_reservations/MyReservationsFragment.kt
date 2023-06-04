@@ -27,6 +27,8 @@ import com.example.lab2.entities.MatchWithCourtAndEquipments
 import com.example.lab2.reservation.utils.AdapterRVSportFilter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.json.Json
+import java.time.LocalDate
+import java.time.LocalTime
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -148,6 +150,7 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
 
         vm.getMyReservations().observe(viewLifecycleOwner) {
             loading.visibility = View.GONE
+            calendarVM.selectedTime.value = if(LocalDate.now() == calendarVM.getSelectedDate().value) LocalTime.now() else LocalTime.of(8, 0)
             val list = vm.filterList(vm.getSportFilter().value,calendarVM.getSelectedTime().value)
             adapterCard.setReservations(list)
             if (list.isNotEmpty()) listReservationsRecyclerView.scrollToPosition(0)

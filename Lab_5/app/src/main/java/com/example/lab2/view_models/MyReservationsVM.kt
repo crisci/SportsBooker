@@ -36,7 +36,8 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
         sportFilter.value = value
     }
 
-    private var timeSlotFilter = MutableLiveData<LocalDate?>(null)
+    private var _timeSlotFilter = MutableLiveData<LocalDate?>(null)
+    val timeslotFilter: LiveData<LocalDate?> = _timeSlotFilter
 
     private val myStatistics =
         MutableLiveData<
@@ -130,7 +131,7 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
                     val list = processDocuments(documents)
                     Log.i("Reservations", list.toString())
                     Log.e("sport", formattedInterests.toString())
-                    _myReservations.postValue(filterList(list, date, time))
+                    _myReservations.postValue(filterList(list, date))
                 }
             }
     }
@@ -153,19 +154,18 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
 
     private fun filterList(
         list: List<MatchWithCourtAndEquipments>,
-        date: LocalDate,
-        time: LocalTime
+        date: LocalDate
     ): List<MatchWithCourtAndEquipments> {
         val sportFilter = getSportFilter().value
         if (sportFilter.isNullOrEmpty()) {
             return list.filter {
                 it.match.date == date &&
-                        it.match.time >= time
+                        it.match.time >= if (date == LocalDate.now()) LocalTime.now() else LocalTime.of(8, 0)
             }
         }
         return list.filter {
             it.match.date == date &&
-                    it.match.time >= time
+                    it.match.time >= if (date == LocalDate.now()) LocalTime.now() else LocalTime.of(8, 0)
         }
     }
 

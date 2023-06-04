@@ -14,6 +14,7 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.R
+import com.example.lab2.entities.Sport
 import com.example.lab2.view_models.CalendarVM
 import com.example.lab2.view_models.CreateMatchVM
 import com.example.lab2.view_models.MainVM
@@ -64,8 +65,9 @@ class CreateMatchActivity : AppCompatActivity() {
 
         Log.d("CreateMatchActivity", "onCreate: ${userVM.user.value!!.interests}")
 
+
         val sportArrayAdapter =
-            ArrayAdapter(applicationContext, R.layout.dropdown_item, userVM.user.value!!.interests)
+            ArrayAdapter(applicationContext, R.layout.dropdown_item, enumValues<Sport>())
         sportAutoCompleteTV.setAdapter(sportArrayAdapter)
 
         createMatchVM.getListTimeslots().observe(this) {
@@ -88,9 +90,7 @@ class CreateMatchActivity : AppCompatActivity() {
         }
 
         confirmButton.setOnClickListener {
-            if (userVM.user.value!!.interests
-                    .find { it.name == sportAutoCompleteTV.text.toString() } == null
-                || createMatchVM.getListTimeslots().value!!.find { it == timeslotAutocompleteTextView.text.toString() } == null
+            if (createMatchVM.getListTimeslots().value!!.find { it == timeslotAutocompleteTextView.text.toString() } == null
             ) {
                 Toast.makeText(this, "Please, fill in all the fields", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
@@ -126,7 +126,7 @@ class CreateMatchActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         val arrayAdapter =
-            ArrayAdapter(applicationContext, R.layout.dropdown_item, userVM.user.value!!.interests)
+            ArrayAdapter(applicationContext, R.layout.dropdown_item, enumValues<Sport>())
         sportAutoCompleteTV.setAdapter(arrayAdapter)
         val arrayAdapter2 = ArrayAdapter(
             applicationContext,
