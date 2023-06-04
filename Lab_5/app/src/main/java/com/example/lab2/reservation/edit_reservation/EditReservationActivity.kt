@@ -283,4 +283,9 @@ class EditReservationActivity : AppCompatActivity() {
         backButton = supportActionBar?.customView?.findViewById<ImageView>(R.id.custom_back_icon)!!
     }
 
+    override fun onResume() {
+        super.onResume()
+        chipGroup.removeAllViews()
+    }
+
 }
