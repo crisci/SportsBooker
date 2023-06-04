@@ -34,6 +34,7 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
     private val _editedReservation = MutableLiveData<MatchWithCourtAndEquipments>()
     private var editedReservation: LiveData<MatchWithCourtAndEquipments> = _editedReservation
 
+    // UI states
     var error: MutableLiveData<String?> = MutableLiveData()
     var loadingState: MutableLiveData<Boolean> = MutableLiveData(false)
     var submitEditSuccess: MutableLiveData<Boolean> = MutableLiveData(false)

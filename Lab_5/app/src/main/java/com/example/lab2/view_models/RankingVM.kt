@@ -29,7 +29,6 @@ class RankingVM @Inject constructor() : ViewModel() {
     // UI states
     var error: MutableLiveData<String?> = MutableLiveData()
     var loadingState: MutableLiveData<Boolean> = MutableLiveData(false)
-    var submitEditSuccess: MutableLiveData<Boolean> = MutableLiveData(false)
 
     fun getAllPlayers() {
         viewModelScope.launch {

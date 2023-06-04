@@ -7,13 +7,10 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
 import android.view.Window
-import android.widget.Button
-import android.widget.GridView
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.R
 import com.example.lab2.entities.User
@@ -41,6 +38,9 @@ class PlayerProfileActivity : AppCompatActivity() {
     private lateinit var badgesLayout: LinearLayout
     private lateinit var statisticsLayout: LinearLayout
     private lateinit var backButton: ImageView
+    private lateinit var profileContainer: ScrollView
+    private lateinit var loadingContainer: ConstraintLayout
+
 
     @Inject
     lateinit var vm: MainVM
@@ -77,6 +77,26 @@ class PlayerProfileActivity : AppCompatActivity() {
             finish()
         }
 
+        reservationVm.error.observe(this){
+            if(it != null){
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        reservationVm.loadingState.observe(this){
+            setLoadingScreen(it)
+        }
+
+    }
+
+    private fun setLoadingScreen(state: Boolean) {
+        if(state) { //is Loading
+            profileContainer.visibility = View.GONE
+            loadingContainer.visibility = View.VISIBLE
+        }else{ // is not loading
+            loadingContainer.visibility = View.GONE
+            profileContainer.visibility = View.VISIBLE
+        }
     }
 
     private fun findViews() {
@@ -89,6 +109,8 @@ class PlayerProfileActivity : AppCompatActivity() {
         interestsLayout = findViewById(R.id.profile_interests)
         badgesLayout = findViewById(R.id.profile_badges)
         statisticsLayout = findViewById(R.id.profile_statistics)
+        profileContainer = findViewById(R.id.profile_container)
+        loadingContainer = findViewById(R.id.loading_profile)
     }
 
     @SuppressLint("SetTextI18n")

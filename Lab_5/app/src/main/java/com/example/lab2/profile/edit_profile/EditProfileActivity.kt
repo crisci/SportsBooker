@@ -60,7 +60,7 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var nickname_m: EditText
     private lateinit var description_m: EditText
     private lateinit var address_m: EditText
-    private lateinit var email_m: EditText
+    //private lateinit var email_m: EditText
     private lateinit var birthday_m: EditText
     private lateinit var skills_m: MutableMap<BadgeType, Int>
     private lateinit var tagGroup: TagView
@@ -101,15 +101,15 @@ class EditProfileActivity : AppCompatActivity() {
                 nickname_m.text.toString().trim() == "" ||
                 description_m.text.toString().trim() == "" ||
                 address_m.text.toString().trim() == "" ||
-                email_m.text.toString().trim() == "" ||
+                //email_m.text.toString().trim() == "" ||
                 birthday_m.text.toString().trim() == ""
             ) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 valid = false
-            } else if (!isValidEmail(email_m.text.trim())) {
+            } /* else if (!isValidEmail(email_m.text.trim())) {
                 Toast.makeText(this, "Please enter a valid email", Toast.LENGTH_SHORT).show()
                 valid = false
-            } else if (nickname_m.text.contains(" ")) {
+            } */ else if (nickname_m.text.contains(" ")) {
                 Toast.makeText(this, "Please enter a valid nickname", Toast.LENGTH_SHORT).show()
                 valid = false
             } else if (description_m.text.length > 150) {
@@ -205,7 +205,7 @@ class EditProfileActivity : AppCompatActivity() {
         description_m = findViewById(R.id.editDescription)
         nickname_m = findViewById(R.id.editNickname)
         address_m = findViewById(R.id.editLocation)
-        email_m = findViewById(R.id.editEmail)
+        //email_m = findViewById(R.id.editEmail)
         birthday_m = findViewById(R.id.editBod)
         profileImage = findViewById(R.id.profile_image)
         cameraImageButton = findViewById(R.id.edit_picture)
@@ -258,7 +258,7 @@ class EditProfileActivity : AppCompatActivity() {
         nickname_m.setText(savedInstanceState.getString("nickname"))
         description_m.setText(savedInstanceState.getString("description"))
         address_m.setText(savedInstanceState.getString("address"))
-        email_m.setText(savedInstanceState.getString("email"))
+        //email_m.setText(savedInstanceState.getString("email"))
         birthday_m.setText(savedInstanceState.getString("birthday"))
         skills_m = Gson().fromJson(
             savedInstanceState.getString("skills"),
@@ -280,7 +280,7 @@ class EditProfileActivity : AppCompatActivity() {
         outState.putString("nickname", nickname_m.text.toString())
         outState.putString("description", description_m.text.toString())
         outState.putString("address", address_m.text.toString())
-        outState.putString("email", email_m.text.toString())
+        //outState.putString("email", email_m.text.toString())
         outState.putString("image", file_name ?: "")
         outState.putString("birthday", birthday_m.text.toString())
 
@@ -305,7 +305,7 @@ class EditProfileActivity : AppCompatActivity() {
         nickname_m.setText(editedUser.nickname)
         description_m.setText(editedUser.description)
         address_m.setText(editedUser.address)
-        email_m.setText(editedUser.email)
+        //email_m.setText(editedUser.email)
         skills_m = editedUser.badges as MutableMap<BadgeType, Int>
 
         if (editedUser.image == "") {
@@ -475,7 +475,7 @@ class EditProfileActivity : AppCompatActivity() {
             nickname = nickname_m.text.toString().trim(),
             address = address_m.text.toString().trim(),
             description = description_m.text.toString().trim(),
-            email = email_m.text.toString().trim(),
+            email = vm.user.value?.email!!,
             image = editedUser.image,
             birthday = editedUser.birthday,
             interests = editedUser.interests,

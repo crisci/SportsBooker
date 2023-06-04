@@ -1,10 +1,11 @@
 package com.example.lab2.view_models
 
 
-import android.util.Log
+import com.example.lab2.entities.Result
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.lab2.entities.Sport
 import com.example.lab2.entities.Statistic
 import com.example.lab2.entities.User
@@ -19,6 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalTime
 import javax.inject.Inject
@@ -52,6 +54,10 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
 
     private lateinit var _listener: ListenerRegistration
 
+    // UI states
+    var error: MutableLiveData<String?> = MutableLiveData()
+    var loadingState: MutableLiveData<Boolean> = MutableLiveData(false)
+
     init {
         startListener()
     }
@@ -80,21 +86,33 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
     }
 
     fun refreshMyStatistics(playerId: String) {
+        viewModelScope.launch {
 
-        FirebaseFirestore.getInstance().collection("reservations")
-            .whereEqualTo("player", db.document("players/$playerId"))
-            .get().addOnSuccessListener { documents ->
-                CoroutineScope(Dispatchers.IO).launch {
-                    val list = processStatistics(documents, playerId)
+            loadingState.value = true
 
-                    val playerRef = db.document("players/$playerId")
+            val result = withContext(Dispatchers.IO){
+                try{
+                    val reservations = FirebaseFirestore.getInstance().collection("reservations")
+                        .whereEqualTo("player", db.document("players/$playerId"))
                         .get().await()
-                    val player = User.fromFirebase(playerRef)
-
-                    myStatistics.postValue(Pair(list, player.score))
+                    val list = processStatistics(reservations, playerId)
+                    val player = User.fromFirebase( db.document("players/$playerId").get().await())
+                    Result(Pair(list, player.score), null)
+                }catch (err: Exception){
+                    Result(null, err)
                 }
             }
 
+            if(result.value != null){
+                error.value = null
+                myStatistics.postValue(result.value!!)
+            }else{
+                error.value = result.throwable?.message
+            }
+
+            loadingState.value = false
+
+        }
 
     }
 
