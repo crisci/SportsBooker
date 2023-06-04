@@ -38,7 +38,9 @@ class MainVM @Inject constructor() : ViewModel() {
     val userId: String get() = auth.currentUser!!.uid
 
     fun listenToUserUpdates(userId: String) {
+        viewModelScope.launch {
         Log.w("MainVM", "Start listening: /players/$userId")
+
         userListener = db.collection("players").document(userId)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
@@ -53,6 +55,7 @@ class MainVM @Inject constructor() : ViewModel() {
                     Log.d("MainVM", "Current data: null")
                 }
             }
+        }
     }
 
 

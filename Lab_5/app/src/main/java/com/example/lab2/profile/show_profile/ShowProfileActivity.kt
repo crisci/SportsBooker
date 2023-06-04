@@ -11,15 +11,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.Window
-import android.widget.Button
-import android.widget.GridView
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import com.example.lab2.R
 import com.example.lab2.launcher.LauncherActivity
@@ -48,6 +44,8 @@ class ShowProfileActivity : AppCompatActivity() {
     private lateinit var badgesLayout: LinearLayout
     private lateinit var statisticsLayout: LinearLayout
     private lateinit var backButton: ImageButton
+    private lateinit var profileContainer: ScrollView
+    private lateinit var loadingContainer: ConstraintLayout
 
     @Inject
     lateinit var vm: MainVM
@@ -77,6 +75,7 @@ class ShowProfileActivity : AppCompatActivity() {
         // TODO : Statistics need to be retrieved from Firebase!
         reservationVm.refreshMyStatistics(playerId = vm.userId)
 
+
         badgesLayout.setOnClickListener { showCustomDialog() }
 
         vm.user.observe(this) {
@@ -92,6 +91,27 @@ class ShowProfileActivity : AppCompatActivity() {
             finish()
         }
 
+        reservationVm.error.observe(this){
+            if(it != null){
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        reservationVm.loadingState.observe(this){
+            setLoadingScreen(it)
+        }
+
+
+    }
+
+    private fun setLoadingScreen(state: Boolean) {
+        if(state) { //is Loading
+            profileContainer.visibility = View.GONE
+            loadingContainer.visibility = View.VISIBLE
+        }else{ // is not loading
+            loadingContainer.visibility = View.GONE
+            profileContainer.visibility = View.VISIBLE
+        }
     }
 
     private fun findViews() {
@@ -104,6 +124,8 @@ class ShowProfileActivity : AppCompatActivity() {
         interestsLayout = findViewById(R.id.profile_interests)
         badgesLayout = findViewById(R.id.profile_badges)
         statisticsLayout = findViewById(R.id.profile_statistics)
+        profileContainer = findViewById(R.id.profile_container)
+        loadingContainer = findViewById(R.id.loading_profile)
     }
 
     @SuppressLint("SetTextI18n")
