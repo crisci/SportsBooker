@@ -45,7 +45,6 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
         firebaseAuth = FirebaseAuth.getInstance()
 
         navController = findNavController()
-
         signupVM = ViewModelProvider(requireActivity())[SignupVM::class.java]
 
         val view = inflater.inflate(R.layout.fragment_signup, container, false)

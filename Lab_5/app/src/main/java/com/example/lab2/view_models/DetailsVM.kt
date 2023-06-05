@@ -135,7 +135,6 @@ class DetailsVM @Inject constructor() : ViewModel() {
             db.collection("court_reviews").whereEqualTo("courtId", c.first().id).get()
                 .addOnSuccessListener { reviews ->
                     var sum = 0.0
-                    Log.e("rev", reviews.documents.toString())
                     for (rv in reviews) {
                         val map = rv.get("ratingParameters") as HashMap<String, Double>
                         sum += map["cleanliness"]!! + map["lighting"]!! + map["playingSurfaceQuality"]!!
