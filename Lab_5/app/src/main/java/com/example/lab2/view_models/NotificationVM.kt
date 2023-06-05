@@ -21,6 +21,7 @@ import kotlinx.coroutines.withContext
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneOffset
 import javax.inject.Inject
 
@@ -66,16 +67,16 @@ class NotificationVM @Inject constructor() : ViewModel() {
 
                 val resultReviews = try{
                     val startOfPreviousWeek = LocalDate.now().minusWeeks(1).with(DayOfWeek.MONDAY).atStartOfDay()
-                    val twoHoursAgo = LocalDateTime.now().minusHours(2)
+                    val yesterday = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT)
                     val startOfPreviousWeekTimestamp = Timestamp(startOfPreviousWeek.toEpochSecond(ZoneOffset.UTC), 0)
-                    val twoHoursAgoTimestamp = Timestamp(twoHoursAgo.toEpochSecond(ZoneOffset.UTC), 0)
+                    val yesterdayTimestamp = Timestamp(yesterday.toEpochSecond(ZoneOffset.UTC), 0)
 
                     val documentsReviews = db.collection("matches")
                         .whereArrayContains(
                             "listOfPlayers",
                             db.document("players/${auth.currentUser!!.uid}")
                         )
-                        .whereLessThan("timestamp", twoHoursAgoTimestamp)
+                        .whereLessThan("timestamp", yesterdayTimestamp)
                         .whereGreaterThan("timestamp", startOfPreviousWeekTimestamp)
                         .get().await()
 
