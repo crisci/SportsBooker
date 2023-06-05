@@ -143,10 +143,12 @@ class DetailsActivity : AppCompatActivity() {
         }
 
         detailsVM.reservation.observe(this) {
+            detailsVM.registerListener(reservationId)
             updateView(detailsVM.reservation.value!!)
         }
 
         detailsVM.avg.observe(this) {
+            Log.e("avg", detailsVM.avg.value!!.toString())
             rating.rating = detailsVM.avg.value!!.toFloat()
         }
 
@@ -173,8 +175,8 @@ class DetailsActivity : AppCompatActivity() {
                     .show()
                 finish()
             }
-
-        })
+        }
+        )
     }
 
     private fun setupEquipments(equipmets: List<Equipment>) {
@@ -195,6 +197,11 @@ class DetailsActivity : AppCompatActivity() {
 
     private fun setupDate(date: LocalDate): String {
         return "${date.dayOfWeek.displayText()} ${date.format(DateTimeFormatter.ofPattern("dd"))} ${date.month.displayText()}"
+    }
+
+    override fun onPause() {
+        super.onPause()
+        detailsVM.removeListener()
     }
 }
 

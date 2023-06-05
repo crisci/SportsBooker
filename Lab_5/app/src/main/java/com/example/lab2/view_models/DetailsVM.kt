@@ -1,5 +1,7 @@
 package com.example.lab2.view_models
 
+import android.net.nsd.NsdManager.RegistrationListener
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -40,6 +43,27 @@ class DetailsVM @Inject constructor() : ViewModel() {
 
     private val _exceptionMessage = MutableLiveData<String>()
     val exceptionMessage: LiveData<String> get() = _exceptionMessage
+
+    private lateinit var playersListener: ListenerRegistration
+
+    fun registerListener(id: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            var matchId: String
+            db.document("reservations/$id").get().addOnSuccessListener {
+                matchId = it.getDocumentReference("match")!!.id
+                playersListener = db.collection("matches")
+                    .whereEqualTo(FieldPath.documentId(), matchId)
+                    .addSnapshotListener { value, error ->
+                        if(error == null)
+                            getPlayers(value!!)
+
+                    }}.await()
+        }
+    }
+
+    fun removeListener() {
+        playersListener.remove()
+    }
 
     fun getReservationDetails(reservationId: String) {
         db.collection("reservations").whereEqualTo(FieldPath.documentId(), reservationId).get()
