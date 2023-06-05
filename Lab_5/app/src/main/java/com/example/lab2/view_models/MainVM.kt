@@ -30,10 +30,6 @@ class MainVM @Inject constructor() : ViewModel() {
     val eventLogout: LiveData<Unit> get() = _eventLogout
     private var userListener: ListenerRegistration? = null
 
-    private val _allPlayers: MutableLiveData<List<User>> = MutableLiveData(emptyList())
-    private val _filteredPlayers: MutableLiveData<List<User>> = MutableLiveData(emptyList())
-    val allPlayers: LiveData<List<User>> get() = _filteredPlayers
-
 
     val userId: String get() = auth.currentUser!!.uid
 
@@ -69,8 +65,6 @@ class MainVM @Inject constructor() : ViewModel() {
         callback()
     }
 
-
-    var listBookedReservations = MutableLiveData<MutableSet<Int>>(mutableSetOf())
 
 
     fun updateUser(editedUser: User) {
@@ -122,31 +116,6 @@ class MainVM @Inject constructor() : ViewModel() {
             .addOnFailureListener { e ->
                 callback(null)
             }
-    }
-
-    fun getAllPlayers() {
-        viewModelScope.launch {
-            db.collection("players").get()
-                .addOnSuccessListener {
-                    it.documents.mapNotNull { player ->
-                        User.fromFirebase(player)
-                    }.toMutableList().also { list ->
-                        _allPlayers.postValue(list)
-                        _filteredPlayers.postValue(list)
-                    }
-                }
-        }
-    }
-
-    fun filterPlayers(query: String?) {
-        if (query != null) {
-            _filteredPlayers.value = _allPlayers.value?.filter {
-                it.full_name.lowercase().contains(query.lowercase()) || it.nickname.lowercase()
-                    .contains(query.lowercase())
-            }
-        } else {
-            _filteredPlayers.value = _allPlayers.value
-        }
     }
 
 }
