@@ -29,13 +29,6 @@
         android:name="com.example.lab2.login.FragmentSignup"
         android:label="fragment_signup"
         tools:layout="@layout/fragment_signup">
-
-        <action
-            android:id="@+id/action_signup_to_login"
-            app:destination="@id/login"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right" />
-
         <action
             android:id="@+id/action_signup_to_select_interests"
             app:destination="@id/select_interests"
@@ -47,13 +40,7 @@
         android:id="@+id/select_interests"
         android:name="com.example.lab2.login.FragmentSignupSelectInterests"
         android:label="fragment_signup_select_interests"
-        tools:layout="@layout/fragment_signup_select_interests">
-        <action
-            android:id="@+id/action_select_interests_to_login"
-            app:destination="@id/login"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right" />
-    </fragment>
+        tools:layout="@layout/fragment_signup_select_interests"/>
 
     <fragment
         android:id="@+id/complete_registration_google"
@@ -61,15 +48,15 @@
         android:label="fragment_complete_registration_google"
         tools:layout="@layout/fragment_complete_registration_google">
         <action
-            android:id="@+id/action_complete_registration_google_to_login"
-            app:destination="@id/login"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right" />
-
-        <action
             android:id="@+id/action_complete_registration_google_to_select_interests"
             app:destination="@id/select_interests"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left" />
     </fragment>
+
+    <action
+        android:id="@+id/action_to_login"
+        app:destination="@id/login"
+        app:enterAnim="@anim/slide_in_left"
+        app:exitAnim="@anim/slide_out_right" />
 </navigation>

@@ -1,5 +1,6 @@
 package com.example.lab2.login
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.lab2.R
 import com.example.lab2.databinding.FragmentSignupSelectInterestsBinding
 import com.example.lab2.entities.Sport
+import com.example.lab2.launcher.LauncherActivity
 import com.example.lab2.view_models.MainVM
 import com.example.lab2.view_models.SignupVM
 import com.google.android.material.chip.Chip
@@ -109,7 +111,7 @@ class FragmentSignupSelectInterests : Fragment(R.layout.fragment_signup_select_i
                     .show()
                 return@setOnClickListener
             }
-            Toast.makeText(requireContext(), "User created successfully", Toast.LENGTH_SHORT).show()
+            navController.navigate(R.id.action_to_login)
         }
         return view
     }

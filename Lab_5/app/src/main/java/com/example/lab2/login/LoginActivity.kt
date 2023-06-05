@@ -68,7 +68,7 @@ class LoginActivity : AppCompatActivity() {
                 .setDuration(500)
                 .start()
             if (navController.currentDestination?.id == R.id.signup) {
-                navController.navigate(R.id.action_signup_to_login)
+                navController.navigate(R.id.action_to_login)
             }
         }
     }
