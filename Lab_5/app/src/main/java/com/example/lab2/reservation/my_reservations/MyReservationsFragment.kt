@@ -35,9 +35,6 @@ import javax.inject.Inject
 class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
     AdapterRVMyReservations.OnEditClickListener {
 
-    // TODO : this is hard-coded for now
-    val playerId = 1
-
     private lateinit var navController: NavController
 
     @Inject
@@ -85,27 +82,6 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
 
         leaveRatingLayout = view.findViewById(R.id.leave_rating_banner)
 
-        /*        CoroutineScope(Dispatchers.IO).launch {
-                    // Check if the rating dialog should be shown
-                    // doing a GET every minute
-                    while (true) {
-                        ratingModalVM.checkIfPlayerHasAlreadyReviewed(playerId)
-                        delay(60000) // 60 seconds
-                    }
-                }*/
-
-        /*        ratingModalVM.getShowBanner().observe(viewLifecycleOwner) {
-                    if (it == true) leaveRatingLayout.visibility = View.VISIBLE
-                    else leaveRatingLayout.visibility = View.GONE
-                }
-
-                ratingModalVM.getCourtToReview().observe(viewLifecycleOwner) {
-                    leaveRatingLayout.visibility = View.VISIBLE
-                    leaveRatingLayout.setOnClickListener {
-                        val modalBottomSheet = RatingModalBottomSheet()
-                        modalBottomSheet.show(childFragmentManager, RatingModalBottomSheet.TAG)
-                    }
-                }*/
 
         navController = findNavController()
         requireActivity().actionBar?.elevation = 0f

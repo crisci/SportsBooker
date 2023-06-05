@@ -21,6 +21,7 @@ import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 import com.example.lab2.entities.Result
+import kotlinx.coroutines.tasks.await
 
 @HiltViewModel
 class EditReservationViewModel @Inject constructor() : ViewModel() {
@@ -142,12 +143,12 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
             if(result.value!!){
                 error.value = null
                 submitEditSuccess.value = true
+                loadingState.postValue(false)
             }else{
                 error.value = result.throwable?.message
                 submitEditSuccess.value = false
+                loadingState.postValue(false)
             }
-
-            loadingState.value = false
         }
     }
 
@@ -170,19 +171,21 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
             if(result.value!!){
                 submitEditSuccess.value = true
                 error.value = null
+                loadingState.postValue(true)
             }else{
                 submitEditSuccess.value = false
                 error.value = result.throwable?.message
+                loadingState.postValue(false)
             }
-
-            loadingState.value = false
         }
     }
 
     private suspend fun updateReservation(playerId: String, oldReservation: MatchWithCourtAndEquipments) {
-        db.collection("reservations").document(getEditedReservation().value?.reservationId!!).set(
-            MatchWithCourtAndEquipmentsToFirebase(playerId, getEditedReservation().value!!)
-        ).addOnFailureListener {
+        try{
+            db.collection("reservations").document(getEditedReservation().value?.reservationId!!).set(
+                MatchWithCourtAndEquipmentsToFirebase(playerId, getEditedReservation().value!!)
+            ).await()
+        }catch(err: Exception){
             throw Exception("Couldn't update Reservation ${oldReservation.reservationId}")
         }
     }
@@ -197,12 +200,12 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
         oldMatchEdits["listOfPlayers"] =
             oldReservation.match.listOfPlayers.map { db.document("players/$it") }
 
-        // Update old match
-        db.collection("matches").document(oldReservation.match.matchId)
-            .update(oldMatchEdits)
-            .addOnFailureListener {
-                throw Exception("Couldn't update old match ${oldReservation.match.matchId}")
-            }
+        try{
+            db.collection("matches").document(oldReservation.match.matchId)
+                .update(oldMatchEdits).await()
+        }catch(err: Exception){
+            throw Exception("Couldn't update old match ${oldReservation.match.matchId}")
+        }
 
     }
 
@@ -215,21 +218,23 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
         newMatchEdits["listOfPlayers"] =
             getEditedReservation().value?.match?.listOfPlayers?.map { db.document("players/$it") }!!
 
-
         // Update new match
-        db.collection("matches").document(getEditedReservation().value?.match?.matchId!!)
-            .update(newMatchEdits)
-            .addOnFailureListener {
-                throw Exception("Couldn't update new match ${getEditedReservation().value?.match?.matchId}")
-            }
+        try{
+            db.collection("matches").document(getEditedReservation().value?.match?.matchId!!)
+                .update(newMatchEdits).await()
+        }catch(err: Exception){
+            throw Exception("Couldn't update new match ${getEditedReservation().value?.match?.matchId}")
+        }
+
     }
 
     private suspend fun deleteReservation(oldReservation: MatchWithCourtAndEquipments) {
         // Delete reservation
-        db.collection("reservations").document(oldReservation.reservationId!!).delete()
-            .addOnFailureListener {
-                throw Exception("Couldn't delete reservation ${oldReservation.reservationId}")
-            }
+        try{
+            db.collection("reservations").document(oldReservation.reservationId!!).delete().await()
+        }catch (err: Exception){
+            throw Exception("Couldn't delete reservation ${oldReservation.reservationId}")
+        }
     }
 
     override fun onCleared() {

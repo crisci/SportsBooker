@@ -1,10 +1,7 @@
 package com.example.lab2.view_models
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.lab2.entities.*
 import com.example.lab2.utils.toTimestamp
 import com.google.firebase.Timestamp
@@ -32,19 +29,12 @@ class NotificationVM @Inject constructor() : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    private val _notificationsMatchesToReview = MutableLiveData<MutableList<MatchToReview>>(
-        mutableListOf()
-    )
-    val notificationsMatchesToReview: LiveData<MutableList<MatchToReview>> get() = _notificationsMatchesToReview
+    val numberInvitations: MutableLiveData<Int> = MutableLiveData(0)
+    val numberReviews: MutableLiveData<Int> = MutableLiveData(0)
 
-    private val _notificationsInvitations =
-        MutableLiveData<MutableList<Invitation>>(mutableListOf())
-    val notificationsInvitations: LiveData<MutableList<Invitation>> get() = _notificationsInvitations
-
-    private var invitationsListener: ListenerRegistration? = null
-
-    private val _numberOfUnseenNotifications = MutableLiveData<Int>(0)
-    val numberOfUnseenNotifications: LiveData<Int> = _numberOfUnseenNotifications
+    // Seen/Unseen behavior is too complex, there is no way to tell if a review match notification is seen or not,
+    // So it's better to just compute it as the number of currently not handled notifications
+    val numberOfUnseenNotifications : Int get() = (numberInvitations.value ?: 0) + (numberReviews.value ?: 0)
 
     private val _notifications : MutableLiveData<MutableList<Notification>> = MutableLiveData(mutableListOf())
     val notifications : LiveData<MutableList<Notification>> get() = _notifications
@@ -53,7 +43,6 @@ class NotificationVM @Inject constructor() : ViewModel() {
     // UI States
     var error: MutableLiveData<String?> = MutableLiveData()
     var loadingState: MutableLiveData<Boolean> = MutableLiveData(false)
-    var invitationSuccess: MutableLiveData<Boolean> = MutableLiveData(false)
 
 
     init {
@@ -144,19 +133,6 @@ class NotificationVM @Inject constructor() : ViewModel() {
         return invitations
     }
 
-    suspend fun calculateNumberOfUnseenNotifications(documents: QuerySnapshot) : Long {
-        var numOfUnseenNotifications : Long = 0
-
-        for(notification in documents.documents){
-            when(notification.getBoolean("seen")){
-                false -> numOfUnseenNotifications += 1
-                else -> {}
-            }
-        }
-
-        return numOfUnseenNotifications
-    }
-
     suspend fun processReviews(snapshotMatch: QuerySnapshot) : MutableList<MatchToReview>{
 
         var listMatchesToReview = mutableListOf<MatchToReview>()
@@ -170,7 +146,7 @@ class NotificationVM @Inject constructor() : ViewModel() {
 
         val notRatedMatches = listMatchReferences.filter { matchRef -> !listMatchesAlreadyRatedByThePlayer.any { it == matchRef } }
 
-        /* TODO: Invalid Query. A non-empty array is required for 'in' filters. (fired when there are no notifications,
+        /* Fixed: Invalid Query. A non-empty array is required for 'in' filters. (fired when there are no notifications,
             possibly notRatedMatches is [] and whereIn requires it to be non-empty).
          */
         if(notRatedMatches.isNotEmpty()){
@@ -243,4 +219,60 @@ class NotificationVM @Inject constructor() : ViewModel() {
         }
     }
 
+    fun setNotificationsNumberListener() {
+            db.collection("invitations")
+                .whereEqualTo("sentTo", db.document("players/${auth.currentUser!!.uid}"))
+                .addSnapshotListener { querySnapshot, e ->
+                    if (e != null) {
+                        return@addSnapshotListener
+                    }
+                    if (querySnapshot != null) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val numInvitations = querySnapshot.documents.size
+                            Log.i("invitationsNumber", numInvitations.toString())
+                            numberInvitations.postValue(numInvitations)
+                        }
+                    }
+                }
+
+            val startOfPreviousWeek = LocalDate.now().minusWeeks(1).with(DayOfWeek.MONDAY).atStartOfDay()
+            val twoHoursAgo = LocalDateTime.now().minusHours(2)
+            val startOfPreviousWeekTimestamp = Timestamp(startOfPreviousWeek.toEpochSecond(ZoneOffset.UTC), 0)
+            val twoHoursAgoTimestamp = Timestamp(twoHoursAgo.toEpochSecond(ZoneOffset.UTC), 0)
+
+            db.collection("matches")
+                .whereArrayContains(
+                    "listOfPlayers",
+                    db.document("players/${auth.currentUser!!.uid}")
+                )
+                .whereLessThan("timestamp", twoHoursAgoTimestamp)
+                .whereGreaterThan("timestamp", startOfPreviousWeekTimestamp)
+                .get()
+                .addOnSuccessListener { snapshotMatch ->
+                    val listMatchReferences = snapshotMatch!!.documents.map { it.reference }
+                    db.collection("player_rating_mvp")
+                        .whereEqualTo("reviewer", db.document("players/${auth.currentUser!!.uid}"))
+                        .addSnapshotListener { ratingSnapshot, _ ->
+                            val listMatchesAlreadyRatedByThePlayer =
+                                ratingSnapshot!!.documents.map { it.getDocumentReference("match")!! }
+
+                            val notRatedMatches = listMatchReferences.filter { matchRef ->
+                                !listMatchesAlreadyRatedByThePlayer.any { it == matchRef }
+                            }
+
+                            if(notRatedMatches.isNotEmpty()){
+                                 db.collection("matches")
+                                    .whereIn(FieldPath.documentId(), notRatedMatches.map { it.id })
+                                    .get()
+                                    .addOnSuccessListener { notRatedMatchesSnapshot ->
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            val reviewsNumber = notRatedMatchesSnapshot.documents.size
+                                            Log.i("reviewsNumber", reviewsNumber.toString())
+                                            numberReviews.postValue(reviewsNumber)
+                                        }
+                                    }
+                            }
+                        }
+                }
+    }
 }

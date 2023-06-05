@@ -46,6 +46,7 @@ class MyReservationsActivity : AppCompatActivity() {
         setSupportActionBar()
 
         notificationVM = ViewModelProvider(this)[NotificationVM::class.java]
+        notificationVM.setNotificationsNumberListener()
 
         notificationsButton =
             supportActionBar?.customView?.findViewById<FrameLayout>(R.id.notifications)!!
@@ -66,20 +67,30 @@ class MyReservationsActivity : AppCompatActivity() {
             launcher.launch(intentShowProfile)
         }
 
-        notificationVM.numberOfUnseenNotifications.observe(this) {
-            val numberOfUnseenNotificationsTextView =
-                supportActionBar?.customView?.findViewById<TextView>(
-                    R.id.number_of_notifications
-                )
-            if (it > 0) {
+        val numberOfUnseenNotificationsTextView =
+            supportActionBar?.customView?.findViewById<TextView>(
+                R.id.number_of_notifications
+            )
+
+        notificationVM.numberInvitations.observe(this) {
+            val n = notificationVM.numberOfUnseenNotifications
+            if (n > 0) {
                 numberOfUnseenNotificationsTextView?.visibility = TextView.VISIBLE
-                numberOfUnseenNotificationsTextView?.text = it.toString()
+                numberOfUnseenNotificationsTextView?.text = n.toString()
             } else {
                 numberOfUnseenNotificationsTextView?.visibility = TextView.GONE
             }
         }
 
-
+        notificationVM.numberReviews.observe(this) {
+            val n = notificationVM.numberOfUnseenNotifications
+            if (n > 0) {
+                numberOfUnseenNotificationsTextView?.visibility = TextView.VISIBLE
+                numberOfUnseenNotificationsTextView?.text = n.toString()
+            } else {
+                numberOfUnseenNotificationsTextView?.visibility = TextView.GONE
+            }
+        }
 
     }
 
