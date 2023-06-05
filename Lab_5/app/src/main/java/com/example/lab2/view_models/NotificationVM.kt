@@ -159,7 +159,7 @@ class NotificationVM @Inject constructor() : ViewModel() {
                 val court = firebaseToCourt(i.getDocumentReference("court")?.get()?.await()!!)
                 val matchDateTime = LocalDateTime.of(match.date, match.time)
                 val dateTimeNotification = matchDateTime.plusHours(1).plusMinutes(30)
-                val matchToReview = MatchToReview(match, court, match.matchId, dateTimeNotification.toTimestamp())
+                val matchToReview = MatchToReview(court, match.matchId, dateTimeNotification.toTimestamp(), match)
                 listMatchesToReview.add(matchToReview)
             }
         }
@@ -177,6 +177,7 @@ class NotificationVM @Inject constructor() : ViewModel() {
     }
 
     fun deleteNotification(notificationId: String) {
+
         viewModelScope.launch {
             withContext(Dispatchers.IO){
                 val notificationRef = db.collection("invitations").document(notificationId)
@@ -186,12 +187,16 @@ class NotificationVM @Inject constructor() : ViewModel() {
         }
     }
 
-    fun deleteReviewNotification(notificationId: String) {
+    fun deleteReviewNotification(notificationId: String, matchId: String) {
+
+        val entry = mutableMapOf<String, Any>()
+        entry["reviewer"] = db.document("players/${auth.currentUser?.uid!!}")
+        entry["match"] = db.document("matches/${matchId}")
+
         viewModelScope.launch {
             withContext(Dispatchers.IO){
                 // TODO: something must be done here to flag that this review notification doesn't have to be shown!
-                //val notificationRef = db.collection("invitations").document(notificationId)
-                //notificationRef.delete()
+                db.collection("player_rating_mvp").add(entry)
             }
             _notifications.value = _notifications.value?.filter { it.id != notificationId }?.toMutableList()
         }
@@ -200,7 +205,7 @@ class NotificationVM @Inject constructor() : ViewModel() {
     fun joinTheMatch(notification: Invitation) {
         viewModelScope.launch {
             withContext(Dispatchers.IO){
-                val matchRef = db.collection("matches").document(notification.match.matchId)
+                val matchRef = db.collection("matches").document(notification.match?.matchId!!)
                 val court = matchRef.get().await().getDocumentReference("court")?.get()?.await()
                 val playerRef = db.collection("players").document(auth.currentUser!!.uid)
                 matchRef.update("listOfPlayers", FieldValue.arrayUnion(playerRef))
@@ -208,7 +213,7 @@ class NotificationVM @Inject constructor() : ViewModel() {
 
                 db.collection("reservations").add(
                     hashMapOf(
-                        "match" to db.document("matches/${notification.match.matchId}"),
+                        "match" to db.document("matches/${notification.match?.matchId}"),
                         "player" to playerRef,
                         "listOfEquipments" to listOf<DocumentReference>(),
                         "finalPrice" to court!!.getDouble("basePrice"),

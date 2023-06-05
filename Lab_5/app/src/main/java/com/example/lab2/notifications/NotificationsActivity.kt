@@ -117,13 +117,13 @@ class NotificationsActivity : AppCompatActivity(), NotificationAdapter.OnClickLi
         notificationVM.deleteNotification(invitationId)
     }
 
-    override fun onClickDeleteReviewNotification(invitationId: String) {
-        notificationVM.deleteReviewNotification(invitationId)
+    override fun onClickDeleteReviewNotification(invitationId: String, matchId: String) {
+        notificationVM.deleteReviewNotification(invitationId, matchId)
     }
 
     override fun onClickRateNow(matchToReview: MatchToReview) {
         val bundle = Bundle()
-        bundle.putString("matchId", matchToReview.match.matchId)
+        bundle.putString("matchId", matchToReview.match?.matchId)
         val modalBottomSheet = RatingModalBottomSheet()
         modalBottomSheet.arguments = bundle
         modalBottomSheet.show(supportFragmentManager, RatingModalBottomSheet.TAG)
@@ -163,7 +163,7 @@ class NotificationAdapter(
     interface OnClickListener {
         fun onClickAccept(invitation: Invitation)
         fun onClickDecline(invitationId: String)
-        fun onClickDeleteReviewNotification(invitationId: String)
+        fun onClickDeleteReviewNotification(invitationId: String, matchId: String)
         fun onClickRateNow(matchToReview: MatchToReview)
     }
 
@@ -214,7 +214,7 @@ class NotificationAdapter(
                 }
             })
             sportName.text = invitation.court.sport
-            dateDetail.text = setupDate(invitation.match.date)
+            dateDetail.text = setupDate(invitation.match?.date!!)
             timeDetail.text = invitation.match.time.format(DateTimeFormatter.ofPattern("HH:mm"))
             acceptButton.setOnClickListener {
                 listener.onClickAccept(invitation)
@@ -236,7 +236,7 @@ class NotificationAdapter(
         override fun bind(notification: Notification) {
             val matchToReview = notification as MatchToReview
             sportName.text = matchToReview.court.sport
-            dateDetail.text = setupDate(matchToReview.match.date)
+            dateDetail.text = setupDate(matchToReview.match?.date!!)
             hourDetail.text = matchToReview.match.time.format(DateTimeFormatter.ofPattern("HH:mm"))
             notificationTime.text = getTimeAgo(matchToReview.timestamp)
             rateNowButton.setOnClickListener {
@@ -288,7 +288,7 @@ class NotificationAdapter(
     fun deleteItem(position: Int) {
         when (getItemViewType(position)) {
             R.layout.invitation_card -> listener.onClickDecline(list[position].id!!)
-            R.layout.match_to_review_card -> listener.onClickDeleteReviewNotification(list[position].id!!)
+            R.layout.match_to_review_card -> listener.onClickDeleteReviewNotification(list[position].id!!, list[position].match?.matchId!!)
             else -> throw IllegalArgumentException("Invalid type of data in notifications.")
         }
     }
