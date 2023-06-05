@@ -39,8 +39,9 @@ class NotificationVM @Inject constructor() : ViewModel() {
     // So it's better to just compute it as the number of currently not handled notifications
     val numberOfUnseenNotifications : Int get() = (numberInvitations.value ?: 0) + (numberReviews.value ?: 0)
 
-    private val _notifications : MutableLiveData<MutableList<Notification>> = MutableLiveData(mutableListOf())
+    val _notifications : MutableLiveData<MutableList<Notification>> = MutableLiveData(mutableListOf())
     val notifications : LiveData<MutableList<Notification>> get() = _notifications
+
 
 
     // UI States
@@ -95,7 +96,6 @@ class NotificationVM @Inject constructor() : ViewModel() {
                 error.value = null
                 sortNotifications(resultInvitation.value!!, resultReviews.value!!)
             }else{
-                Log.e("invitation", resultReviews.throwable?.stackTraceToString()!! )
                 error.value = "Unable to retrieve notifications. Try again later."
             }
 
@@ -198,7 +198,6 @@ class NotificationVM @Inject constructor() : ViewModel() {
 
         viewModelScope.launch {
             withContext(Dispatchers.IO){
-                // TODO: something must be done here to flag that this review notification doesn't have to be shown!
                 db.collection("player_rating_mvp").add(entry)
             }
             _notifications.value = _notifications.value?.filter { it.id != notificationId }?.toMutableList()

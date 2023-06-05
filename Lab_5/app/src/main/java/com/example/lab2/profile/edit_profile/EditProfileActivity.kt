@@ -480,7 +480,7 @@ class EditProfileActivity : AppCompatActivity() {
             birthday = editedUser.birthday,
             interests = editedUser.interests,
             badges = skills_m,
-            score = vm.user.value?.score!!
+            score = vm.user.value?.score ?: mutableMapOf()
         )
 
         vm.updateUser(editedUser)

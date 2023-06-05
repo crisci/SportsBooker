@@ -1,6 +1,7 @@
 package com.example.lab2.notifications
 
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -28,7 +29,6 @@ import com.example.lab2.common.calendar.displayText
 import com.example.lab2.entities.Invitation
 import com.example.lab2.entities.MatchToReview
 import com.example.lab2.entities.Notification
-import com.example.lab2.ranking.quickScrollToTop
 import com.example.lab2.view_models.NotificationVM
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.firebase.Timestamp
@@ -124,11 +124,15 @@ class NotificationsActivity : AppCompatActivity(), NotificationAdapter.OnClickLi
     }
 
     override fun onClickRateNow(matchToReview: MatchToReview) {
+
         val bundle = Bundle()
         bundle.putString("matchId", matchToReview.match?.matchId)
         val modalBottomSheet = RatingModalBottomSheet()
+        modalBottomSheet.matchToReview = matchToReview
+        modalBottomSheet.notifications = notificationVM._notifications
         modalBottomSheet.arguments = bundle
         modalBottomSheet.show(supportFragmentManager, RatingModalBottomSheet.TAG)
+
     }
 
     private fun setSupportActionBar() {
@@ -145,6 +149,7 @@ class NotificationsActivity : AppCompatActivity(), NotificationAdapter.OnClickLi
             onBackPressedDispatcher.onBackPressed()
         }
     }
+
 }
 
 

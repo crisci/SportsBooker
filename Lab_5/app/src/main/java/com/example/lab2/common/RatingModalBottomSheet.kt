@@ -1,25 +1,20 @@
 package com.example.lab2.common
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.RatingBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lab2.R
-import com.example.lab2.entities.User
-import com.example.lab2.entities.CourtReview
-import com.example.lab2.entities.MatchWithCourt
+import com.example.lab2.entities.*
 import com.example.lab2.utils.AppPreferences
 import com.example.lab2.view_models.DetailsVM
 import com.example.lab2.view_models.RatingModalVM
@@ -31,8 +26,13 @@ import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.format.DateTimeFormatter
 
+
 @AndroidEntryPoint
 class RatingModalBottomSheet : BottomSheetDialogFragment() {
+
+
+    var matchToReview : MatchToReview? = null
+    var notifications : MutableLiveData<MutableList<Notification>>? = null
 
     lateinit var ratingModalVM: RatingModalVM
     lateinit var detailsVM: DetailsVM
@@ -52,7 +52,6 @@ class RatingModalBottomSheet : BottomSheetDialogFragment() {
 
     private lateinit var appPreferences: AppPreferences
 
-
     private fun submit() {
 
         val court = detailsVM.matchWithCourt.value!!.court
@@ -69,7 +68,7 @@ class RatingModalBottomSheet : BottomSheetDialogFragment() {
             ratingParametersMap
         )
         ratingModalVM.submitReview(courtReview)
-        ratingModalVM.incrementMVPScore(court)
+        ratingModalVM.incrementMVPScore(court = court)
     }
 
     override fun onCreateView(
@@ -119,6 +118,8 @@ class RatingModalBottomSheet : BottomSheetDialogFragment() {
             // courtId
             submit()
             dismiss()
+            // Fire this function which has been set in NotificationsActivity
+            ratingModalVM.deleteReviewNotification(matchToReview?.id!!, matchToReview?.match?.matchId!!, notifications!!)
             val dialog = Dialog(requireContext(), R.style.RoundedDialog)
             dialog.setContentView(R.layout.thank_you_review_layout)
             dialog.setCancelable(true)
@@ -175,7 +176,7 @@ class AdapterPlayersMVP(
 ) : RecyclerView.Adapter<ViewHolderPlayersMVP>() {
 
 
-    private var selectedPosition = 0
+    private var selectedPosition : Int? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderPlayersMVP {
         val v = LayoutInflater.from(parent.context)
@@ -187,7 +188,7 @@ class AdapterPlayersMVP(
 
     override fun onBindViewHolder(holder: ViewHolderPlayersMVP, position: Int) {
 
-        ratingModalVM.setSelectedMVP(listOfPlayers[0].userId)
+        //ratingModalVM.setSelectedMVP(listOfPlayers[0].userId)
 
         Picasso.get().load(listOfPlayers[position].image)
             .into(holder.playerImage, object : Callback {
@@ -204,8 +205,8 @@ class AdapterPlayersMVP(
         holder.playerImage?.setOnClickListener {
             val previousSelectedPosition = selectedPosition
             selectedPosition = holder.bindingAdapterPosition
-            notifyItemChanged(previousSelectedPosition)
-            notifyItemChanged(selectedPosition)
+            notifyItemChanged(previousSelectedPosition ?: 0)
+            notifyItemChanged(selectedPosition!!)
             ratingModalVM.setSelectedMVP(listOfPlayers[position].userId)
         }
 
