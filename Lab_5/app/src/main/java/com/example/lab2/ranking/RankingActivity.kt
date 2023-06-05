@@ -62,6 +62,7 @@ class RankingActivity : AppCompatActivity() {
         setSupportActionBar()
 
         vm = ViewModelProvider(this)[RankingVM::class.java]
+        vm.getAllPlayers()
 
         filterView = findViewById(R.id.ranking_filter)
         rankingContainer = findViewById(R.id.ranking_container)
@@ -73,8 +74,6 @@ class RankingActivity : AppCompatActivity() {
         )
         filterView.adapter = adapterCardFilters
         filterView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-
-        vm.getAllPlayers()
 
         val recyclerViewPlayers = findViewById<RecyclerView>(R.id.recyclerViewRanking)
         recyclerViewPlayers.layoutManager = LinearLayoutManager(this)

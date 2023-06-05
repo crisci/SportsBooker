@@ -51,7 +51,7 @@ class RankingVM @Inject constructor() : ViewModel() {
             if(result.value != null){
                 error.value = null
                 _allPlayers.postValue(result.value!!)
-                _ranking.postValue(result.value.map { u -> Pair(u, u.score?.get("Tennis") ?: 0) }.toList())
+                _ranking.postValue(result.value.map { u -> Pair(u, u.score?.get("Tennis") ?: 0) }.toList().sortedByDescending { it.second })
             }else{
                 error.value = result.throwable?.message
             }
