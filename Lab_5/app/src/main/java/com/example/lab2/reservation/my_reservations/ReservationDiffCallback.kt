@@ -28,6 +28,10 @@ class ReservationDiffCallback(
                 areMatchTheSame(
                     reservations[oldItemPosition].match,
                     newReservations[newItemPosition].match
+                ) &&
+                areReservationTheSame(
+                    reservations[oldItemPosition],
+                    newReservations[newItemPosition]
                 )
 
     }
@@ -55,6 +59,7 @@ class ReservationDiffCallback(
         return oldReservation.reservationId == newReservation.reservationId &&
                 oldReservation.finalPrice == newReservation.finalPrice
                 && oldReservation.equipments == newReservation.equipments
+
     }
 
 
