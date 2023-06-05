@@ -164,6 +164,7 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
                                 } else {
                                     // User does not exist, proceed with registration
                                     val bundle = Bundle()
+                                    bundle.putString("uid",firebaseAuth.uid)
                                     bundle.putString("name", name)
                                     bundle.putString("surname", surname)
                                     bundle.putString("email", email)
