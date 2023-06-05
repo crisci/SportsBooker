@@ -149,8 +149,11 @@ class EditReservationActivity : AppCompatActivity() {
         }
 
         editReservationVM.submitEditSuccess.observe(this){
-            if(it) {
+            if(it && !reservation.isEqualTo(editReservationVM.getEditedReservation().value)) {
                 setResult(Activity.RESULT_OK)
+                finish()
+            }else if(it){
+                setResult(Activity.RESULT_CANCELED)
                 finish()
             }
         }

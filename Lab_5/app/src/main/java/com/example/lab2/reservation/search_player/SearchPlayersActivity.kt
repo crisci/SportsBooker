@@ -9,11 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -46,11 +48,15 @@ class SearchPlayersActivity : AppCompatActivity(), AdapterPlayersList.OnClickLis
 
     private lateinit var backButton: ImageView
     private lateinit var searchBar: SearchView
+    private lateinit var recyclerViewPlayers: RecyclerView
+    private lateinit var searchContainer: ScrollView
+    private lateinit var loadingContainer: ConstraintLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_players)
         setSupportActionBar()
+        findViews()
 
         searchPlayersVM = ViewModelProvider(this)[SearchPlayersVM::class.java]
 
@@ -58,12 +64,11 @@ class SearchPlayersActivity : AppCompatActivity(), AdapterPlayersList.OnClickLis
         val reservation =
             Json.decodeFromString(MatchWithCourtAndEquipments.serializer(), stringRes!!)
 
-        searchBar = findViewById(R.id.search_view)
 
         searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(p0: String?): Boolean {
                 // filter visible content
-                mainVM.filterPlayers(p0)
+                searchPlayersVM.filterPlayers(p0)
                 return false
             }
 
@@ -74,15 +79,12 @@ class SearchPlayersActivity : AppCompatActivity(), AdapterPlayersList.OnClickLis
             }
         })
 
-        mainVM.getAllPlayers()
 
-        val recyclerViewPlayers = findViewById<RecyclerView>(R.id.recyclerViewPlayers)
         recyclerViewPlayers.layoutManager = LinearLayoutManager(this)
         val adapterCard = AdapterPlayersList(emptyList(), this, mainVM.userId, reservation.match)
         recyclerViewPlayers.adapter = adapterCard
 
-        // TODO: needs to be changed with searchPlayersVM and needs coroutine implementation
-        mainVM.allPlayers.observe(this) {
+        searchPlayersVM.allPlayers.observe(this) {
             adapterCard.setPlayers(it.filter { player ->
                 !reservation.match.listOfPlayers.contains(
                     player.userId
@@ -102,6 +104,26 @@ class SearchPlayersActivity : AppCompatActivity(), AdapterPlayersList.OnClickLis
             }
         }
 
+        searchPlayersVM.loadingState.observe(this){
+            setLoadingScreen(it)
+        }
+
+    }
+
+    private fun findViews(){
+        searchBar = findViewById(R.id.search_view)
+        recyclerViewPlayers = findViewById<RecyclerView>(R.id.recyclerViewPlayers)
+        searchContainer = findViewById(R.id.search_container)
+        loadingContainer = findViewById(R.id.loading_search)
+    }
+    private fun setLoadingScreen(state: Boolean) {
+        if(state) { //is Loading
+            searchContainer.visibility = View.GONE
+            loadingContainer.visibility = View.VISIBLE
+        }else{ // is not loading
+            loadingContainer.visibility = View.GONE
+            searchContainer.visibility = View.VISIBLE
+        }
     }
 
     private fun setSupportActionBar() {

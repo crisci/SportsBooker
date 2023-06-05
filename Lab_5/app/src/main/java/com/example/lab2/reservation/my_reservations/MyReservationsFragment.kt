@@ -58,6 +58,8 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
     private fun processResponse(response: androidx.activity.result.ActivityResult) {
         if (response.resultCode == AppCompatActivity.RESULT_OK) {
             loading.visibility = View.VISIBLE
+        }else{
+            loading.visibility = View.GONE
         }
     }
 

@@ -10,7 +10,19 @@ class MatchWithCourtAndEquipments(
     val court: Court,
     var equipments: List<Equipment>,
     var finalPrice: Double
-)
+){
+
+    fun isEqualTo(other: MatchWithCourtAndEquipments?) : Boolean {
+
+        return other != null &&
+                reservationId == other.reservationId &&
+                match.matchId == other.match.matchId &&
+                court.courtId == other.court.courtId &&
+                equipments.containsAll(other.equipments) &&
+                finalPrice == other.finalPrice
+    }
+
+}
 
 fun firebaseToMatchWithCourtAndEquipments(
     m: DocumentSnapshot,
