@@ -8,11 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import com.example.lab2.R
 import com.example.lab2.databinding.FragmentCompleteRegistrationGoogleBinding
 import com.example.lab2.databinding.FragmentSignupBinding
+import com.example.lab2.entities.PartialRegistration
 import com.example.lab2.view_models.SignupVM
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
@@ -51,12 +53,12 @@ class FragmentCompleteRegistrationGoogle : Fragment(R.layout.fragment_complete_r
 
         signupVM = ViewModelProvider(requireActivity())[SignupVM::class.java]
 
-        val uid = arguments?.getString("uid")
-        val name = arguments?.getString("name")
-        val surname = arguments?.getString("surname")
-        val email = arguments?.getString("email")
-        val credential = arguments?.getParcelable<AuthCredential>("credential")
-        val photoUrl = arguments?.getString("photoUrl")
+        val partialRegistration = PartialRegistration.fromJson(arguments?.getString("partialRegistrationJson")!!)
+        val uid = partialRegistration.userId
+        val name = partialRegistration.name
+        val surname = partialRegistration.surname
+        val email = partialRegistration.email
+        val photoUrl = partialRegistration.photoUrl
 
         navController = findNavController()
 
@@ -97,15 +99,15 @@ class FragmentCompleteRegistrationGoogle : Fragment(R.layout.fragment_complete_r
             if (dateOfBirth.isNotEmpty() && location.isNotEmpty() && username.isNotEmpty()
             ) {
                 signupVM.createPlayer(
-                    userId = uid!!,
-                    name = name!!,
-                    surname = surname!!,
-                    username = username!!,
-                    email = email!!,
-                    location = location!!,
-                    dateOfBirth = dateOfBirth!!,
+                    userId = uid,
+                    name = name,
+                    surname = surname,
+                    username = username,
+                    email = email,
+                    location = location,
+                    dateOfBirth = dateOfBirth,
                     selectedInterests = mutableListOf(),
-                    photoUrl = photoUrl!!
+                    photoUrl = photoUrl
                 )
                 val bundle = Bundle()
                 bundle.putString("uid", uid)

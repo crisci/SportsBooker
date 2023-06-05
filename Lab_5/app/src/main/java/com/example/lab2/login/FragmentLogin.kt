@@ -84,13 +84,30 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
             }
         }
 
+        signupVM.userMustCompleteRegistration.observe(viewLifecycleOwner) { partialRegistrationJson ->
+            Log.d("partialRegistrationJson", partialRegistrationJson)
+            val bundle = Bundle()
+            bundle.putString("partialRegistrationJson", partialRegistrationJson)
+            navController.navigate(R.id.action_login_to_complete_registration_google, bundle)
+        }
+
+        signupVM.error.observe(viewLifecycleOwner) { error ->
+            Toast.makeText(requireActivity(), error, Toast.LENGTH_SHORT).show()
+        }
+
+        signupVM.loadingState.observe(viewLifecycleOwner) { loadingState ->
+            if (loadingState) {
+                binding.loading.visibility = View.VISIBLE
+            } else {
+                binding.loading.visibility = View.GONE
+            }
+        }
+
         firebaseAuth.addAuthStateListener(authStateListener)
 
         view.findViewById<View>(R.id.login).setOnClickListener {
             val email = binding.emailEditText.text.toString()
             val password = binding.passwordEditText.text.toString()
-
-
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
                 firebaseAuth.signInWithEmailAndPassword(email, password)
@@ -152,40 +169,17 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
             Log.d("photoUrl", photoUrl)
             if (photoUrl.isEmpty())
                 photoUrl = "https://firebasestorage.googleapis.com/v0/b/sportsbooker-mad.appspot.com/o/images%2Fprofile_picture.jpeg?alt=media&token=e5441836-e955-4a13-966b-202f0f3cd210&_gl=1*6spico*_ga*MTk2NjY0NzgxMS4xNjgzMTkzMzEy*_ga_CW55HF8NVT*MTY4NTYyMTM1MS4xNy4xLjE2ODU2MjUzMTcuMC4wLjA."
-            firebaseAuth.signInWithCredential(credential)
-                .addOnCompleteListener(requireActivity()) { task ->
-                    if (task.isSuccessful) {
-                        db.collection("players")
-                            .whereEqualTo("email", email)
-                            .get()
-                            .addOnSuccessListener { querySnapshot ->
-                                if (!querySnapshot.isEmpty) {
-                                    // User already exists in the "players" collection
-                                    Toast.makeText(requireActivity(), "Logged in successfully!", Toast.LENGTH_SHORT).show()
-                                } else {
-                                    // User does not exist, proceed with registration
-                                    val bundle = Bundle()
-                                    bundle.putString("uid",firebaseAuth.uid)
-                                    bundle.putString("name", name)
-                                    bundle.putString("surname", surname)
-                                    bundle.putString("email", email)
-                                    bundle.putParcelable("credential", credential)
-                                    bundle.putString("photoUrl", photoUrl)
-                                    navController.navigate(R.id.action_login_to_complete_registration_google, bundle)
-                                }
-                            }
-                    }
-                }
+            signupVM.loginWithGoogle(
+                name = name!!,
+                surname = surname!!,
+                credential = credential,
+                email = email!!,
+                photoUrl = photoUrl
+            )
         }
         else {
             Toast.makeText(requireActivity(), task.exception.toString(), Toast.LENGTH_SHORT).show()
         }
-    }
-
-    fun checkUserExistence(email: String): Boolean {
-        val firebaseAuth = FirebaseAuth.getInstance()
-        val firebaseUser = firebaseAuth.currentUser
-        return firebaseUser != null && firebaseUser.email == email
     }
 
     override fun onStop() {

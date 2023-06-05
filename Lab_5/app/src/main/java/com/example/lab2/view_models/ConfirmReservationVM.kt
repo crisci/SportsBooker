@@ -54,12 +54,11 @@ class ConfirmReservationVM @Inject constructor() : ViewModel() {
             val result = withContext(Dispatchers.IO) {
                try {
                    val matches = getMatches(playerRef, startTimestamp, endTimestamp)
-                       if (matches.isEmpty) {
-                           addMatch(playerRef, newMatch)
-                       } else {
-                           throw Exception("Player already has a match at that timestamp")
-
-                       }
+                   if (matches.isEmpty) {
+                       addMatch(playerRef, newMatch)
+                   } else {
+                       throw Exception("Player already has a match at that timestamp")
+                   }
                    Result(value = true, throwable = null)
                } catch (err: Exception) {
                    Result(value = false, throwable = err)

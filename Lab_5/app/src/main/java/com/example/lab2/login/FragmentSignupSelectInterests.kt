@@ -109,7 +109,6 @@ class FragmentSignupSelectInterests : Fragment(R.layout.fragment_signup_select_i
                     .show()
                 return@setOnClickListener
             }
-            navController.navigate(R.id.action_select_interests_to_login)
             Toast.makeText(requireContext(), "User created successfully", Toast.LENGTH_SHORT).show()
         }
         return view

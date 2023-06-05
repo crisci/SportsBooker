@@ -5,10 +5,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lab2.entities.BadgeType
+import com.example.lab2.entities.PartialRegistration
 import com.example.lab2.entities.Result
 import com.example.lab2.entities.Sport
 import com.example.lab2.entities.User
+import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -26,8 +29,10 @@ class SignupVM @Inject constructor() : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
     private val firebaseAuth = FirebaseAuth.getInstance()
 
-    private val _isPlayerCreated: MutableLiveData<Boolean> = MutableLiveData(false)
-    val isPlayerCreated: LiveData<Boolean> = _isPlayerCreated
+    var error: MutableLiveData<String?> = MutableLiveData()
+    var loadingState: MutableLiveData<Boolean> = MutableLiveData(false)
+
+    var userMustCompleteRegistration: MutableLiveData<String> = MutableLiveData()
 
     fun createPlayer(
         userId: String,
@@ -61,35 +66,63 @@ class SignupVM @Inject constructor() : ViewModel() {
         db.collection("players").document(userId).update("interests", sports)
     }
 
- /*   suspend fun checkIfPlayerExists(email: String){
+    fun loginWithGoogle(
+        name: String,
+        surname: String,
+        email: String,
+        credential: AuthCredential,
+        photoUrl: String,
+    ) {
         viewModelScope.launch {
-            val result = withContext(Dispatchers.IO) {
-                try {
-                    val querySnapshot =
-                        db.collection("players").whereEqualTo("email", email).get().await()
-                    if(!querySnapshot.isEmpty) {
-                        Result(true, null)
-                    }
-                    else {
-                        Result(false, null)
-                    }
-                } catch (err: Exception) {
-                    Result(false, err)
-                }
-            }
-            _isPlayerCreated.value = result.value!!
-        }
-    }*/
+            loadingState.value = true // Set loading state to true
 
-/*    suspend fun checkIfPlayerExists(email: String): Boolean {
-        db.collection("players")
-            .whereEqualTo("email", email)
-            .get()
-            .addOnSuccessListener {
-                return@addOnSuccessListener !it.isEmpty
+            try {
+                val result = signInWithCredential(credential)
+                if (result.value != null) {
+                    val querySnapshot = db.collection("players")
+                        .whereEqualTo("email",email)
+                        .get()
+                        .await()
+                    if (!querySnapshot.isEmpty) {
+                        // User already exists in the "players" collection
+                        loadingState.value = false // Set loading state to false
+                        // Handle successful login
+                    } else {
+                        // User does not exist, proceed with registration
+                        userMustCompleteRegistration.value =
+                            PartialRegistration(
+                                userId = result.value.uid,
+                                name = name,
+                                surname = surname,
+                                email = email,
+                                photoUrl = photoUrl
+                            ).toJson()
+                        loadingState.value = false // Set loading state to false
+                        // Handle successful registration
+                        // Navigate to the appropriate screen
+                    }
+
+                } else {
+                    loadingState.value = false // Set loading state to false
+                    // Handle Google sign-in failure
+                    error.value = result.throwable?.message
+                }
+            } catch (e: Exception) {
+                loadingState.value = false // Set loading state to false
+                // Handle any exceptions
+                error.value = e.message
             }
-            .addOnFailureListener {
-                return@addOnFailureListener false
+        }
+    }
+
+    private suspend fun signInWithCredential(credential: AuthCredential): Result<FirebaseUser> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val result = firebaseAuth.signInWithCredential(credential).await()
+                Result(result.user, null)
+            } catch (e: Exception) {
+                Result(null, e)
             }
-    }*/
+        }
+    }
 }
