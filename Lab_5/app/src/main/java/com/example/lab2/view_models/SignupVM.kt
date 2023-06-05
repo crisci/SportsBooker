@@ -144,9 +144,7 @@ class SignupVM @Inject constructor() : ViewModel() {
             }
 
             if(result.value!!){
-                error.value = null
                 validUsername.value = true
-
             }else{
                  validUsername.value = false
                  error.value = result.throwable?.message

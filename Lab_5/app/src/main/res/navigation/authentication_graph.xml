@@ -58,5 +58,7 @@
         android:id="@+id/action_to_login"
         app:destination="@id/login"
         app:enterAnim="@anim/slide_in_left"
-        app:exitAnim="@anim/slide_out_right" />
+        app:exitAnim="@anim/slide_out_right"
+        app:popUpTo="@id/login"
+        app:popUpToInclusive="true" />
 </navigation>
