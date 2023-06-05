@@ -32,9 +32,7 @@ class AdapterRVMyReservations(
         return ViewHolderCard(v)
     }
 
-    override fun getItemCount(): Int {
-        return list.size
-    }
+    override fun getItemCount(): Int = list.size
 
     override fun onBindViewHolder(holder: ViewHolderCard, position: Int) {
         holder.name.text = "${list[position].court.name}"
@@ -59,7 +57,7 @@ class AdapterRVMyReservations(
         holder.editButton.setOnClickListener { listener.onEditClick(list[holder.bindingAdapterPosition]) }
         holder.detailsButton.setOnClickListener {
             val intent = Intent(holder.context, DetailsActivity::class.java)
-            intent.putExtra("reservationId", list[position].reservationId)
+            intent.putExtra("reservationId", list[holder.bindingAdapterPosition].reservationId)
             holder.context.startActivity(intent)
         }
     }
