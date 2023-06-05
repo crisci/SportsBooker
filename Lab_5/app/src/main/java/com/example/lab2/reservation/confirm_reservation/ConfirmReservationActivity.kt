@@ -74,9 +74,18 @@ class ConfirmReservationActivity : AppCompatActivity() {
 
         updateContent()
 
-        confirmReservationVM.exceptionMessage.observe(this) {
+        confirmReservationVM.error.observe(this) {
             Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
         }
+
+        confirmReservationVM.submitConfirmSuccess.observe(this) {
+            if (it == true) {
+                setResult(Activity.RESULT_OK)
+                finish()
+            }
+        }
+
+
     }
 
     private fun updateContent() {
@@ -109,11 +118,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
                     }
                 }
             }
-
-            thread {
-                // TODO: Check also the if the player has already booked match in the same timeslot
                 if (match.numOfPlayers < court.maxNumberOfPlayers!!) {
-                    try {
                         confirmReservationVM.addReservation(
                             MatchWithCourtAndEquipments(
                                 match = match,
@@ -122,11 +127,6 @@ class ConfirmReservationActivity : AppCompatActivity() {
                                 finalPrice = equipmentsVM.getPersonalPrice().value!!
                             )
                         )
-                        setResult(Activity.RESULT_OK)
-                        finish()
-                    } catch (err: RuntimeException) {
-                        Log.e("confirm", "Cannot duplicate the match")
-                    }
                 } else {
                     MainScope().launch {
                         Toast.makeText(
@@ -134,7 +134,6 @@ class ConfirmReservationActivity : AppCompatActivity() {
                             "The maximum number of players is reached.",
                             Toast.LENGTH_SHORT
                         ).show()
-                    }
                 }
             }
         }
