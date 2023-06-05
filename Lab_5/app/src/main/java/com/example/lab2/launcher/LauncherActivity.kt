@@ -24,6 +24,8 @@ class LauncherActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_launcher)
 
+        supportActionBar?.hide()
+
         auth = FirebaseAuth.getInstance()
 
         authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->

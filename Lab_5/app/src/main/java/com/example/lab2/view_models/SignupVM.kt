@@ -125,4 +125,15 @@ class SignupVM @Inject constructor() : ViewModel() {
             }
         }
     }
+
+    private fun checkIfUsernameAlreadyExists(username: String) {
+        viewModelScope.launch {
+            val querySnapshot = db.collection("players")
+                .whereEqualTo("nickname", username)
+                .get()
+                .await()
+            if(!querySnapshot.isEmpty)
+                error.value = "Username already exists"
+        }
+    }
 }
