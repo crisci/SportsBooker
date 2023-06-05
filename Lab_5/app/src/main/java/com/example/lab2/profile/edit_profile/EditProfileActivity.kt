@@ -66,6 +66,8 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var tagGroup: TagView
     private lateinit var confirmButton: Button
     private lateinit var backButton: ImageButton
+    private lateinit var contentEdit: ScrollView
+    private lateinit var loadingEdit: ProgressBar
 
     var image_uri: Uri? = null
     var file_name: String? = null
@@ -211,6 +213,8 @@ class EditProfileActivity : AppCompatActivity() {
         cameraImageButton = findViewById(R.id.edit_picture)
         confirmButton = findViewById(R.id.confirm_button)
         tagGroup = findViewById(R.id.tag_group)
+        contentEdit = findViewById(R.id.contentEdit)
+        loadingEdit = findViewById(R.id.loadingEdit)
 
         cameraImageButton.setOnClickListener { popupMenuSetup() }
     }
@@ -334,14 +338,18 @@ class EditProfileActivity : AppCompatActivity() {
                         // to make the file accessible only to our app.
                         // This operation is time-consuming, so we define a thread.
                         thread {
-                            cameraHasFinished = false
+                            runOnUiThread {
+                                setLoading(true)
+                            }
                             val outputStream =
                                 applicationContext.openFileOutput(file_name, Context.MODE_PRIVATE)
                             // We compress the bitmap data to PNG format and write it to the outputStream
                             it.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
                             outputStream.flush()
                             outputStream.close()
-                            cameraHasFinished = true
+                            runOnUiThread {
+                                setLoading(false)
+                            }
                         }
                     }
                 }
@@ -365,14 +373,18 @@ class EditProfileActivity : AppCompatActivity() {
                         // to make the file accessible only to our app.
                         // This operation is time-consuming, so we define a thread.
                         thread {
-                            cameraHasFinished = false
+                            runOnUiThread {
+                                setLoading(true)
+                            }
                             val outputStream =
                                 applicationContext.openFileOutput(file_name, Context.MODE_PRIVATE)
                             // We compress the bitmap data to PNG format and write it to the outputStream
                             it.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
                             outputStream.flush()
                             outputStream.close()
-                            cameraHasFinished = true
+                            runOnUiThread {
+                                setLoading(false)
+                            }
                         }
                     }
                 }
@@ -460,14 +472,7 @@ class EditProfileActivity : AppCompatActivity() {
     }
 
     private fun saveData() {
-
-        /// TODO if camera thread is still running, it should appear a loading icon
-
-        while (!cameraHasFinished) {
-        }
-        confirmButton.text = "Confirm"
-
-        val result: Intent = Intent()
+        val result = Intent()
 
         val editedUser = User(
             userId = vm.user.value?.userId!!,
@@ -486,11 +491,18 @@ class EditProfileActivity : AppCompatActivity() {
         vm.updateUser(editedUser)
 
         if (image_uri != null) {
-            vm.updateUserImage(image_uri!!)
+            setLoading(true)
+            vm.updateUserImage(image_uri!!){
+                setLoading(false)
+                setResult(Activity.RESULT_OK, result)
+                finish()
+            }
+        } else {
+            setResult(Activity.RESULT_OK, result)
+            finish()
         }
 
-        setResult(Activity.RESULT_OK, result)
-        finish()
+
     }
 
     //TODO This function initializes the DatePickerDialog
@@ -515,6 +527,16 @@ class EditProfileActivity : AppCompatActivity() {
             )
             datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
             datePickerDialog.show()
+        }
+    }
+
+    private fun setLoading(value : Boolean) {
+        if(value && contentEdit.visibility == View.VISIBLE) {
+            contentEdit.visibility = View.INVISIBLE
+            loadingEdit.visibility = View.VISIBLE
+        } else if (!value) {
+            contentEdit.visibility = View.VISIBLE
+            loadingEdit.visibility = View.GONE
         }
     }
 }

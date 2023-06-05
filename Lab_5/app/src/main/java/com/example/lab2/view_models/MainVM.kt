@@ -81,8 +81,7 @@ class MainVM @Inject constructor() : ViewModel() {
             }
     }
 
-    fun updateUserImage(imageUri: Uri) {
-
+    fun updateUserImage(imageUri: Uri, onSuccess: () -> Unit) {
         val fileName =
             user.value?.full_name?.filterNot { it.isWhitespace() } ?: UUID.randomUUID().toString()
 
@@ -93,6 +92,7 @@ class MainVM @Inject constructor() : ViewModel() {
                     .update("image", imageUrl)
                     .addOnSuccessListener {
                         user.value?.image = imageUrl
+                        onSuccess()  // Call the success callback
                     }
                     .addOnFailureListener { e ->
                         error.value = e.message!!
