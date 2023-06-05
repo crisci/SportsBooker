@@ -93,6 +93,7 @@ class NotificationsActivity : AppCompatActivity(), NotificationAdapter.OnClickLi
 
     private fun setLoadingScreen(state: Boolean) {
         if(state) { //is Loading
+            noNotifications.visibility = View.GONE
             notificationsContainer.visibility = View.GONE
             loadingContainer.visibility = View.VISIBLE
         }else{ // is not loading
