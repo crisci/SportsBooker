@@ -1,11 +1,21 @@
 package com.example.lab2.view_models
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.lab2.entities.BadgeType
+import com.example.lab2.entities.Result
 import com.example.lab2.entities.Sport
 import com.example.lab2.entities.User
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,6 +24,10 @@ import javax.inject.Singleton
 class SignupVM @Inject constructor() : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
+    private val firebaseAuth = FirebaseAuth.getInstance()
+
+    private val _isPlayerCreated: MutableLiveData<Boolean> = MutableLiveData(false)
+    val isPlayerCreated: LiveData<Boolean> = _isPlayerCreated
 
     fun createPlayer(
         userId: String,
@@ -23,7 +37,8 @@ class SignupVM @Inject constructor() : ViewModel() {
         email: String,
         dateOfBirth: String,
         location: String,
-        selectedInterests: MutableList<Sport>
+        selectedInterests: MutableList<Sport>,
+        photoUrl: String
     ) {
         val user = User.toFirebase(
             User(
@@ -36,7 +51,7 @@ class SignupVM @Inject constructor() : ViewModel() {
                 address = location,
                 interests = selectedInterests,
                 badges = BadgeType.values().associateWith { 0 },
-                image = "https://firebasestorage.googleapis.com/v0/b/sportsbooker-mad.appspot.com/o/images%2Fprofile_picture.jpeg?alt=media&token=e5441836-e955-4a13-966b-202f0f3cd210&_gl=1*6spico*_ga*MTk2NjY0NzgxMS4xNjgzMTkzMzEy*_ga_CW55HF8NVT*MTY4NTYyMTM1MS4xNy4xLjE2ODU2MjUzMTcuMC4wLjA."
+                image = photoUrl
             )
         )
         db.collection("players").document(userId).set(user)
@@ -45,4 +60,36 @@ class SignupVM @Inject constructor() : ViewModel() {
     fun updatePlayer(userId: String, sports: MutableList<Sport>) {
         db.collection("players").document(userId).update("interests", sports)
     }
+
+ /*   suspend fun checkIfPlayerExists(email: String){
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                try {
+                    val querySnapshot =
+                        db.collection("players").whereEqualTo("email", email).get().await()
+                    if(!querySnapshot.isEmpty) {
+                        Result(true, null)
+                    }
+                    else {
+                        Result(false, null)
+                    }
+                } catch (err: Exception) {
+                    Result(false, err)
+                }
+            }
+            _isPlayerCreated.value = result.value!!
+        }
+    }*/
+
+/*    suspend fun checkIfPlayerExists(email: String): Boolean {
+        db.collection("players")
+            .whereEqualTo("email", email)
+            .get()
+            .addOnSuccessListener {
+                return@addOnSuccessListener !it.isEmpty
+            }
+            .addOnFailureListener {
+                return@addOnFailureListener false
+            }
+    }*/
 }

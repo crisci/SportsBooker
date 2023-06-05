@@ -87,6 +87,9 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
 
             val username = binding.usernameEditText.text.toString()
 
+            val defaultPhoto = "https://firebasestorage.googleapis.com/v0/b/lab2-8b0e9.appspot.com/o/default_profile_photo.png?alt=media&token=8b8f2b8e-8b1e-4b1e-9b0e-5b0e9b0e9b0e"
+
+
             binding.name.error = null
             binding.surname.error = null
             binding.dateOfBirth.error = null
@@ -123,14 +126,15 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
                                 signupVM.createPlayer(
-                                    task.result.user?.uid!!,
-                                    name,
-                                    surname,
-                                    username,
-                                    email,
-                                    dateOfBirth,
-                                    location,
-                                    mutableListOf()
+                                    userId = task.result.user?.uid!!,
+                                    name = name,
+                                    surname = surname,
+                                    username = username,
+                                    email = email,
+                                    dateOfBirth = dateOfBirth,
+                                    location = location,
+                                    selectedInterests = mutableListOf(),
+                                    photoUrl = defaultPhoto
                                 )
                                 val bundle = Bundle()
                                 bundle.putString("uid", task.result.user?.uid)

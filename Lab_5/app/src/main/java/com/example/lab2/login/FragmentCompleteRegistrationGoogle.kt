@@ -1,6 +1,7 @@
 package com.example.lab2.login
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -54,8 +55,8 @@ class FragmentCompleteRegistrationGoogle : Fragment(R.layout.fragment_complete_r
         val name = arguments?.getString("name")
         val surname = arguments?.getString("surname")
         val email = arguments?.getString("email")
-        val photoUrl = arguments?.getString("photoUrl")
         val credential = arguments?.getParcelable<AuthCredential>("credential")
+        val photoUrl = arguments?.getString("photoUrl")
 
         navController = findNavController()
 
@@ -95,32 +96,23 @@ class FragmentCompleteRegistrationGoogle : Fragment(R.layout.fragment_complete_r
 
             if (dateOfBirth.isNotEmpty() && location.isNotEmpty() && username.isNotEmpty()
             ) {
-                firebaseAuth.signInWithCredential(credential!!)
-                    .addOnCompleteListener(requireActivity()) { task ->
-                        if (task.isSuccessful) {
-                            signupVM.createPlayer(
-                                userId = task.result.user?.uid!!,
-                                name = name!!,
-                                surname = surname!!,
-                                username = username!!,
-                                email = email!!,
-                                location = location!!,
-                                dateOfBirth = dateOfBirth!!,
-                                selectedInterests = mutableListOf()
-                            )
-                            val bundle = Bundle()
-                            bundle.putString("uid", task.result.user?.uid)
-                            navController.navigate(
-                                R.id.action_complete_registration_google_to_select_interests,
-                                bundle
-                            )
-                        } else {
-                            Toast.makeText(requireActivity(), task.exception.toString(), Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(requireActivity(), it.message, Toast.LENGTH_SHORT).show()
-                    }
+                signupVM.createPlayer(
+                    userId = uid!!,
+                    name = name!!,
+                    surname = surname!!,
+                    username = username!!,
+                    email = email!!,
+                    location = location!!,
+                    dateOfBirth = dateOfBirth!!,
+                    selectedInterests = mutableListOf(),
+                    photoUrl = photoUrl!!
+                )
+                val bundle = Bundle()
+                bundle.putString("uid", uid)
+                navController.navigate(
+                    R.id.action_complete_registration_google_to_select_interests,
+                    bundle
+                )
             } else {
                 Toast.makeText(requireActivity(), "Please fill in all fields", Toast.LENGTH_SHORT)
                     .show()

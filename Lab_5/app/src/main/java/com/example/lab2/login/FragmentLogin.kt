@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.example.lab2.R
@@ -28,8 +29,14 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.sign
 
 
 @AndroidEntryPoint
@@ -42,6 +49,7 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var binding: FragmentLoginBinding
     private lateinit var googleSignInClient: GoogleSignInClient
+    private val db = FirebaseFirestore.getInstance()
 
     @Inject
     lateinit var mainVM: MainVM
@@ -61,6 +69,8 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
         binding = FragmentLoginBinding.bind(view)
 
         firebaseAuth = FirebaseAuth.getInstance()
+
+        signupVM = ViewModelProvider(requireActivity())[SignupVM::class.java]
 
         navController = findNavController()
 
@@ -137,19 +147,49 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
             val name = account.givenName
             val surname = account.familyName
             val email = account.email
-            val photoUrl = account.photoUrl
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-            val bundle = Bundle()
-            bundle.putString("name", name)
-            bundle.putString("surname", surname)
-            bundle.putString("email", email)
-            bundle.putString("photoUrl", photoUrl.toString())
-            bundle.putParcelable("credential", credential)
-            navController.navigate(R.id.action_login_to_complete_registration_google, bundle)
+            var photoUrl = account.photoUrl.toString()
+            if (photoUrl.isEmpty())
+                photoUrl = "https://firebasestorage.googleapis.com/v0/b/sportsbooker-mad.appspot.com/o/images%2Fprofile_picture.jpeg?alt=media&token=e5441836-e955-4a13-966b-202f0f3cd210&_gl=1*6spico*_ga*MTk2NjY0NzgxMS4xNjgzMTkzMzEy*_ga_CW55HF8NVT*MTY4NTYyMTM1MS4xNy4xLjE2ODU2MjUzMTcuMC4wLjA."
+            firebaseAuth.signInWithCredential(credential)
+                .addOnCompleteListener(requireActivity()) { task ->
+                    if (task.isSuccessful) {
+                        db.collection("players")
+                            .whereEqualTo("email", email)
+                            .get()
+                            .addOnCompleteListener { querySnapshotTask ->
+                                if (querySnapshotTask.isSuccessful) {
+                                    val querySnapshot: QuerySnapshot? = querySnapshotTask.result
+                                    if (querySnapshot != null && !querySnapshot.isEmpty) {
+                                        // User already exists in the "players" collection
+                                        Toast.makeText(requireActivity(), "Logged in successfully!", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        // User does not exist, proceed with registration
+                                        val bundle = Bundle()
+                                        bundle.putString("name", name)
+                                        bundle.putString("surname", surname)
+                                        bundle.putString("email", email)
+                                        bundle.putParcelable("credential", credential)
+                                        bundle.putString("photoUrl", photoUrl)
+                                        navController.navigate(R.id.action_login_to_complete_registration_google, bundle)
+                                    }
+                                } else {
+                                    // Handle error when querying Firestore
+                                    Toast.makeText(requireActivity(), "Error querying user", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                    }
+                }
         }
         else {
             Toast.makeText(requireActivity(), task.exception.toString(), Toast.LENGTH_SHORT).show()
         }
+    }
+
+    fun checkUserExistence(email: String): Boolean {
+        val firebaseAuth = FirebaseAuth.getInstance()
+        val firebaseUser = firebaseAuth.currentUser
+        return firebaseUser != null && firebaseUser.email == email
     }
 
     override fun onStop() {
