@@ -5,9 +5,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lab2.entities.MatchFirebase
+import com.example.lab2.entities.MatchWithCourtAndEquipmentsToFirebase
 import com.example.lab2.entities.ReservationFirebase
 import com.example.lab2.utils.toTimestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldPath
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -24,6 +27,7 @@ import javax.inject.Inject
 class CreateMatchVM @Inject constructor() : ViewModel() {
 
     val db = FirebaseFirestore.getInstance()
+    val userId = FirebaseAuth.getInstance()
 
     private var listTimeslots: MutableLiveData<List<String>> = MutableLiveData(
         listOf(
@@ -54,46 +58,64 @@ class CreateMatchVM @Inject constructor() : ViewModel() {
 
             val listOfBookedCourts = mutableListOf<String>()
             //Populate the list of already booked courts for the given timeslot
-            db.collection("matches")
+            val playerRef = db.collection("players").document(userId.uid!!)
+            val playerMatchQuery = db.collection("matches")
+                .whereArrayContains("listOfPlayers", playerRef)
                 .whereGreaterThanOrEqualTo("timestamp", startTimestamp)
-                .whereLessThan("timestamp", endTimestamp)
-                .get().addOnSuccessListener { matches ->
-                    CoroutineScope(Dispatchers.IO).launch {
-                        for (match in matches) {
-                            val q = match.getDocumentReference("court")?.get()?.await()
-                            listOfBookedCourts.add(q!!.id)
-                        }
-                        if (listOfBookedCourts.isEmpty()) listOfBookedCourts.add((-1).toString())
-                        //Extract the first available court for the given timeslot and sport
-                        db.collection("courts")
-                            .whereNotIn(FieldPath.documentId(), listOfBookedCourts)
-                            .whereEqualTo("sport", sport).limit(1).get()
-                            .addOnSuccessListener { court ->
-                                if (court.isEmpty) {
-                                    exceptionMessage.postValue("No available courts at this time")
-                                } else {
-                                    val match = db.collection("matches").add(
-                                        MatchFirebase(
-                                            court.first().reference,
-                                            1,
-                                            LocalDateTime.of(date, time).toTimestamp(),
-                                            listOf(db.collection("players").document(playerId))
-                                        )
-                                    ).addOnSuccessListener { matchAdded ->
-                                        db.collection("reservations").add(
-                                            ReservationFirebase(
-                                                matchAdded,
-                                                db.collection("players").document(playerId),
-                                                emptyList(),
-                                                court.first().getLong("basePrice")!!
-                                            )
-                                        )
-                                    }
-                                    exceptionMessage.postValue("Match created successfully")
+                .whereLessThanOrEqualTo("timestamp", endTimestamp)
+
+            playerMatchQuery.get().addOnSuccessListener { querySnapshot ->
+                if (querySnapshot.isEmpty) {
+                    //create match
+                    db.collection("matches")
+                        .whereGreaterThanOrEqualTo("timestamp", startTimestamp)
+                        .whereLessThan("timestamp", endTimestamp)
+                        .get().addOnSuccessListener { matches ->
+                            CoroutineScope(Dispatchers.IO).launch {
+                                for (match in matches) {
+                                    val q = match.getDocumentReference("court")?.get()?.await()
+                                    listOfBookedCourts.add(q!!.id)
                                 }
+                                if (listOfBookedCourts.isEmpty()) listOfBookedCourts.add((-1).toString())
+                                //Extract the first available court for the given timeslot and sport
+                                db.collection("courts")
+                                    .whereNotIn(FieldPath.documentId(), listOfBookedCourts)
+                                    .whereEqualTo("sport", sport).limit(1).get()
+                                    .addOnSuccessListener { court ->
+                                        if (court.isEmpty) {
+                                            exceptionMessage.postValue("No available courts at this time")
+                                        } else {
+                                            db.collection("matches").add(
+                                                MatchFirebase(
+                                                    court.first().reference,
+                                                    1,
+                                                    LocalDateTime.of(date, time).toTimestamp(),
+                                                    listOf(db.collection("players").document(playerId))
+                                                )
+                                            ).addOnSuccessListener { matchAdded ->
+                                                db.collection("reservations").add(
+                                                    ReservationFirebase(
+                                                        matchAdded,
+                                                        db.collection("players").document(playerId),
+                                                        emptyList(),
+                                                        court.first().getLong("basePrice")!!
+                                                    )
+                                                )
+                                            }
+                                            exceptionMessage.postValue("Match created successfully")
+                                        }
+                                    }
                             }
-                    }
+                        }
+                } else {
+                    // Player already has a match at the specified timestamp
+                    exceptionMessage.postValue("Player already has a match at that timestamp")
                 }
+            }.addOnFailureListener { exception ->
+                exceptionMessage.postValue("Couldn't check player's matches")
+                throw exception
+            }
+
         }
     }
 
