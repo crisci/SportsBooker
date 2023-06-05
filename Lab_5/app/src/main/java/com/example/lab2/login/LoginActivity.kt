@@ -58,7 +58,9 @@ class LoginActivity : AppCompatActivity() {
                 .x(rightGuideline.x)
                 .setDuration(500)
                 .start()
-            if (navController.currentDestination?.id == R.id.login) {
+            if (navController.currentDestination?.id == R.id.login
+                || navController.currentDestination?.id == R.id.complete_registration_google
+                || navController.currentDestination?.id == R.id.select_interests) {
                 navController.navigate(R.id.action_login_to_signup)
             }
         }
@@ -67,7 +69,9 @@ class LoginActivity : AppCompatActivity() {
                 .x(leftGuideline.x)
                 .setDuration(500)
                 .start()
-            if (navController.currentDestination?.id == R.id.signup) {
+            if (navController.currentDestination?.id == R.id.signup
+                || navController.currentDestination?.id == R.id.select_interests
+                || navController.currentDestination?.id == R.id.complete_registration_google) {
                 navController.navigate(R.id.action_to_login)
             }
         }

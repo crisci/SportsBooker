@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -15,6 +16,7 @@ import com.example.lab2.R
 import com.example.lab2.databinding.FragmentSignupSelectInterestsBinding
 import com.example.lab2.entities.Sport
 import com.example.lab2.launcher.LauncherActivity
+import com.example.lab2.reservation.my_reservations.MyReservationsActivity
 import com.example.lab2.view_models.MainVM
 import com.example.lab2.view_models.SignupVM
 import com.google.android.material.chip.Chip
@@ -25,6 +27,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class FragmentSignupSelectInterests : Fragment(R.layout.fragment_signup_select_interests) {
 
+
     companion object {
         fun newInstance() = FragmentSignup()
     }
@@ -32,10 +35,11 @@ class FragmentSignupSelectInterests : Fragment(R.layout.fragment_signup_select_i
     private lateinit var navController: NavController
     private lateinit var firebaseAuth: FirebaseAuth
 
+    private lateinit var authStateListener: FirebaseAuth.AuthStateListener
+
     @Inject
     lateinit var mainVM: MainVM
-
-    private lateinit var signupVM: SignupVM
+    lateinit var signupVM: SignupVM
 
     private lateinit var binding: FragmentSignupSelectInterestsBinding
 
@@ -46,9 +50,20 @@ class FragmentSignupSelectInterests : Fragment(R.layout.fragment_signup_select_i
 
         firebaseAuth = FirebaseAuth.getInstance()
 
+
         signupVM = ViewModelProvider(requireActivity())[SignupVM::class.java]
 
         navController = findNavController()
+
+        authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            val user = firebaseAuth.currentUser
+            // Qui si riceve la callback se l'utente ha loggato
+            if (user != null) {
+                mainVM.listenToUserUpdates(user.uid)
+                observeUserUpdates(this)
+            }
+        }
+        firebaseAuth.addAuthStateListener(authStateListener)
 
         val view = inflater.inflate(R.layout.fragment_signup_select_interests, container, false)
         binding = FragmentSignupSelectInterestsBinding.bind(view)
@@ -111,8 +126,23 @@ class FragmentSignupSelectInterests : Fragment(R.layout.fragment_signup_select_i
                     .show()
                 return@setOnClickListener
             }
-            navController.navigate(R.id.action_to_login)
         }
         return view
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (authStateListener != null) {
+            firebaseAuth.removeAuthStateListener(authStateListener)
+        }
+    }
+
+    private fun observeUserUpdates(lifecycleOwner: LifecycleOwner) {
+        mainVM.user.observe(lifecycleOwner) { user ->
+            // Once the user data is received, navigate to HomeActivity
+            val intent = Intent(requireActivity(), MyReservationsActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
     }
 }
