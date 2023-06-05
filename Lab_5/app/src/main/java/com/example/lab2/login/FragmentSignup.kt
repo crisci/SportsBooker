@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.constraintlayout.widget.Guideline
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -73,6 +74,22 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
                 binding.dateOfBirthEditText.setText(formatted)
             }
             datePicker.show(childFragmentManager, "datePicker")
+        }
+
+        val leftGuideline = requireActivity().findViewById<Guideline>(R.id.guideline4)
+        val selectedTab = requireActivity().findViewById<View>(R.id.selected_view)
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            selectedTab.animate()
+                .x(leftGuideline.x)
+                .setDuration(500)
+                .start()
+            if (navController.currentDestination?.id == R.id.signup
+                || navController.currentDestination?.id == R.id.complete_registration_google
+                || navController.currentDestination?.id == R.id.select_interests) {
+                navController.navigate(R.id.action_to_login)
+            }
+
         }
 
         binding.signup.setOnClickListener {

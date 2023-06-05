@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
@@ -15,9 +16,7 @@ import com.example.lab2.R
 import com.example.lab2.databinding.ActivityLoginBinding
 import com.example.lab2.reservation.my_reservations.MyReservationsActivity
 import com.example.lab2.view_models.MainVM
-import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
@@ -75,6 +74,8 @@ class LoginActivity : AppCompatActivity() {
                 navController.navigate(R.id.action_to_login)
             }
         }
+
     }
+
 }
 
