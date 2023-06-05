@@ -253,7 +253,8 @@ class EditReservationActivity : AppCompatActivity() {
 
         for (e in listEquipments) {
             val checkbox = CheckBox(this)
-            checkbox.text = "${e.name} - €${e.price}"
+            val price = String.format("%.02f", e.price)
+            checkbox.text = "${e.name} - €$price"
 
             if (editReservationVM.getEditedReservation().value!!.equipments.any { it.name == e.name })
                 checkbox.isChecked = true
