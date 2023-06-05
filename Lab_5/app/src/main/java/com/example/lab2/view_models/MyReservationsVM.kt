@@ -11,6 +11,7 @@ import com.example.lab2.entities.Statistic
 import com.example.lab2.entities.User
 import com.example.lab2.entities.MatchWithCourtAndEquipments
 import com.example.lab2.entities.firebaseToMatchWithCourtAndEquipments
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -22,6 +23,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import javax.inject.Inject
 
@@ -69,7 +71,7 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
             .addSnapshotListener { documents, error ->
                 CoroutineScope(Dispatchers.IO).launch {
                     val list = processDocuments(documents)
-                    _myReservations.postValue(list)
+                    _myReservations.postValue(list.sortedBy { LocalDateTime.of(it.match.date, it.match.time) })
                 }
             }
     }

@@ -158,8 +158,8 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
             loadingState.value = true
                 val result = withContext(Dispatchers.IO){
                     try {
-                        deleteReservation(oldReservation)
                         updateOldMatch(playerId, oldReservation)
+                        deleteReservation(oldReservation)
                         Result(value = true, throwable = null)
                     } catch (err: Exception) {
                         Result(value = false, throwable = err)
