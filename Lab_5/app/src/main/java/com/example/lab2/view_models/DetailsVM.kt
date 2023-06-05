@@ -98,7 +98,9 @@ class DetailsVM @Inject constructor() : ViewModel() {
                 val user =
                     db.collection("players").whereEqualTo(FieldPath.documentId(), r.id).get()
                         .await()
-                list.add(User.fromFirebase(user.first()))
+                if(!user.isEmpty){
+                    list.add(User.fromFirebase(user.first()))
+                }
             }
             _listOfPlayers.postValue(list.filter { it.userId != auth.currentUser!!.uid })
         }
