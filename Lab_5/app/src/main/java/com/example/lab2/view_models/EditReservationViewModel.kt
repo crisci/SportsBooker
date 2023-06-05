@@ -143,10 +143,8 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
             if(result.value!!){
                 error.value = null
                 submitEditSuccess.value = true
-                loadingState.postValue(false)
             }else{
                 error.value = result.throwable?.message
-                submitEditSuccess.value = false
                 loadingState.postValue(false)
             }
         }
@@ -171,7 +169,6 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
             if(result.value!!){
                 submitEditSuccess.value = true
                 error.value = null
-                loadingState.postValue(true)
             }else{
                 submitEditSuccess.value = false
                 error.value = result.throwable?.message
