@@ -113,7 +113,10 @@ class FragmentSignupSelectInterests : Fragment(R.layout.fragment_signup_select_i
                     .show()
                 return@setOnClickListener
             }
-            navController.navigate(R.id.action_to_login)
+            val intent = Intent(requireActivity(), LauncherActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            requireActivity().finish()
         }
         return view
     }
