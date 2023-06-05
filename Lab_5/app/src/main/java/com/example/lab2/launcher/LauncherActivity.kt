@@ -3,6 +3,9 @@ package com.example.lab2.launcher
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.example.lab2.R
 import com.example.lab2.login.LoginActivity
 import com.example.lab2.reservation.my_reservations.MyReservationsActivity
@@ -10,6 +13,7 @@ import com.example.lab2.view_models.MainVM
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class LauncherActivity : AppCompatActivity() {
@@ -23,9 +27,6 @@ class LauncherActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_launcher)
-
-        supportActionBar?.hide()
-
         auth = FirebaseAuth.getInstance()
 
         authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
