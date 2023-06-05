@@ -29,6 +29,9 @@ class NotificationVM @Inject constructor() : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+    var listenerInv : ListenerRegistration? = null
+    var listenerRev : ListenerRegistration? = null
+
     val numberInvitations: MutableLiveData<Int> = MutableLiveData(0)
     val numberReviews: MutableLiveData<Int> = MutableLiveData(0)
 
@@ -225,7 +228,11 @@ class NotificationVM @Inject constructor() : ViewModel() {
     }
 
     fun setNotificationsNumberListener() {
-            db.collection("invitations")
+
+        listenerInv?.remove()
+        listenerRev?.remove()
+
+            listenerInv = db.collection("invitations")
                 .whereEqualTo("sentTo", db.document("players/${auth.currentUser!!.uid}"))
                 .addSnapshotListener { querySnapshot, e ->
                     if (e != null) {
@@ -245,15 +252,14 @@ class NotificationVM @Inject constructor() : ViewModel() {
             val startOfPreviousWeekTimestamp = Timestamp(startOfPreviousWeek.toEpochSecond(ZoneOffset.UTC), 0)
             val twoHoursAgoTimestamp = Timestamp(twoHoursAgo.toEpochSecond(ZoneOffset.UTC), 0)
 
-            db.collection("matches")
+            listenerRev = db.collection("matches")
                 .whereArrayContains(
                     "listOfPlayers",
                     db.document("players/${auth.currentUser!!.uid}")
                 )
                 .whereLessThan("timestamp", twoHoursAgoTimestamp)
                 .whereGreaterThan("timestamp", startOfPreviousWeekTimestamp)
-                .get()
-                .addOnSuccessListener { snapshotMatch ->
+                .addSnapshotListener { snapshotMatch, _ ->
                     val listMatchReferences = snapshotMatch!!.documents.map { it.reference }
                     db.collection("player_rating_mvp")
                         .whereEqualTo("reviewer", db.document("players/${auth.currentUser!!.uid}"))
@@ -281,5 +287,13 @@ class NotificationVM @Inject constructor() : ViewModel() {
                             }
                         }
                 }
+
     }
+
+    override fun onCleared() {
+        super.onCleared()
+        listenerInv?.remove()
+        listenerRev?.remove()
+    }
+
 }

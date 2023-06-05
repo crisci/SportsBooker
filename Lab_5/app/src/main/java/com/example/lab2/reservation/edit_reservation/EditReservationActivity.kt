@@ -192,6 +192,7 @@ class EditReservationActivity : AppCompatActivity() {
     private fun updateContent() {
 
         setupCheckboxes(editReservationVM.getEditedReservation().value!!.finalPrice)
+        chipGroup.removeAllViews()
         for (r in editReservationVM.getAvailableMatches().value!!) {
             val inflater = LayoutInflater.from(chipGroup.context)
             val chip = inflater.inflate(R.layout.timeslot_chip, chipGroup, false) as Chip
