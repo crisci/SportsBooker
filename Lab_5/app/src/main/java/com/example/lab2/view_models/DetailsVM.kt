@@ -132,12 +132,13 @@ class DetailsVM @Inject constructor() : ViewModel() {
 
     private fun avg(c: QuerySnapshot) {
         CoroutineScope(Dispatchers.IO).launch {
-            db.collection("court_reviews").whereEqualTo("court", c.first().reference).get()
+            db.collection("court_reviews").whereEqualTo("courtId", c.first().id).get()
                 .addOnSuccessListener { reviews ->
                     var sum = 0.0
+                    Log.e("rev", reviews.documents.toString())
                     for (rv in reviews) {
-                        val map = rv.get("listOfRatings") as HashMap<String, Double>
-                        sum += map["cleanliness"]!! + map["lighting"]!! + map["maintenance"]!!
+                        val map = rv.get("ratingParameters") as HashMap<String, Double>
+                        sum += map["cleanliness"]!! + map["lighting"]!! + map["playingSurfaceQuality"]!!
                     }
                     sum = sum / 3 / reviews.documents.size
                     _avg.postValue(sum)
