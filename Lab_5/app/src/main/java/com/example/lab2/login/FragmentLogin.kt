@@ -157,25 +157,19 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
                         db.collection("players")
                             .whereEqualTo("email", email)
                             .get()
-                            .addOnCompleteListener { querySnapshotTask ->
-                                if (querySnapshotTask.isSuccessful) {
-                                    val querySnapshot: QuerySnapshot? = querySnapshotTask.result
-                                    if (querySnapshot != null && !querySnapshot.isEmpty) {
-                                        // User already exists in the "players" collection
-                                        Toast.makeText(requireActivity(), "Logged in successfully!", Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        // User does not exist, proceed with registration
-                                        val bundle = Bundle()
-                                        bundle.putString("name", name)
-                                        bundle.putString("surname", surname)
-                                        bundle.putString("email", email)
-                                        bundle.putParcelable("credential", credential)
-                                        bundle.putString("photoUrl", photoUrl)
-                                        navController.navigate(R.id.action_login_to_complete_registration_google, bundle)
-                                    }
+                            .addOnSuccessListener { querySnapshot ->
+                                if (!querySnapshot.isEmpty) {
+                                    // User already exists in the "players" collection
+                                    Toast.makeText(requireActivity(), "Logged in successfully!", Toast.LENGTH_SHORT).show()
                                 } else {
-                                    // Handle error when querying Firestore
-                                    Toast.makeText(requireActivity(), "Error querying user", Toast.LENGTH_SHORT).show()
+                                    // User does not exist, proceed with registration
+                                    val bundle = Bundle()
+                                    bundle.putString("name", name)
+                                    bundle.putString("surname", surname)
+                                    bundle.putString("email", email)
+                                    bundle.putParcelable("credential", credential)
+                                    bundle.putString("photoUrl", photoUrl)
+                                    navController.navigate(R.id.action_login_to_complete_registration_google, bundle)
                                 }
                             }
                     }
