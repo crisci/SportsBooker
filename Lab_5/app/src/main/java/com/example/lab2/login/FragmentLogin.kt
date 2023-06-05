@@ -148,7 +148,8 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
             val surname = account.familyName
             val email = account.email
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-            var photoUrl = account.photoUrl.toString()
+            var photoUrl = account.photoUrl.toString().replace("s96-c", "s400-c")
+            Log.d("photoUrl", photoUrl)
             if (photoUrl.isEmpty())
                 photoUrl = "https://firebasestorage.googleapis.com/v0/b/sportsbooker-mad.appspot.com/o/images%2Fprofile_picture.jpeg?alt=media&token=e5441836-e955-4a13-966b-202f0f3cd210&_gl=1*6spico*_ga*MTk2NjY0NzgxMS4xNjgzMTkzMzEy*_ga_CW55HF8NVT*MTY4NTYyMTM1MS4xNy4xLjE2ODU2MjUzMTcuMC4wLjA."
             firebaseAuth.signInWithCredential(credential)
