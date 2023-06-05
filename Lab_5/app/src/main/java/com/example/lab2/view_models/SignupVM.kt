@@ -8,8 +8,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDate
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@HiltViewModel
+@Singleton
 class SignupVM @Inject constructor() : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()

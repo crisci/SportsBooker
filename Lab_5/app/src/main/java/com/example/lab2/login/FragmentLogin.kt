@@ -2,20 +2,35 @@ package com.example.lab2.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import com.example.lab2.R
 import com.example.lab2.databinding.FragmentLoginBinding
 import com.example.lab2.reservation.my_reservations.MyReservationsActivity
 import com.example.lab2.view_models.MainVM
+import com.example.lab2.view_models.SignupVM
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.Scopes
+import com.google.android.gms.common.api.Scope
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class FragmentLogin : Fragment(R.layout.fragment_login) {
@@ -26,12 +41,16 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var binding: FragmentLoginBinding
+    private lateinit var googleSignInClient: GoogleSignInClient
 
     @Inject
     lateinit var mainVM: MainVM
+    lateinit var signupVM: SignupVM
 
 
     private lateinit var authStateListener: FirebaseAuth.AuthStateListener
+
+    private lateinit var navController: NavController
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,6 +61,8 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
         binding = FragmentLoginBinding.bind(view)
 
         firebaseAuth = FirebaseAuth.getInstance()
+
+        navController = findNavController()
 
         authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
@@ -79,7 +100,56 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
                     .show()
             }
         }
+
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .requestProfile()
+            .build()
+
+        googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
+
+        binding.googleCardView?.setOnClickListener {
+            googleSignIn()
+        }
+
         return view
+    }
+
+
+    private fun googleSignIn() {
+        val signInIntent = googleSignInClient.signInIntent
+        launcher.launch(signInIntent)
+    }
+
+    private val launcher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == AppCompatActivity.RESULT_OK) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            manageResults(task)
+        }
+    }
+
+    private fun manageResults(task: Task<GoogleSignInAccount>) {
+        val account: GoogleSignInAccount? = task.result
+        if (account != null) {
+            val name = account.givenName
+            val surname = account.familyName
+            val email = account.email
+            val photoUrl = account.photoUrl
+            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+            val bundle = Bundle()
+            bundle.putString("name", name)
+            bundle.putString("surname", surname)
+            bundle.putString("email", email)
+            bundle.putString("photoUrl", photoUrl.toString())
+            bundle.putParcelable("credential", credential)
+            navController.navigate(R.id.action_login_to_complete_registration_google, bundle)
+        }
+        else {
+            Toast.makeText(requireActivity(), task.exception.toString(), Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onStop() {
