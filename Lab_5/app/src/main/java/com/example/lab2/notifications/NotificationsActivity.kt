@@ -13,8 +13,10 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -43,15 +45,21 @@ class NotificationsActivity : AppCompatActivity(), NotificationAdapter.OnClickLi
 
     @Inject
     lateinit var notificationVM: NotificationVM
+
     private lateinit var backButton: ImageView
+    private lateinit var noNotifications: ConstraintLayout
+    private lateinit var recyclerViewNotifications: RecyclerView
+    private lateinit var notificationsContainer: ConstraintLayout
+    private lateinit var loadingContainer: ConstraintLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_notifications)
+        setSupportActionBar()
+        findViews()
 
-        val recyclerViewNotifications = findViewById<RecyclerView>(R.id.recyclerViewNotifications)
-        recyclerViewNotifications.layoutManager =
-            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+
+        recyclerViewNotifications.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         val adapterCard = NotificationAdapter(mutableListOf(), this)
         recyclerViewNotifications.adapter = adapterCard
         val swipeToDeleteCallback = SwipeToDeleteCallback(adapterCard, applicationContext)
@@ -59,27 +67,45 @@ class NotificationsActivity : AppCompatActivity(), NotificationAdapter.OnClickLi
         itemTouchHelper.attachToRecyclerView(recyclerViewNotifications)
         recyclerViewNotifications.scrollToPosition(0)
 
-
-
-        notificationVM.notificationsInvitations.observe(this) {
-            Log.d("NotificationsActivity", "notificationsInvitations: $it")
-            adapterCard.setNotification((it + notificationVM.notificationsMatchesToReview.value!!) as MutableList<Notification>)
-            recyclerViewNotifications.scrollToPosition(0)
-            it.forEach { n -> notificationVM.playerHasSeenNotification(n) }
+        notificationVM.notifications.observe(this){
+            Log.i("notifications", it.toString())
+            if(it.isEmpty()){
+                noNotifications.visibility = View.VISIBLE
+            }else{
+                noNotifications.visibility = View.GONE
+                adapterCard.setNotification(it)
+                recyclerViewNotifications.scrollToPosition(0)
+                it.forEach { n -> if(n is Invitation) notificationVM.playerHasSeenNotification(n) }
+            }
         }
 
-        notificationVM.notificationsMatchesToReview.observe(this) {
-            Log.d("NotificationsActivity", "notificationsMatchesToReview: $it")
-            adapterCard.setNotification((it + notificationVM.notificationsInvitations.value!!) as MutableList<Notification>)
-            recyclerViewNotifications.scrollToPosition(0)
+        notificationVM.error.observe(this){
+            if(it != null){
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+            }
         }
 
-        setSupportActionBar()
-
-        backButton = supportActionBar?.customView?.findViewById<ImageView>(R.id.custom_back_icon)!!
-        backButton.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
+        notificationVM.loadingState.observe(this){
+            setLoadingScreen(it)
         }
+
+    }
+
+    private fun setLoadingScreen(state: Boolean) {
+        if(state) { //is Loading
+            notificationsContainer.visibility = View.GONE
+            loadingContainer.visibility = View.VISIBLE
+        }else{ // is not loading
+            loadingContainer.visibility = View.GONE
+            notificationsContainer.visibility = View.VISIBLE
+        }
+    }
+
+    private fun findViews() {
+        recyclerViewNotifications = findViewById<RecyclerView>(R.id.recyclerViewNotifications)
+        notificationsContainer = findViewById(R.id.notifications_container)
+        loadingContainer = findViewById(R.id.loading_notifications)
+        noNotifications = findViewById(R.id.no_notifications_layout)
     }
 
     override fun onClickAccept(invitation: Invitation) {
@@ -88,6 +114,10 @@ class NotificationsActivity : AppCompatActivity(), NotificationAdapter.OnClickLi
 
     override fun onClickDecline(invitationId: String) {
         notificationVM.deleteNotification(invitationId)
+    }
+
+    override fun onClickDeleteReviewNotification(invitationId: String) {
+        notificationVM.deleteReviewNotification(invitationId)
     }
 
     override fun onClickRateNow(matchToReview: MatchToReview) {
@@ -106,6 +136,11 @@ class NotificationsActivity : AppCompatActivity(), NotificationAdapter.OnClickLi
         val titleTextView =
             supportActionBar?.customView?.findViewById<TextView>(R.id.custom_toolbar_title)
         titleTextView?.setText(R.string.notifications_title)
+
+        backButton = supportActionBar?.customView?.findViewById<ImageView>(R.id.custom_back_icon)!!
+        backButton.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
     }
 }
 
@@ -127,7 +162,7 @@ class NotificationAdapter(
     interface OnClickListener {
         fun onClickAccept(invitation: Invitation)
         fun onClickDecline(invitationId: String)
-
+        fun onClickDeleteReviewNotification(invitationId: String)
         fun onClickRateNow(matchToReview: MatchToReview)
     }
 
@@ -250,8 +285,11 @@ class NotificationAdapter(
     }
 
     fun deleteItem(position: Int) {
-        list.removeAt(position)
-        notifyItemRemoved(position)
+        when (getItemViewType(position)) {
+            R.layout.invitation_card -> listener.onClickDecline(list[position].id!!)
+            R.layout.match_to_review_card -> listener.onClickDeleteReviewNotification(list[position].id!!)
+            else -> throw IllegalArgumentException("Invalid type of data in notifications.")
+        }
     }
 
 }

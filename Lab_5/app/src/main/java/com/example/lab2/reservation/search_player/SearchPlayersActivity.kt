@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,6 +25,7 @@ import com.example.lab2.view_models.MainVM
 import com.example.lab2.view_models.NotificationVM
 import com.example.lab2.entities.Match
 import com.example.lab2.entities.MatchWithCourtAndEquipments
+import com.example.lab2.view_models.SearchPlayersVM
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
@@ -37,6 +39,7 @@ class SearchPlayersActivity : AppCompatActivity(), AdapterPlayersList.OnClickLis
 
     @Inject
     lateinit var mainVM: MainVM
+    lateinit var searchPlayersVM: SearchPlayersVM
 
     @Inject
     lateinit var notificationVM: NotificationVM
@@ -48,6 +51,8 @@ class SearchPlayersActivity : AppCompatActivity(), AdapterPlayersList.OnClickLis
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_players)
         setSupportActionBar()
+
+        searchPlayersVM = ViewModelProvider(this)[SearchPlayersVM::class.java]
 
         val stringRes = intent.getStringExtra("jsonReservation")
         val reservation =
@@ -76,12 +81,25 @@ class SearchPlayersActivity : AppCompatActivity(), AdapterPlayersList.OnClickLis
         val adapterCard = AdapterPlayersList(emptyList(), this, mainVM.userId, reservation.match)
         recyclerViewPlayers.adapter = adapterCard
 
+        // TODO: needs to be changed with searchPlayersVM and needs coroutine implementation
         mainVM.allPlayers.observe(this) {
             adapterCard.setPlayers(it.filter { player ->
                 !reservation.match.listOfPlayers.contains(
                     player.userId
                 )
             })
+        }
+
+        searchPlayersVM.error.observe(this){
+            if(it != null){
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        searchPlayersVM.invitationSuccess.observe(this){
+            if(it){
+                Toast.makeText(this, "Player invited successfully!", Toast.LENGTH_SHORT).show()
+            }
         }
 
     }
@@ -107,14 +125,9 @@ class SearchPlayersActivity : AppCompatActivity(), AdapterPlayersList.OnClickLis
         match: Match,
         callback: (it: Boolean) -> Unit
     ) {
-        notificationVM.sendInvitation(sender, recipient, match) {
-            if (it != null) {
-                Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
-            }
-        }
+       searchPlayersVM.sendInvitation(sender, recipient, match)
         callback(true)
     }
-
 }
 
 class PlayerViewHolder(v: View) : RecyclerView.ViewHolder(v) {
