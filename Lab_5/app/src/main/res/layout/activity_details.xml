@@ -107,7 +107,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginEnd="2dp"
-                                    android:tint="@color/black"
+                                    app:tint="@color/black"
                                     app:layout_constraintEnd_toStartOf="@+id/date_detail"
                                     app:layout_constraintTop_toTopOf="parent"
                                     app:srcCompat="@drawable/baseline_calendar_month_24_black" />
@@ -130,7 +130,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
                                     android:layout_marginEnd="2dp"
-                                    android:tint="@color/black"
+                                    app:tint="@color/black"
                                     app:layout_constraintEnd_toStartOf="@+id/hour_detail"
                                     app:layout_constraintTop_toBottomOf="@+id/date_detail"
                                     app:srcCompat="@drawable/baseline_access_time_24" />

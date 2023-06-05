@@ -60,6 +60,7 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
 
     private fun processResponse(response: androidx.activity.result.ActivityResult) {
         if (response.resultCode == AppCompatActivity.RESULT_OK) {
+            loading.visibility = View.VISIBLE
             vm.setSportFilter(null)
         }
     }
@@ -184,16 +185,10 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
             launcher.launch(intentBookReservation)
         }
 
-        /*val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
+        val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
         swipeRefreshLayout.setOnRefreshListener {
-            vm.refreshMyReservations(
-                userVM.userId,
-                calendarVM.getSelectedDate().value!!,
-                calendarVM.getSelectedTime().value!!,
-                userVM.user.value!!.interests.toList()
-            )
             swipeRefreshLayout.isRefreshing = false
-        }*/
+        }
 
         //TODO this tutorial must show after the user has registered theirselves, so at first login
         /* calendarVM.getShowTutorial().observe(viewLifecycleOwner) {
@@ -213,7 +208,7 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
         super.onResume()
         //When the activity become again visible the filter is setted to null
         //So that if onBackPressed the filter is resetted
-        vm.setSportFilter(null)
+        //vm.setSportFilter(null)
     }
 
 
