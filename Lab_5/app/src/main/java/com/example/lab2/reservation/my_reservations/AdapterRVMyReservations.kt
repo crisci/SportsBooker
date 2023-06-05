@@ -2,6 +2,7 @@ package com.example.lab2.reservation.my_reservations
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -67,8 +68,24 @@ class AdapterRVMyReservations(
         val diffs = DiffUtil.calculateDiff(
             ReservationDiffCallback(list, newReservations)
         )
+        Log.d("AdapterRVMyReservations", "setReservations: $list")
+        Log.d("AdapterRVMyReservations", "setReservations: $newReservations")
         list = newReservations
         diffs.dispatchUpdatesTo(this)
+    }
+
+    private fun deepCopy(list: List<MatchWithCourtAndEquipments>): List<MatchWithCourtAndEquipments> {
+        val newList = mutableListOf<MatchWithCourtAndEquipments>()
+        for (item in list) {
+            newList.add(MatchWithCourtAndEquipments(
+                item.reservationId,
+                item.match,
+                item.court,
+                item.equipments,
+                item.finalPrice
+            ))
+        }
+        return newList
     }
 
     inner class ViewHolderCard(v: View) : RecyclerView.ViewHolder(v) {

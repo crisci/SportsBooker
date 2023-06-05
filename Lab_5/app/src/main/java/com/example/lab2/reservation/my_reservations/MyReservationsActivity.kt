@@ -92,6 +92,13 @@ class MyReservationsActivity : AppCompatActivity() {
             }
         }
 
+        mainVM.user.observe(this) {
+            val shimmerFrame =
+                supportActionBar?.customView?.findViewById<ShimmerFrameLayout>(R.id.custom_my_profile)
+            val profilePicture =
+                supportActionBar?.customView?.findViewById<ImageView>(R.id.toolbar_profile_image)
+            setProfileImage(shimmerFrame!!,profilePicture!!)
+        }
     }
 
     private fun setSupportActionBar() {

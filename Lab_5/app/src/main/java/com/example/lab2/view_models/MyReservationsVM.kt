@@ -52,7 +52,7 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
     private var _myReservations = MutableLiveData<List<MatchWithCourtAndEquipments>>()
     val res: LiveData<List<MatchWithCourtAndEquipments>> = _myReservations
 
-    private lateinit var _listener: ListenerRegistration
+    private var _listener: ListenerRegistration? = null
 
     // UI states
     var error: MutableLiveData<String?> = MutableLiveData()
@@ -62,7 +62,8 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
         startListener()
     }
 
-    private fun startListener() {
+    fun startListener() {
+        _listener?.remove()
         _listener = FirebaseFirestore.getInstance().collection("reservations")
             .whereEqualTo("player", db.document("players/${auth.currentUser!!.uid}"))
             .addSnapshotListener { documents, error ->
@@ -74,7 +75,7 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
     }
 
     fun stopListener() {
-        _listener.remove()
+        _listener?.remove()
     }
 
     fun getMyReservations(): LiveData<List<MatchWithCourtAndEquipments>> {

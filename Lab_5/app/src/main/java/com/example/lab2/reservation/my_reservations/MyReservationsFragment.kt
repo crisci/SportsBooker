@@ -57,7 +57,7 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
 
     private fun processResponse(response: androidx.activity.result.ActivityResult) {
         if (response.resultCode == AppCompatActivity.RESULT_OK) {
-            loading.visibility = View.VISIBLE
+            loading.visibility = View.GONE
         }else{
             loading.visibility = View.GONE
         }
@@ -164,6 +164,7 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
 
         val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
         swipeRefreshLayout.setOnRefreshListener {
+            vm.startListener()
             swipeRefreshLayout.isRefreshing = false
         }
 
@@ -180,14 +181,6 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
          }*/
 
     }
-
-    override fun onResume() {
-        super.onResume()
-        //When the activity become again visible the filter is setted to null
-        //So that if onBackPressed the filter is resetted
-        //vm.setSportFilter(null)
-    }
-
 
     override fun onEditClick(reservation: MatchWithCourtAndEquipments) {
 

@@ -16,7 +16,8 @@ class ReservationDiffCallback(
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         return reservations[oldItemPosition].match.matchId == newReservations[newItemPosition].match.matchId
-                && reservations[oldItemPosition].equipments == newReservations[newItemPosition].equipments
+                && reservations[oldItemPosition].court.courtId == newReservations[newItemPosition].court.courtId
+                && reservations[oldItemPosition].reservationId == newReservations[newItemPosition].reservationId
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
@@ -27,10 +28,6 @@ class ReservationDiffCallback(
                 areMatchTheSame(
                     reservations[oldItemPosition].match,
                     newReservations[newItemPosition].match
-                ) &&
-                areReservationTheSame(
-                    reservations[oldItemPosition],
-                    newReservations[newItemPosition]
                 )
 
     }
@@ -57,6 +54,7 @@ class ReservationDiffCallback(
     ): Boolean {
         return oldReservation.reservationId == newReservation.reservationId &&
                 oldReservation.finalPrice == newReservation.finalPrice
+                && oldReservation.equipments == newReservation.equipments
     }
 
 

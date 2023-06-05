@@ -129,11 +129,11 @@ class EditReservationViewModel @Inject constructor() : ViewModel() {
             loadingState.value = true
             val result = withContext(Dispatchers.IO) {
                 try {
-                    updateReservation(playerId, oldReservation)
                     if (oldReservation.match.matchId != getEditedReservation().value?.match?.matchId!!) {
                         updateOldMatch(playerId, oldReservation)
                         updateNewMatch(playerId)
                     }
+                    updateReservation(playerId, oldReservation)
                     Result(true, null)
                 } catch (err: Exception) {
                     Result(false, err)
