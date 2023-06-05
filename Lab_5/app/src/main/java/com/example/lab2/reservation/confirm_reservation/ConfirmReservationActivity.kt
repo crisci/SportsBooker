@@ -74,7 +74,7 @@ class ConfirmReservationActivity : AppCompatActivity() {
 
         updateContent()
 
-        confirmReservationVM.comerror.observe(this) {
+        confirmReservationVM.error.observe(this) {
             Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
         }
 
