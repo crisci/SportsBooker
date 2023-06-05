@@ -276,6 +276,8 @@ class NotificationVM @Inject constructor() : ViewModel() {
                                             numberReviews.postValue(reviewsNumber)
                                         }
                                     }
+                            }else{
+                                numberReviews.postValue(0)
                             }
                         }
                 }
