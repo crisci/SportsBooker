@@ -71,7 +71,9 @@ class NotificationsActivity : AppCompatActivity(), NotificationAdapter.OnClickLi
             Log.i("notifications", it.toString())
             if(it.isEmpty()){
                 noNotifications.visibility = View.VISIBLE
+                notificationsContainer.visibility = View.GONE
             }else{
+                notificationsContainer.visibility = View.VISIBLE
                 noNotifications.visibility = View.GONE
                 adapterCard.setNotification(it)
                 recyclerViewNotifications.scrollToPosition(0)
