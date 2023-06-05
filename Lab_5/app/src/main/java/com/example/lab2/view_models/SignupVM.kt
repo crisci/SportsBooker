@@ -29,6 +29,8 @@ class SignupVM @Inject constructor() : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
     private val firebaseAuth = FirebaseAuth.getInstance()
 
+    var valid: MutableLiveData<Boolean> = MutableLiveData(false)
+    var validUsername: MutableLiveData<Boolean> = MutableLiveData(false)
     var error: MutableLiveData<String?> = MutableLiveData()
     var loadingState: MutableLiveData<Boolean> = MutableLiveData(false)
 
@@ -126,14 +128,30 @@ class SignupVM @Inject constructor() : ViewModel() {
         }
     }
 
-    private fun checkIfUsernameAlreadyExists(username: String) {
+    fun checkIfUsernameAlreadyExists(username: String) {
         viewModelScope.launch {
-            val querySnapshot = db.collection("players")
-                .whereEqualTo("nickname", username)
-                .get()
-                .await()
-            if(!querySnapshot.isEmpty)
-                error.value = "Username already exists"
+            val result = withContext(Dispatchers.IO){
+                val querySnapshot = db.collection("players")
+                                .whereEqualTo("username", username)
+                                .get()
+                                .await()
+                if(querySnapshot.documents.isNotEmpty())
+                    // Username exists
+                    Result(false, Exception("Username already exists"))
+                else
+                    // Username doesn't exist
+                    Result(true, null)
+            }
+
+            if(result.value!!){
+                error.value = null
+                validUsername.value = true
+
+            }else{
+                 validUsername.value = false
+                 error.value = result.throwable?.message
+            }
+
         }
     }
 }

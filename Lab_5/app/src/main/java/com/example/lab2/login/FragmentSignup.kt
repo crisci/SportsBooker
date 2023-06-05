@@ -88,8 +88,7 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
 
             val username = binding.usernameEditText.text.toString()
 
-            val defaultPhoto = "https://firebasestorage.googleapis.com/v0/b/lab2-8b0e9.appspot.com/o/default_profile_photo.png?alt=media&token=8b8f2b8e-8b1e-4b1e-9b0e-5b0e9b0e9b0e"
-
+            signupVM.checkIfUsernameAlreadyExists(username)
 
             binding.name.error = null
             binding.surname.error = null
@@ -113,41 +112,22 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
             ) {
 
                 if (password.length < 6) {
+                    signupVM.valid.value = false
                     binding.password.error = "Password must be at least 6 characters long"
                     return@setOnClickListener
                 }
 
                 if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    signupVM.valid.value = false
                     binding.email.error = "Invalid email"
                     return@setOnClickListener
                 }
+
                 //userId: String, name: String, surname: String, username: String, email: String, dateOfBirth: String, location: String, selectedInterests: MutableList<Sport>
                 if (password == confirmPassword) {
-                    firebaseAuth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                signupVM.createPlayer(
-                                    userId = task.result.user?.uid!!,
-                                    name = name,
-                                    surname = surname,
-                                    username = username,
-                                    email = email,
-                                    dateOfBirth = dateOfBirth,
-                                    location = location,
-                                    selectedInterests = mutableListOf(),
-                                    photoUrl = defaultPhoto
-                                )
-                                val bundle = Bundle()
-                                bundle.putString("uid", task.result.user?.uid)
-                                navController.navigate(
-                                    R.id.action_signup_to_select_interests,
-                                    bundle
-                                )
-                            } else {
-                                showValidationError(task.exception)
-                            }
-                        }
+                    signupVM.valid.value = true
                 } else {
+                    signupVM.valid.value = false
                     //TODO if passwords do not match,
                     // the error exclamation mark must not overlap/replace the eye icon to show/hide
                     // the password, this can be fixed either enlarging the view or moving the eye icon on
@@ -156,12 +136,67 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
                     binding.confirmPassword.error = "Passwords do not match"
                 }
             } else {
+                signupVM.valid.value = false
                 Toast.makeText(requireActivity(), "Please fill in all fields", Toast.LENGTH_SHORT)
                     .show()
             }
         }
+
+        signupVM.validUsername.observe(viewLifecycleOwner){ usernameIsValid ->
+            if(usernameIsValid && signupVM.valid.value == true){
+                processSignup(
+                    name = binding.nameEditText.text.toString(),
+                    surname = binding.surnameEditText.text.toString(),
+                    password = binding.passwordEditText.text.toString(),
+                    email = binding.emailEditText.text.toString(),
+                    username = binding.usernameEditText.text.toString(),
+                    dateOfBirth = binding.dateOfBirthEditText.text.toString(),
+                    location = binding.locationEditText.text.toString()
+                )
+            }
+        }
+
+        signupVM.error.observe(viewLifecycleOwner) {
+            if (it != null) {
+                binding.username.error = it
+            }
+        }
+
         return view
     }
+
+    private fun processSignup(name: String, surname: String, email: String, password: String, username: String, dateOfBirth: String, location: String ) {
+
+        val defaultPhoto = "https://firebasestorage.googleapis.com/v0/b/sportsbooker-mad.appspot.com/o/images%2Fprofile_picture.jpeg?alt=media&token=e5441836-e955-4a13-966b-202f0f3cd210"
+
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    signupVM.createPlayer(
+                        userId = task.result.user?.uid!!,
+                        name = name,
+                        surname = surname,
+                        username = username,
+                        email = email,
+                        dateOfBirth = dateOfBirth,
+                        location = location,
+                        selectedInterests = mutableListOf(),
+                        photoUrl = defaultPhoto
+                    )
+                    val bundle = Bundle()
+                    bundle.putString("uid", task.result.user?.uid)
+                    navController.navigate(
+                        R.id.action_signup_to_select_interests,
+                        bundle
+                    )
+
+                } else {
+                    showValidationError(task.exception)
+                }
+            }
+    }
+
+
 
     private fun showValidationError(exception: Exception?) {
         if (exception is FirebaseAuthException) {
