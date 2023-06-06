@@ -74,7 +74,6 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
             .whereEqualTo("player", db.document("players/${auth.currentUser!!.uid}"))
             .addSnapshotListener { documents, error ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    Log.d("MyReservationsVM", "startListener: ${documents?.documents?.size}")
                     val list = processDocuments(documents)
                     _myReservations.postValue(list)
                 }

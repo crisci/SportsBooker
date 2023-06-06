@@ -68,8 +68,6 @@ class AdapterRVMyReservations(
         val diffs = DiffUtil.calculateDiff(
             ReservationDiffCallback(list, newReservations)
         )
-        Log.d("AdapterRVMyReservations", "setReservations: $list")
-        Log.d("AdapterRVMyReservations", "setReservations: $newReservations")
         list = newReservations
         diffs.dispatchUpdatesTo(this)
     }
