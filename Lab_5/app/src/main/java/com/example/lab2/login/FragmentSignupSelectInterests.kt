@@ -136,6 +136,11 @@ class FragmentSignupSelectInterests : Fragment(R.layout.fragment_signup_select_i
                 ).show()
                 return@setOnClickListener
             }
+            if (selectedInterests.size > 3) {
+                Toast.makeText(requireContext(), "You can add at most 3 interests", Toast.LENGTH_SHORT)
+                    .show()
+                return@setOnClickListener
+            }
             try {
                 signupVM.updatePlayer(
                     firebaseAuth.currentUser!!.uid,
