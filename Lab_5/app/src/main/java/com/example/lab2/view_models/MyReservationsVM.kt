@@ -10,6 +10,7 @@ import com.example.lab2.entities.Sport
 import com.example.lab2.entities.Statistic
 import com.example.lab2.entities.User
 import com.example.lab2.entities.MatchWithCourtAndEquipments
+import com.example.lab2.entities.firebaseToMatch
 import com.example.lab2.entities.firebaseToMatchWithCourtAndEquipments
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -68,23 +69,30 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
 
     fun startListener() {
         stopListener()
+        stopMatchListener()
         _listener = FirebaseFirestore.getInstance().collection("reservations")
             .whereEqualTo("player", db.document("players/${auth.currentUser!!.uid}"))
             .addSnapshotListener { documents, error ->
                 CoroutineScope(Dispatchers.IO).launch {
                     val list = processDocuments(documents)
-                    _myReservations.postValue(list.sortedBy { LocalDateTime.of(it.match.date, it.match.time) })
+                    startMatchListener(list)
                 }
             }
     }
 
-    fun startMatchListener() {
-        stopMatchListener()
-        val matchIds = _myReservations.value?.map { it.match.matchId }
+    fun startMatchListener(list: List<MatchWithCourtAndEquipments>) {
+        val matchIds = list.map { it.match.matchId }
         _matchListener = FirebaseFirestore.getInstance().collection("matches")
             .whereIn(FieldPath.documentId(), matchIds!!)
             .addSnapshotListener { documents, error ->
-                startListener()
+                val list = list.map { oldMatch ->
+                    val match = documents?.documents?.find { it.id == oldMatch.match.matchId }
+                    if(match != null){
+                        oldMatch.match = firebaseToMatch(match)
+                    }
+                    oldMatch
+                }
+                _myReservations.postValue(list.sortedBy { LocalDateTime.of(it.match.date, it.match.time) })
             }
     }
 
