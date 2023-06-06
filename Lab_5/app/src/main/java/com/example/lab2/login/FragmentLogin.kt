@@ -104,11 +104,11 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
         firebaseAuth.addAuthStateListener(authStateListener)
 
         view.findViewById<View>(R.id.login).setOnClickListener {
-            signupVM.loadingState.value = true
             val email = binding.emailEditText.text.toString()
             val password = binding.passwordEditText.text.toString()
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
+                signupVM.loadingState.value = true
                 firebaseAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
@@ -118,6 +118,7 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
+                            signupVM.loadingState.value = false
                             showValidationError(task.exception)
                         }
                     }
