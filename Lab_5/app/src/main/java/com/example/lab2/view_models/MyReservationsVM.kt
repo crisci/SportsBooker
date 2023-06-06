@@ -81,9 +81,7 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
     }
 
     fun startMatchListener(list: List<MatchWithCourtAndEquipments>) {
-        val matchIds = list.map { it.match.matchId }
         _matchListener = FirebaseFirestore.getInstance().collection("matches")
-            .whereIn(FieldPath.documentId(), matchIds!!)
             .addSnapshotListener { documents, error ->
                 val list = list.map { oldMatch ->
                     val match = documents?.documents?.find { it.id == oldMatch.match.matchId }
