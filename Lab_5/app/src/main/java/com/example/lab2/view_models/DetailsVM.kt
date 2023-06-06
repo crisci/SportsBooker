@@ -47,18 +47,19 @@ class DetailsVM @Inject constructor() : ViewModel() {
     private lateinit var playersListener: ListenerRegistration
 
     fun registerListener(id: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            var matchId: String
-            db.document("reservations/$id").get().addOnSuccessListener {
-                matchId = it.getDocumentReference("match")!!.id
-                playersListener = db.collection("matches")
-                    .whereEqualTo(FieldPath.documentId(), matchId)
-                    .addSnapshotListener { value, error ->
-                        if(error == null)
-                            getPlayers(value!!)
+       if(!this::playersListener.isInitialized)
+           CoroutineScope(Dispatchers.IO).launch {
+               var matchId: String
+               db.document("reservations/$id").get().addOnSuccessListener {
+                   matchId = it.getDocumentReference("match")!!.id
+                   playersListener = db.collection("matches")
+                       .whereEqualTo(FieldPath.documentId(), matchId)
+                       .addSnapshotListener { value, error ->
+                           if(error == null)
+                               getPlayers(value!!)
 
-                    }}.await()
-        }
+                       }}
+           }
     }
 
     fun removeListener() {

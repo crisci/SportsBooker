@@ -110,40 +110,41 @@ class DetailsActivity : AppCompatActivity() {
 
 
         detailsVM.listOfPlayers.observe(this) {
-
-            val hasReachedMax =
-                detailsVM.reservation.value?.match?.numOfPlayers == detailsVM.reservation.value?.court?.maxNumberOfPlayers
-            Log.i("hasReachedMax", hasReachedMax.toString())
-            if (detailsVM.listOfPlayers.value?.isNotEmpty()!!) {
-                val adapterPlayers = AdapterPlayers(
-                    detailsVM.listOfPlayers.value ?: emptyList(),
-                    this,
-                    detailsVM.reservation.value!!,
-                    hasReachedMax
-                )
-                val listReservationsRecyclerView =
-                    this.findViewById<RecyclerView>(R.id.players_details)
-                listReservationsRecyclerView.adapter = adapterPlayers
-                listReservationsRecyclerView.layoutManager =
-                    LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true)
-            } else {
-                players_details.text = "Invite other players"
-                val adapterPlayers = AdapterPlayers(
-                    emptyList(),
-                    this,
-                    detailsVM.reservation.value!!,
-                    hasReachedMax
-                )
-                val listReservationsRecyclerView =
-                    this.findViewById<RecyclerView>(R.id.players_details)
-                listReservationsRecyclerView.adapter = adapterPlayers
-                listReservationsRecyclerView.layoutManager =
-                    LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true)
+            if(detailsVM.reservation.value != null) {
+                val hasReachedMax =
+                    detailsVM.reservation.value?.match?.numOfPlayers == detailsVM.reservation.value?.court?.maxNumberOfPlayers
+                if (detailsVM.listOfPlayers.value?.isNotEmpty()!!) {
+                    val adapterPlayers = AdapterPlayers(
+                        detailsVM.listOfPlayers.value ?: emptyList(),
+                        this,
+                        detailsVM.reservation.value!!,
+                        hasReachedMax
+                    )
+                    val listReservationsRecyclerView =
+                        this.findViewById<RecyclerView>(R.id.players_details)
+                    listReservationsRecyclerView.adapter = adapterPlayers
+                    listReservationsRecyclerView.layoutManager =
+                        LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true)
+                } else {
+                    players_details.text = "Invite other players"
+                    val adapterPlayers = AdapterPlayers(
+                        emptyList(),
+                        this,
+                        detailsVM.reservation.value!!,
+                        hasReachedMax
+                    )
+                    val listReservationsRecyclerView =
+                        this.findViewById<RecyclerView>(R.id.players_details)
+                    listReservationsRecyclerView.adapter = adapterPlayers
+                    listReservationsRecyclerView.layoutManager =
+                        LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true)
+                }
             }
         }
 
+        detailsVM.registerListener(reservationId)
+
         detailsVM.reservation.observe(this) {
-            detailsVM.registerListener(reservationId)
             updateView(detailsVM.reservation.value!!)
         }
 
@@ -199,6 +200,11 @@ class DetailsActivity : AppCompatActivity() {
         return "${date.dayOfWeek.displayText()} ${date.format(DateTimeFormatter.ofPattern("dd"))} ${date.month.displayText()}"
     }
 
+    override fun onResume() {
+        super.onResume()
+        val reservationId = intent.getStringExtra("reservationId")!!
+        detailsVM.registerListener(reservationId)
+    }
     override fun onPause() {
         super.onPause()
         detailsVM.removeListener()
