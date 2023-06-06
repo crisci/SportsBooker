@@ -34,7 +34,7 @@ class SignupVM @Inject constructor() : ViewModel() {
     var error: MutableLiveData<String?> = MutableLiveData()
     var loadingState: MutableLiveData<Boolean> = MutableLiveData(false)
 
-    var userMustCompleteRegistration: MutableLiveData<String> = MutableLiveData()
+    var registrationFinished: MutableLiveData<Boolean> = MutableLiveData(false)
 
     fun createPlayer(
         userId: String,
@@ -74,6 +74,9 @@ class SignupVM @Inject constructor() : ViewModel() {
         email: String,
         credential: AuthCredential,
         photoUrl: String,
+        username: String,
+        dateOfBirth: String,
+        location: String,
     ) {
         viewModelScope.launch {
             loadingState.value = true // Set loading state to true
@@ -91,15 +94,19 @@ class SignupVM @Inject constructor() : ViewModel() {
                         // Handle successful login
                     } else {
                         // User does not exist, proceed with registration
-                        userMustCompleteRegistration.value =
-                            PartialRegistration(
-                                userId = result.value.uid,
-                                name = name,
-                                surname = surname,
-                                email = email,
-                                photoUrl = photoUrl
-                            ).toJson()
+                        createPlayer(
+                            userId = result.value!!.uid,
+                            name = name,
+                            surname = surname,
+                            username = username,
+                            email = email,
+                            location = location,
+                            dateOfBirth = dateOfBirth,
+                            selectedInterests = mutableListOf(),
+                            photoUrl = photoUrl
+                        )
                         loadingState.value = false // Set loading state to false
+                        registrationFinished.value = true
                         // Handle successful registration
                         // Navigate to the appropriate screen
                     }

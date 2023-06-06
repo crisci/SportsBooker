@@ -1,6 +1,7 @@
 package com.example.lab2.login
 
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,8 +19,10 @@ import com.example.lab2.view_models.SignupVM
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -37,7 +40,6 @@ class FragmentCompleteRegistrationGoogle : Fragment(R.layout.fragment_complete_r
     private lateinit var signupVM: SignupVM
     private lateinit var binding: FragmentCompleteRegistrationGoogleBinding
     private lateinit var navController: NavController
-    private lateinit var partialRegistration: PartialRegistration
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,10 +51,23 @@ class FragmentCompleteRegistrationGoogle : Fragment(R.layout.fragment_complete_r
         navController = findNavController()
         signupVM = ViewModelProvider(requireActivity())[SignupVM::class.java]
 
-        partialRegistration = PartialRegistration.fromJson(arguments?.getString("partialRegistrationJson")!!)
 
         val view = inflater.inflate(R.layout.fragment_complete_registration_google, container, false)
         binding = FragmentCompleteRegistrationGoogleBinding.bind(view)
+
+        signupVM.loadingState.observe(viewLifecycleOwner) {
+            if (it) {
+                binding.loading.visibility = View.VISIBLE
+            } else {
+                binding.loading.visibility = View.GONE
+            }
+        }
+
+        signupVM.registrationFinished.observe(viewLifecycleOwner) {
+            if (it) {
+                navController.navigate(R.id.action_complete_registration_google_to_select_interests)
+            }
+        }
 
         binding.dateOfBirthEditText.setOnClickListener {
 
@@ -80,6 +95,7 @@ class FragmentCompleteRegistrationGoogle : Fragment(R.layout.fragment_complete_r
         }
 
         val leftGuideline = requireActivity().findViewById<Guideline>(R.id.guideline4)
+        val rightGuideLine = requireActivity().findViewById<Guideline>(R.id.guideline5)
         val selectedTab = requireActivity().findViewById<View>(R.id.selected_view)
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
@@ -92,7 +108,22 @@ class FragmentCompleteRegistrationGoogle : Fragment(R.layout.fragment_complete_r
                 || navController.currentDestination?.id == R.id.select_interests) {
                 navController.navigate(R.id.action_to_login)
             }
-
+        }
+        val loginTab = requireActivity().findViewById<View>(R.id.login_text_view)
+        val signupTab = requireActivity().findViewById<View>(R.id.signup_text_view)
+        loginTab.setOnClickListener {
+            selectedTab.animate()
+                .x(leftGuideline.x)
+                .setDuration(500)
+                .start()
+            navController.navigate(R.id.action_to_login)
+        }
+        signupTab.setOnClickListener {
+            selectedTab.animate()
+                .x(rightGuideLine.x)
+                .setDuration(500)
+                .start()
+            navController.navigate(R.id.action_to_signup)
         }
 
         binding.signup.setOnClickListener {
@@ -136,28 +167,22 @@ class FragmentCompleteRegistrationGoogle : Fragment(R.layout.fragment_complete_r
 
     private fun processSignup(username: String, dateOfBirth: String, location: String ) {
 
-        val uid = partialRegistration.userId
-        val name = partialRegistration.name
-        val surname = partialRegistration.surname
-        val email = partialRegistration.email
-        val photoUrl = partialRegistration.photoUrl
+        val name = arguments?.getString("name")
+        val surname = arguments?.getString("surname")
+        val email = arguments?.getString("email")
+        val photoUrl = arguments?.getString("photoUrl")
+        val idToken = arguments?.getString("idToken")
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
 
-        signupVM.createPlayer(
-            userId = uid,
-            name = name,
-            surname = surname,
+        signupVM.loginWithGoogle(
+            name = name!!,
+            surname = surname!!,
+            credential = credential,
+            email = email!!,
+            photoUrl = photoUrl!!,
             username = username,
-            email = email,
             dateOfBirth = dateOfBirth,
-            location = location,
-            selectedInterests = mutableListOf(),
-            photoUrl = photoUrl
-        )
-        val bundle = Bundle()
-        bundle.putString("uid", uid)
-        navController.navigate(
-            R.id.action_complete_registration_google_to_select_interests,
-            bundle
+            location = location
         )
     }
 }

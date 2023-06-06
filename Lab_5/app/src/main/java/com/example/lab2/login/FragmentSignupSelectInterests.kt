@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.addCallback
+import androidx.constraintlayout.widget.Guideline
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
@@ -55,6 +57,38 @@ class FragmentSignupSelectInterests : Fragment(R.layout.fragment_signup_select_i
         val view = inflater.inflate(R.layout.fragment_signup_select_interests, container, false)
         binding = FragmentSignupSelectInterestsBinding.bind(view)
 
+        val leftGuideline = requireActivity().findViewById<Guideline>(R.id.guideline4)
+        val rightGuideLine = requireActivity().findViewById<Guideline>(R.id.guideline5)
+        val selectedTab = requireActivity().findViewById<View>(R.id.selected_view)
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            selectedTab.animate()
+                .x(leftGuideline.x)
+                .setDuration(500)
+                .start()
+            if (navController.currentDestination?.id == R.id.signup
+                || navController.currentDestination?.id == R.id.complete_registration_google
+                || navController.currentDestination?.id == R.id.select_interests) {
+                navController.navigate(R.id.action_to_login)
+            }
+        }
+        val loginTab = requireActivity().findViewById<View>(R.id.login_text_view)
+        val signupTab = requireActivity().findViewById<View>(R.id.signup_text_view)
+        loginTab.setOnClickListener {
+            selectedTab.animate()
+                .x(leftGuideline.x)
+                .setDuration(500)
+                .start()
+            navController.navigate(R.id.action_to_login)
+        }
+        signupTab.setOnClickListener {
+            selectedTab.animate()
+                .x(rightGuideLine.x)
+                .setDuration(500)
+                .start()
+            navController.navigate(R.id.action_to_signup)
+        }
+
         for (s in Sport.values()) {
             val formattedSport = s.toString().lowercase().replaceFirstChar { it.uppercase() }
             val chip = Chip(requireContext())
@@ -102,10 +136,9 @@ class FragmentSignupSelectInterests : Fragment(R.layout.fragment_signup_select_i
                 ).show()
                 return@setOnClickListener
             }
-            val uid = arguments?.getString("uid") ?: return@setOnClickListener
             try {
                 signupVM.updatePlayer(
-                    uid,
+                    firebaseAuth.currentUser!!.uid,
                     selectedInterests.map { Sport.valueOf(it.uppercase()) }.toMutableList()
                 )
             } catch (e: Exception) {

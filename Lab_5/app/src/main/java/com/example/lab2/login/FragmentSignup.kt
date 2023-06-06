@@ -77,6 +77,7 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
 
         val leftGuideline = requireActivity().findViewById<Guideline>(R.id.guideline4)
         val selectedTab = requireActivity().findViewById<View>(R.id.selected_view)
+        val rightGuideLine = requireActivity().findViewById<Guideline>(R.id.guideline5)
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             selectedTab.animate()
@@ -88,7 +89,22 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
                 || navController.currentDestination?.id == R.id.select_interests) {
                 navController.navigate(R.id.action_to_login)
             }
-
+        }
+        val loginTab = requireActivity().findViewById<View>(R.id.login_text_view)
+        val signupTab = requireActivity().findViewById<View>(R.id.signup_text_view)
+        loginTab.setOnClickListener {
+            selectedTab.animate()
+                .x(leftGuideline.x)
+                .setDuration(500)
+                .start()
+            navController.navigate(R.id.action_to_login)
+        }
+        signupTab.setOnClickListener {
+            selectedTab.animate()
+                .x(rightGuideLine.x)
+                .setDuration(500)
+                .start()
+            navController.navigate(R.id.action_to_signup)
         }
 
         binding.signup.setOnClickListener {

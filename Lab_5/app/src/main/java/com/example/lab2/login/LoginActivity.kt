@@ -60,7 +60,7 @@ class LoginActivity : AppCompatActivity() {
             if (navController.currentDestination?.id == R.id.login
                 || navController.currentDestination?.id == R.id.complete_registration_google
                 || navController.currentDestination?.id == R.id.select_interests) {
-                navController.navigate(R.id.action_login_to_signup)
+                navController.navigate(R.id.action_to_signup)
             }
         }
         loginTab.setOnClickListener {

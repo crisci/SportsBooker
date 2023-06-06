@@ -16,6 +16,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.example.lab2.R
 import com.example.lab2.databinding.FragmentLoginBinding
+import com.example.lab2.entities.PartialRegistration
 import com.example.lab2.reservation.my_reservations.MyReservationsActivity
 import com.example.lab2.view_models.MainVM
 import com.example.lab2.view_models.SignupVM
@@ -26,15 +27,18 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import javax.inject.Inject
 import kotlin.math.sign
 
@@ -84,13 +88,6 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
             }
         }
 
-        signupVM.userMustCompleteRegistration.observe(viewLifecycleOwner) { partialRegistrationJson ->
-            Log.d("partialRegistrationJson", partialRegistrationJson)
-            val bundle = Bundle()
-            bundle.putString("partialRegistrationJson", partialRegistrationJson)
-            navController.navigate(R.id.action_login_to_complete_registration_google, bundle)
-        }
-
         signupVM.error.observe(viewLifecycleOwner) { error ->
             Toast.makeText(requireActivity(), error, Toast.LENGTH_SHORT).show()
         }
@@ -128,16 +125,14 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
             }
         }
 
-        if(firebaseAuth.currentUser == null) {
-            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .requestProfile()
-                .build()
-            googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
-            binding.googleCardView?.setOnClickListener {
-                googleSignIn()
-            }
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .requestProfile()
+            .build()
+        googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
+        binding.googleCardView?.setOnClickListener {
+            googleSignIn()
         }
 
         return view
@@ -165,18 +160,19 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
             var surname = account.familyName
             if (surname == null) surname = ""
             val email = account.email
-            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
             var photoUrl = account.photoUrl.toString().replace("s96-c", "s400-c")
             Log.d("photoUrl", photoUrl)
             if (photoUrl.isEmpty())
                 photoUrl = "https://firebasestorage.googleapis.com/v0/b/sportsbooker-mad.appspot.com/o/images%2Fprofile_picture.jpeg?alt=media&token=e5441836-e955-4a13-966b-202f0f3cd210&_gl=1*6spico*_ga*MTk2NjY0NzgxMS4xNjgzMTkzMzEy*_ga_CW55HF8NVT*MTY4NTYyMTM1MS4xNy4xLjE2ODU2MjUzMTcuMC4wLjA."
-            signupVM.loginWithGoogle(
-                name = name!!,
-                surname = surname,
-                credential = credential,
-                email = email!!,
-                photoUrl = photoUrl
-            )
+
+
+            val bundle = Bundle()
+            bundle.putString("name", name)
+            bundle.putString("surname", surname)
+            bundle.putString("email", email)
+            bundle.putString("photoUrl", photoUrl)
+            bundle.putString("idToken", account.idToken)
+            navController.navigate(R.id.action_login_to_complete_registration_google, bundle)
         }
         else {
             Toast.makeText(requireActivity(), task.exception.toString(), Toast.LENGTH_SHORT).show()
@@ -223,5 +219,4 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
             startActivity(intent)
         }
     }
-
 }
