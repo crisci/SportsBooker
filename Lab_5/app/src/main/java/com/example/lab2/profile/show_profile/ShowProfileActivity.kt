@@ -41,7 +41,7 @@ class ShowProfileActivity : AppCompatActivity() {
     private lateinit var age: TextView
     private lateinit var profileImage: ImageView
     private lateinit var interestsLayout: LinearLayout
-    private lateinit var badgesLayout: LinearLayout
+    private lateinit var badgesLayout: RelativeLayout
     private lateinit var statisticsLayout: LinearLayout
     private lateinit var backButton: ImageButton
     private lateinit var profileContainer: ScrollView
@@ -143,14 +143,8 @@ class ShowProfileActivity : AppCompatActivity() {
             Picasso.get().load(profileImageUrl).into(profileImage)
         }
 
-        badgesLayout.removeAllViews()
         interestsLayout.removeAllViews()
         statisticsLayout.removeAllViews()
-
-        // Show only 3 small badges, that's why "drop 2"
-        val badges = vm.user.value?.badges?.toList()?.dropLast(2)?.toMap()
-            ?.map { BadgeView(this, badge = it) }
-        badges?.forEach { badgesLayout.addView(it) }
 
         val interests =
             vm.user.value?.interests?.sortedBy { it.name }?.map { InterestView(this, sport = it) }
