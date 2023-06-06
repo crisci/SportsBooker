@@ -83,17 +83,15 @@ class ConfirmReservationVM @Inject constructor() : ViewModel() {
 
     }
     private suspend fun addMatch(playerRef: DocumentReference ,newMatch: MatchWithCourtAndEquipments) {
+        val matchRef = db.collection("matches").document(newMatch.match.matchId)
+        matchRef.update("listOfPlayers", FieldValue.arrayUnion(playerRef)).await()
+        matchRef.update("numOfPlayers", FieldValue.increment(1)).await()
         db.collection("reservations").add(
             MatchWithCourtAndEquipmentsToFirebase(
                 auth.currentUser!!.uid,
                 newMatch
             )
-        ).addOnSuccessListener {
-            val matchRef = db.collection("matches").document(newMatch.match.matchId)
-            matchRef.update("listOfPlayers", FieldValue.arrayUnion(playerRef))
-            matchRef.update("numOfPlayers", FieldValue.increment(1))
-        }.addOnFailureListener {
-            throw Exception("Couldn't add Reservation")
-        }
+        ).await()
+
     }
 }
