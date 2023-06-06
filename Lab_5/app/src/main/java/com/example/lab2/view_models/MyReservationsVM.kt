@@ -1,6 +1,7 @@
 package com.example.lab2.view_models
 
 
+import android.util.Log
 import com.example.lab2.entities.Result
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -69,28 +70,26 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
 
     fun startListener() {
         stopListener()
-        stopMatchListener()
         _listener = FirebaseFirestore.getInstance().collection("reservations")
             .whereEqualTo("player", db.document("players/${auth.currentUser!!.uid}"))
             .addSnapshotListener { documents, error ->
                 CoroutineScope(Dispatchers.IO).launch {
+                    Log.d("MyReservationsVM", "startListener: ${documents?.documents?.size}")
                     val list = processDocuments(documents)
-                    startMatchListener(list)
+                    startMatchListener()
+                    _myReservations.postValue(list)
                 }
             }
     }
 
-    fun startMatchListener(list: List<MatchWithCourtAndEquipments>) {
+    fun startMatchListener() {
+        stopMatchListener()
+        val matchIds = _myReservations.value?.map { it.match.matchId }
+        if(matchIds.isNullOrEmpty()) return
         _matchListener = FirebaseFirestore.getInstance().collection("matches")
+            .whereIn(FieldPath.documentId(), matchIds ?: listOf())
             .addSnapshotListener { documents, error ->
-                val list = list.map { oldMatch ->
-                    val match = documents?.documents?.find { it.id == oldMatch.match.matchId }
-                    if(match != null){
-                        oldMatch.match = firebaseToMatch(match)
-                    }
-                    oldMatch
-                }
-                _myReservations.postValue(list.sortedBy { LocalDateTime.of(it.match.date, it.match.time) })
+                startListener()
             }
     }
 
