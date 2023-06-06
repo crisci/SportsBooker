@@ -72,26 +72,26 @@
                     android:inputType="textPassword" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <Button
-                android:id="@+id/login"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginTop="50dp"
-                android:background="@drawable/rectangle_radius"
-                android:backgroundTint="@color/example_1_bg"
-                android:fontFamily="@font/montserrat_semibold"
-                android:paddingHorizontal="80dp"
-                android:text="@string/login"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@id/access_with_external_service"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/password"
-                app:layout_constraintVertical_bias="0.2" />
+        <Button
+            android:id="@+id/login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginTop="50dp"
+            android:background="@drawable/rectangle_radius"
+            android:backgroundTint="@color/example_1_bg"
+            android:fontFamily="@font/montserrat_semibold"
+            android:paddingHorizontal="80dp"
+            android:text="@string/login"
+            android:textAllCaps="false"
+            android:textColor="@color/permanent_white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/access_with_external_service"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/password"
+            app:layout_constraintVertical_bias="0.2" />
 
 
         <LinearLayout

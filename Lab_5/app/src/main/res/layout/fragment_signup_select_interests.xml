@@ -27,12 +27,11 @@
             android:id="@+id/select_interests"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="15dp"
             android:layout_marginHorizontal="32dp"
+            android:layout_marginTop="10dp"
             android:fontFamily="@font/montserrat_extrabold"
             android:text="@string/select_interests"
-            android:textColor="@color/timeslot"
+            android:textColor="@color/grey"
             android:textSize="15sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/finish_registration" />
@@ -52,20 +51,20 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:layout_marginHorizontal="15dp"
+            android:layout_marginTop="40dp"
             android:background="@drawable/rectangle_radius"
             android:backgroundTint="@color/example_1_bg"
             android:fontFamily="@font/montserrat_semibold"
             android:paddingHorizontal="50dp"
-            android:layout_marginTop="40dp"
             android:text="@string/finish"
             android:textAllCaps="false"
-            android:textColor="@color/white"
+            android:textColor="@color/permanent_white"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/chip_group_select_interests"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/chip_group_select_interests" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

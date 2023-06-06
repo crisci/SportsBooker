@@ -11,9 +11,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/welcome_to_the_app"
-        android:textColor="@color/white"
         android:fontFamily="@font/montserrat_extrabold"
+        android:text="@string/welcome_to_the_app"
+        android:textColor="@color/permanent_white"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintEnd_toEndOf="parent"
