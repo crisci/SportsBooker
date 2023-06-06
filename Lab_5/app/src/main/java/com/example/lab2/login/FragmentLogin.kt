@@ -104,6 +104,7 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
         firebaseAuth.addAuthStateListener(authStateListener)
 
         view.findViewById<View>(R.id.login).setOnClickListener {
+            signupVM.loadingState.value = true
             val email = binding.emailEditText.text.toString()
             val password = binding.passwordEditText.text.toString()
 
