@@ -35,6 +35,8 @@ class SignupVM @Inject constructor() : ViewModel() {
     var loadingState: MutableLiveData<Boolean> = MutableLiveData(false)
 
     var registrationFinished: MutableLiveData<Boolean> = MutableLiveData(false)
+    var userExists: MutableLiveData<Boolean> = MutableLiveData()
+
 
     fun createPlayer(
         userId: String,
@@ -157,6 +159,25 @@ class SignupVM @Inject constructor() : ViewModel() {
                  error.value = result.throwable?.message
             }
 
+        }
+    }
+
+    fun checkIfPlayerExists(email: String, credential: AuthCredential) {
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO){
+                val querySnapshot = db.collection("players")
+                                .whereEqualTo("email", email)
+                                .get()
+                                .await()
+                if(querySnapshot.documents.isNotEmpty())
+                    // Player exists
+                    Result(true, null)
+                else
+                    // Player doesn't exist
+                    Result(false, null)
+            }
+
+            userExists.value = result.value!!
         }
     }
 }

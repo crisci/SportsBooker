@@ -17,6 +17,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.lab2.R
 import com.example.lab2.databinding.FragmentLoginBinding
 import com.example.lab2.entities.PartialRegistration
+import com.example.lab2.launcher.LauncherActivity
 import com.example.lab2.reservation.my_reservations.MyReservationsActivity
 import com.example.lab2.view_models.MainVM
 import com.example.lab2.view_models.SignupVM
@@ -161,18 +162,39 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
             if (surname == null) surname = ""
             val email = account.email
             var photoUrl = account.photoUrl.toString().replace("s96-c", "s400-c")
+            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
             Log.d("photoUrl", photoUrl)
             if (photoUrl.isEmpty())
                 photoUrl = "https://firebasestorage.googleapis.com/v0/b/sportsbooker-mad.appspot.com/o/images%2Fprofile_picture.jpeg?alt=media&token=e5441836-e955-4a13-966b-202f0f3cd210&_gl=1*6spico*_ga*MTk2NjY0NzgxMS4xNjgzMTkzMzEy*_ga_CW55HF8NVT*MTY4NTYyMTM1MS4xNy4xLjE2ODU2MjUzMTcuMC4wLjA."
 
+            signupVM.checkIfPlayerExists(email!!, credential)
 
-            val bundle = Bundle()
-            bundle.putString("name", name)
-            bundle.putString("surname", surname)
-            bundle.putString("email", email)
-            bundle.putString("photoUrl", photoUrl)
-            bundle.putString("idToken", account.idToken)
-            navController.navigate(R.id.action_login_to_complete_registration_google, bundle)
+            signupVM.userExists.observe(viewLifecycleOwner) {
+                if(!it){
+                    val bundle = Bundle()
+                    bundle.putString("name", name)
+                    bundle.putString("surname", surname)
+                    bundle.putString("email", email)
+                    bundle.putString("photoUrl", photoUrl)
+                    bundle.putString("idToken", account.idToken)
+                    navController.navigate(R.id.action_login_to_complete_registration_google, bundle)
+                }
+                else {
+                    firebaseAuth.signInWithCredential(credential)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                Toast.makeText(
+                                    requireActivity(),
+                                    "Logged in successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                showValidationError(task.exception)
+                            }
+                        }
+                }
+
+            }
         }
         else {
             Toast.makeText(requireActivity(), task.exception.toString(), Toast.LENGTH_SHORT).show()
