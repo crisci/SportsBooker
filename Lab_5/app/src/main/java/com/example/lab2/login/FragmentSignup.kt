@@ -47,6 +47,14 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
         navController = findNavController()
         signupVM = ViewModelProvider(requireActivity())[SignupVM::class.java]
 
+        signupVM.loadingState.observe(viewLifecycleOwner) {
+            if (it) {
+                binding.loading.visibility = View.VISIBLE
+            } else {
+                binding.loading.visibility = View.GONE
+            }
+        }
+
         val view = inflater.inflate(R.layout.fragment_signup, container, false)
         binding = FragmentSignupBinding.bind(view)
 
@@ -198,7 +206,7 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
     }
 
     private fun processSignup(name: String, surname: String, email: String, password: String, username: String, dateOfBirth: String, location: String ) {
-
+        signupVM.loadingState.value = true
         val defaultPhoto = "https://firebasestorage.googleapis.com/v0/b/sportsbooker-mad.appspot.com/o/images%2Fprofile_picture.jpeg?alt=media&token=e5441836-e955-4a13-966b-202f0f3cd210"
 
         firebaseAuth.createUserWithEmailAndPassword(email, password)
@@ -217,6 +225,7 @@ class FragmentSignup : Fragment(R.layout.fragment_signup) {
                     )
                     val bundle = Bundle()
                     bundle.putString("uid", task.result.user?.uid)
+                    signupVM.loadingState.value = false
                     navController.navigate(
                         R.id.action_signup_to_select_interests,
                         bundle
