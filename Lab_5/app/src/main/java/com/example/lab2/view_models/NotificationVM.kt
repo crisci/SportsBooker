@@ -257,16 +257,16 @@ class NotificationVM @Inject constructor() : ViewModel() {
                 }
 
             val startOfPreviousWeek = LocalDate.now().minusWeeks(1).with(DayOfWeek.MONDAY).atStartOfDay()
-            val twoHoursAgo = LocalDateTime.now().minusHours(2)
+            val yesterday = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT)
             val startOfPreviousWeekTimestamp = Timestamp(startOfPreviousWeek.toEpochSecond(ZoneOffset.UTC), 0)
-            val twoHoursAgoTimestamp = Timestamp(twoHoursAgo.toEpochSecond(ZoneOffset.UTC), 0)
+            val yesterdayTimestamp = Timestamp(yesterday.toEpochSecond(ZoneOffset.UTC), 0)
 
             listenerRev = db.collection("matches")
                 .whereArrayContains(
                     "listOfPlayers",
                     db.document("players/${auth.currentUser!!.uid}")
                 )
-                .whereLessThan("timestamp", twoHoursAgoTimestamp)
+                .whereLessThan("timestamp", yesterdayTimestamp)
                 .whereGreaterThan("timestamp", startOfPreviousWeekTimestamp)
                 .addSnapshotListener { snapshotMatch, _ ->
                     val listMatchReferences = snapshotMatch!!.documents.map { it.reference }
@@ -286,7 +286,9 @@ class NotificationVM @Inject constructor() : ViewModel() {
                                     .get()
                                     .addOnSuccessListener { notRatedMatchesSnapshot ->
                                         CoroutineScope(Dispatchers.IO).launch {
-                                            val reviewsNumber = notRatedMatchesSnapshot.documents.size
+                                            val reviewsNumber = notRatedMatchesSnapshot.documents.filter {
+                                                firebaseToMatch(it).date.isBefore(LocalDate.now())
+                                            }.size
                                             Log.i("reviewsNumber", reviewsNumber.toString())
                                             numberReviews.postValue(reviewsNumber)
                                         }
