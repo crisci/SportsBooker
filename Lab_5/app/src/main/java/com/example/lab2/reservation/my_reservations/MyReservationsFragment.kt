@@ -120,6 +120,7 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
         }
 
         vm.getMyReservations().observe(viewLifecycleOwner) {
+            vm.startMatchListener()
             loading.visibility = View.GONE
             calendarVM.selectedTime.value = if(LocalDate.now() == calendarVM.getSelectedDate().value) LocalTime.now() else LocalTime.of(8, 0)
         }
@@ -196,5 +197,6 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
     override fun onDestroy() {
         super.onDestroy()
         vm.stopListener()
+        vm.stopMatchListener()
     }
 }

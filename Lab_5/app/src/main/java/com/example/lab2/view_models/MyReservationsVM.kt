@@ -13,6 +13,7 @@ import com.example.lab2.entities.MatchWithCourtAndEquipments
 import com.example.lab2.entities.firebaseToMatchWithCourtAndEquipments
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
@@ -55,6 +56,7 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
     val res: LiveData<List<MatchWithCourtAndEquipments>> = _myReservations
 
     private var _listener: ListenerRegistration? = null
+    private var _matchListener: ListenerRegistration? = null
 
     // UI states
     var error: MutableLiveData<String?> = MutableLiveData()
@@ -65,7 +67,7 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
     }
 
     fun startListener() {
-        _listener?.remove()
+        stopListener()
         _listener = FirebaseFirestore.getInstance().collection("reservations")
             .whereEqualTo("player", db.document("players/${auth.currentUser!!.uid}"))
             .addSnapshotListener { documents, error ->
@@ -76,8 +78,22 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
             }
     }
 
+    fun startMatchListener() {
+        stopMatchListener()
+        val matchIds = _myReservations.value?.map { it.match.matchId }
+        _matchListener = FirebaseFirestore.getInstance().collection("matches")
+            .whereIn(FieldPath.documentId(), matchIds!!)
+            .addSnapshotListener { documents, error ->
+                startListener()
+            }
+    }
+
     fun stopListener() {
         _listener?.remove()
+    }
+
+    fun stopMatchListener() {
+        _matchListener?.remove()
     }
 
     fun getMyReservations(): LiveData<List<MatchWithCourtAndEquipments>> {
