@@ -121,6 +121,8 @@ class EditProfileActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
                 valid = false
+            } else {
+                valid = true
             }
 
             if (valid) saveData()
