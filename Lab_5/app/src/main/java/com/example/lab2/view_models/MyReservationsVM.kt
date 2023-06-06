@@ -76,7 +76,6 @@ class MyReservationsVM @Inject constructor() : ViewModel() {
                 CoroutineScope(Dispatchers.IO).launch {
                     Log.d("MyReservationsVM", "startListener: ${documents?.documents?.size}")
                     val list = processDocuments(documents)
-                    startMatchListener()
                     _myReservations.postValue(list)
                 }
             }

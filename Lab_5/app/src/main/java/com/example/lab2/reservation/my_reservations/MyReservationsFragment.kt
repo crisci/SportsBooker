@@ -194,8 +194,13 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
         launcher.launch(intentEditReservation)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onResume() {
+        super.onResume()
+        vm.startMatchListener()
+    }
+
+    override fun onPause() {
+        super.onPause()
         vm.stopListener()
         vm.stopMatchListener()
     }
