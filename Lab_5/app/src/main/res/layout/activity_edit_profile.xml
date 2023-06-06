@@ -299,10 +299,9 @@
                         android:layout_marginBottom="60dp"
                         android:background="@drawable/rectangle_radius"
                         android:text="@string/confirmEdit"
-                        android:textAllCaps="false"
+                        android:textSize="14sp"
                         android:textColor="@color/permanent_white"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                         />
 
 
                 </LinearLayout>

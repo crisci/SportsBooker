@@ -28,7 +28,11 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toTopOf="@+id/calendar_container"
                 app:layout_constraintStart_toStartOf="@id/guideline2"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                app:boxCornerRadiusBottomEnd="40dp"
+                app:boxCornerRadiusBottomStart="40dp"
+                app:boxCornerRadiusTopEnd="40dp"
+                app:boxCornerRadiusTopStart="40dp">
 
                 <AutoCompleteTextView
                     android:id="@+id/autoCompleteTextView"
@@ -97,7 +101,11 @@
                 app:helperTextTextColor="@color/grey"
                 app:layout_constraintBottom_toTopOf="@+id/confirm_button_confirm_reservation"
                 app:layout_constraintStart_toStartOf="@id/guideline2"
-                app:layout_constraintTop_toBottomOf="@+id/calendar_container">
+                app:layout_constraintTop_toBottomOf="@+id/calendar_container"
+                app:boxCornerRadiusBottomEnd="40dp"
+                app:boxCornerRadiusBottomStart="40dp"
+                app:boxCornerRadiusTopEnd="40dp"
+                app:boxCornerRadiusTopStart="40dp">
 
                 <AutoCompleteTextView
                     android:id="@+id/autoCompleteTextView2"
