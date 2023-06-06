@@ -110,7 +110,7 @@
                 android:includeFontPadding="false"
                 android:paddingHorizontal="3dp"
                 android:text="0"
-                android:textColor="@color/white"
+                android:textColor="@color/permanent_white"
                 android:textSize="10sp" />
 
         </FrameLayout>
