@@ -51,6 +51,8 @@ class NotificationVM @Inject constructor() : ViewModel() {
 
 
     init {
+
+
         viewModelScope.launch {
             loadingState.value = true
             val results = withContext(Dispatchers.IO){
@@ -119,19 +121,23 @@ class NotificationVM @Inject constructor() : ViewModel() {
 
         for(notification in documents.documents) {
             val match = notification.getDocumentReference("match")?.get()?.await()
+            val m = firebaseToMatch(match!!)
             val court = match!!.getDocumentReference("court")?.get()?.await()
             val sender = notification.getDocumentReference("sentBy")?.get()?.await()
             val timestamp = notification.getTimestamp("timestamp")
 
-            invitations.add(
-                Invitation(
-                    id = notification.id,
-                    sender = User.fromFirebase(sender!!),
-                    match = firebaseToMatch(match),
-                    court = firebaseToCourt(court!!),
-                    timestamp = timestamp!!
+            if((m.date.isEqual(LocalDate.now()) && m.time.isAfter(LocalTime.now())) || m.date.isAfter(LocalDate.now())){
+                invitations.add(
+                    Invitation(
+                        id = notification.id,
+                        sender = User.fromFirebase(sender!!),
+                        match = firebaseToMatch(match),
+                        court = firebaseToCourt(court!!),
+                        timestamp = timestamp!!
+                    )
                 )
-            )
+            }
+
         }
 
         return invitations
@@ -240,7 +246,10 @@ class NotificationVM @Inject constructor() : ViewModel() {
                     }
                     if (querySnapshot != null) {
                         CoroutineScope(Dispatchers.IO).launch {
-                            val numInvitations = querySnapshot.documents.size
+                            val numInvitations = querySnapshot.documents.filter {
+                                val m = firebaseToMatch(it.getDocumentReference("match")?.get()?.await()!!)
+                                (m.date.isEqual(LocalDate.now()) && m.time.isAfter(LocalTime.now())) || m.date.isAfter(LocalDate.now())
+                            }.size
                             Log.i("invitationsNumber", numInvitations.toString())
                             numberInvitations.postValue(numInvitations)
                         }
