@@ -101,7 +101,6 @@ class EditProfileActivity : AppCompatActivity() {
         confirmButton.setOnClickListener {
             if (full_name_m.text.toString().trim() == "" ||
                 nickname_m.text.toString().trim() == "" ||
-                description_m.text.toString().trim() == "" ||
                 address_m.text.toString().trim() == "" ||
                 //email_m.text.toString().trim() == "" ||
                 birthday_m.text.toString().trim() == ""
