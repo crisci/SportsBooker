@@ -83,5 +83,6 @@
     <string name="second_fragment_label">Second Fragment</string>
     <string name="invite">Invite</string>
     <string name="invited">Invited</string>
+    <string name="description_rating">Please leave or update your feedback about this court in order to help us enhance the game and make it even more enjoyable for everyone. Your rating and review will remain anonymous and will not be associated with your personal information.</string>
 
 </resources>
