@@ -140,15 +140,18 @@
                                 app:layout_constraintHorizontal_bias="0.5"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
+                                app:tint="@color/black"
                                 app:srcCompat="@drawable/baseline_calendar_month_24_black" />
 
                             <TextView
                                 android:id="@+id/date_confirm_reservation"
                                 android:layout_width="61dp"
                                 android:layout_height="19dp"
+                                android:textColor="@color/grey"
                                 android:fontFamily="@font/montserrat_bold"
                                 android:text="TextView"
                                 android:textAlignment="center"
+
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintHorizontal_bias="0.5"
@@ -185,6 +188,7 @@
                                 app:layout_constraintHorizontal_bias="0.0"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
+                                app:tint="@color/black"
                                 app:srcCompat="@drawable/baseline_access_time_24" />
 
                             <TextView
@@ -193,6 +197,7 @@
                                 android:layout_height="19dp"
                                 android:fontFamily="@font/montserrat_bold"
                                 android:text="TextView"
+                                android:textColor="@color/grey"
                                 android:textAlignment="center"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
@@ -249,6 +254,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:backgroundTint="@color/example_1_bg"
+                    android:textColor="@color/permanent_white"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"

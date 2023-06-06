@@ -94,6 +94,7 @@
                         android:background="@drawable/calendar_button"
                         android:padding="6dp"
                         android:src="@drawable/baseline_calendar_month_24"
+                        app:tint="@color/white"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_scrollFlags="scroll|enterAlways" />

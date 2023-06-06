@@ -1,6 +1,7 @@
 package com.example.lab2.ranking
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -17,6 +18,7 @@ import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
@@ -77,7 +79,7 @@ class RankingActivity : AppCompatActivity() {
 
         val recyclerViewPlayers = findViewById<RecyclerView>(R.id.recyclerViewRanking)
         recyclerViewPlayers.layoutManager = LinearLayoutManager(this)
-        val adapterCard = AdapterPlayersRankList(emptyList())
+        val adapterCard = AdapterPlayersRankList(emptyList(), this)
         recyclerViewPlayers.adapter = adapterCard
 
         vm.ranking.observe(this) {
@@ -133,7 +135,7 @@ class PlayerRankViewHolder(v: View) : RecyclerView.ViewHolder(v) {
     val points: TextView = v.findViewById(R.id.points)
 }
 
-class AdapterPlayersRankList(private var list: List<Pair<User, Long>>) :
+class AdapterPlayersRankList(private var list: List<Pair<User, Long>>, private var context: Context) :
     RecyclerView.Adapter<PlayerRankViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayerRankViewHolder {
@@ -149,13 +151,13 @@ class AdapterPlayersRankList(private var list: List<Pair<User, Long>>) :
         val score = list[position].second
 
         if (holder.bindingAdapterPosition == 0) {
-            holder.card.setCardBackgroundColor(Color.parseColor("#FFD700"))
+            holder.card.setCardBackgroundColor(ContextCompat.getColorStateList(this.context, R.color.gold))
         } else if (holder.bindingAdapterPosition == 1) {
-            holder.card.setCardBackgroundColor(Color.parseColor("#BEC2CB"))
+            holder.card.setCardBackgroundColor(ContextCompat.getColorStateList(this.context, R.color.silver))
         } else if (holder.bindingAdapterPosition == 2) {
-            holder.card.setCardBackgroundColor(Color.parseColor("#CD7F32"))
+            holder.card.setCardBackgroundColor(ContextCompat.getColorStateList(this.context, R.color.bronze))
         } else {
-            holder.card.setCardBackgroundColor(Color.parseColor("#FFFFFF"))
+            holder.card.setCardBackgroundColor(ContextCompat.getColorStateList(this.context, R.color.white))
         }
 
         holder.fullName.text = user.full_name

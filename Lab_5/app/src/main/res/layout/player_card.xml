@@ -87,14 +87,14 @@
                 android:id="@+id/invite_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 android:background="@drawable/rounded_corners_40"
                 android:text="@string/invite"
                 android:textAllCaps="false"
+                android:textColor="@color/permanent_white"
                 android:textSize="16sp"
-                />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
 
 

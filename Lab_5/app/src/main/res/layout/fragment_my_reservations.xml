@@ -20,6 +20,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:elevation="20dp"
+                android:backgroundTint="@color/white"
                 app:layout_constraintTop_toTopOf="parent"
                 app:cardCornerRadius="30dp"
                 app:cardElevation="8dp">

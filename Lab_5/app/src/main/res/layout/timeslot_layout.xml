@@ -22,6 +22,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="10dp"
         android:textAlignment="center"
+        android:textColor="@color/grey"
         android:textAppearance="@style/TimeslotTextAppearance"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

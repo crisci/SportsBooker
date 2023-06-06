@@ -78,12 +78,13 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/montserrat_bold"
                 android:includeFontPadding="false"
-                android:text="mario.testa"
                 android:paddingLeft="10dp"
+                android:text="mario.testa"
+                android:textColor="@color/grey"
                 android:textSize="12dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/shimmer_layout"
-                app:layout_constraintTop_toBottomOf="@+id/sender_name"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintTop_toBottomOf="@+id/sender_name" />
 
             <LinearLayout
                 android:id="@+id/mvp_statistic"
