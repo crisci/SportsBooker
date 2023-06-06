@@ -133,6 +133,7 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
             .build()
         googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
         binding.googleCardView?.setOnClickListener {
+            signupVM.loadingState.value = true
             googleSignIn()
         }
 
@@ -169,6 +170,7 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
 
             signupVM.checkIfPlayerExists(email!!, credential)
 
+
             signupVM.userExists.observe(viewLifecycleOwner) {
                 if(!it){
                     val bundle = Bundle()
@@ -177,6 +179,7 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
                     bundle.putString("email", email)
                     bundle.putString("photoUrl", photoUrl)
                     bundle.putString("idToken", account.idToken)
+                    signupVM.loadingState.value = false // Set loading state to false
                     navController.navigate(R.id.action_login_to_complete_registration_google, bundle)
                 }
                 else {
@@ -238,7 +241,9 @@ class FragmentLogin : Fragment(R.layout.fragment_login) {
             // Once the user data is received, navigate to HomeActivity
             val intent = Intent(requireActivity(), MyReservationsActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            signupVM.loadingState.value = false // Set loading state to false
             startActivity(intent)
+
         }
     }
 }
