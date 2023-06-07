@@ -122,7 +122,7 @@ class MyReservationsFragment : Fragment(R.layout.fragment_my_reservations),
         vm.getMyReservations().observe(viewLifecycleOwner) {
             vm.startMatchListener()
             loading.visibility = View.GONE
-            calendarVM.selectedTime.value = if(LocalDate.now() == calendarVM.getSelectedDate().value) LocalTime.now() else LocalTime.of(8, 0)
+            //calendarVM.selectedTime.value = if(LocalDate.now() == calendarVM.getSelectedDate().value) LocalTime.now() else LocalTime.of(8, 0)
         }
 
         calendarVM.getSelectedDate().observe(requireActivity()) {
